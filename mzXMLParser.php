@@ -51,9 +51,9 @@ class mzXML {
             }
 
             $scan = [
-                "scan" => $scan, 
+                "scan"        => $scan, 
                 "precursorMz" => $precursorMz, 
-                "peaks" => $peakData
+                "peaks"       => $peakData
             ];
 
             if ($scan["msLevel"] == "1") {
