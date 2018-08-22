@@ -12,9 +12,16 @@ Imports("php.Xml");
 class mzXML {
 
     /**
+     * 一级碎片数据
+     * 
      * @var array
     */
     var $ms1Scans;
+    /**
+     * 二级碎片数据
+     * 
+     * @var array
+    */
     var $ms2Scans;
 
     public function __construct($path) {

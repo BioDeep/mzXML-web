@@ -3,7 +3,11 @@
 include "./mzXMLParser.php";
 
 $file  = "../lxy-CID30.mzXML";
-# $mzXML = new mzXML($file);
+
+
+#region "raw test"
+
+/*
 
 $xml = XmlParser::LoadFromURL($file);
 
@@ -21,5 +25,15 @@ $ms2 = $xml["mzXML|msRun|scan|peaks"][1]["data"];
 $mzInt = mzXML::mzInto($ms2);
 
 echo var_dump($mzInt);
+*/
+
+#endregion
+
+
+$mzXML = new mzXML($file);
+
+
+var_dump($mzXML->ms1Scans[1]);
+var_dump($mzXML->ms2Scans[1]);
 
 ?>
