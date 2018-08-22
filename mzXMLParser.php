@@ -18,6 +18,8 @@ class mzXML {
     var $ms2Scans;
 
     public function __construct($path) {
+        $this->$ms1Scans = [];
+        $this->$ms2Scans = [];
         $this->loadScans(XmlParser::LoadFromURL($path));
     }
 
@@ -26,12 +28,33 @@ class mzXML {
      * 
      * scan和peaks之间都是一一对应的关系
     */
-    private function loadScans($Xml) {
-        
-        for ($i = 0; )
-        echo var_dump($xml["mzXML|msRun|scan"][2]);
-        echo var_dump($xml["mzXML|msRun|scan|precursorMz"][2]);
-        echo var_dump($xml["mzXML|msRun|scan|peaks"][2]);
+    private function loadScans($mzXml) {
+        # 下面的二者是一一对应的关系
+        $scans = $mzXml["mzXML|msRun|scan"];
+        $peaks = $mzXml["mzXML|msRun|scan|peaks"];
+        $len   = count($scans);
+
+        # 只出现在ms2二级碎片数据之中
+        $precursor = $mzXml["mzXML|msRun|scan|precursorMz"];
+        # 所以给他一个单独的索引号变量
+        $j = 0;
+
+        for ($i = 0; $i < $len; $i++) {
+            $scan        = $scans[$i];
+            $peakData    = $peaks[$i];
+            $precursorMz = null;
+
+            if ($scan["msLevel"] == "2") {
+                # 这是一个二级碎片数据
+                $precursorMz = $precursor[$j++];
+            }
+
+            $scan = [
+                "scan" => $scan, 
+                "precursorMz" => $precursorMz, 
+                "peaks" => $peakData
+            ];
+        }
     }
 
     /**

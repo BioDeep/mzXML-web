@@ -2,7 +2,7 @@
 
 include "./mzXMLParser.php";
 
-$file  = "./lxy-CID30.mzXML";
+$file  = "../lxy-CID30.mzXML";
 # $mzXML = new mzXML($file);
 
 $xml = XmlParser::LoadFromURL($file);
