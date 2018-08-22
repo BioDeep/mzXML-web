@@ -25,8 +25,8 @@ class mzXML {
     var $ms2Scans;
 
     public function __construct($path) {
-        $this->$ms1Scans = [];
-        $this->$ms2Scans = [];
+        $this->ms1Scans = [];
+        $this->ms2Scans = [];
         $this->loadScans(XmlParser::LoadFromURL($path));
     }
 
