@@ -33,7 +33,7 @@ echo var_dump($mzInt);
 $mzXML = new mzXML($file);
 
 
-var_dump($mzXML->ms1Scans[1]);
-var_dump($mzXML->ms2Scans[1]);
+var_dump($mzXML->ms1Scans[5]);
+# var_dump($mzXML->ms2Scans[1]);
 
 ?>
