@@ -40,9 +40,10 @@ class mzXML {
         $j = 0;
 
         for ($i = 0; $i < $len; $i++) {
-            $scan        = $scans[$i];
-            $peakData    = $peaks[$i];
-            $precursorMz = null;
+            $scan             = $scans[$i];
+            $peakData         = $peaks[$i];
+            $peakData["data"] = self::mzInto($peakData["data"]);
+            $precursorMz      = null;
 
             if ($scan["msLevel"] == "2") {
                 # 这是一个二级碎片数据
@@ -54,6 +55,14 @@ class mzXML {
                 "precursorMz" => $precursorMz, 
                 "peaks" => $peakData
             ];
+
+            if ($scan["msLevel"] == "1") {
+                $this->ms1Scans[] = $scan;
+            } else if ($scan["msLevel"] == "2") {
+                $this->ms2Scans[] = $scan;
+            } else {
+                # ignores msN data.
+            }
         }
     }
 
