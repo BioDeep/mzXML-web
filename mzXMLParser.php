@@ -51,8 +51,9 @@ class mzXML {
             $peakData         = $peaks[$i];
             $peakData["data"] = self::mzInto($peakData["data"]);
             $precursorMz      = null;
+            $msLevel          = $scan["msLevel"];
 
-            if ($scan["msLevel"] == "2") {
+            if ($msLevel == "2") {
                 # 这是一个二级碎片数据
                 $precursorMz = $precursor[$j++];
             }
@@ -63,9 +64,9 @@ class mzXML {
                 "peaks"       => $peakData
             ];
 
-            if ($scan["msLevel"] == "1") {
+            if ($msLevel == "1") {
                 $this->ms1Scans[] = $scan;
-            } else if ($scan["msLevel"] == "2") {
+            } else if ($msLevel == "2") {
                 $this->ms2Scans[] = $scan;
             } else {
                 # ignores msN data.
@@ -77,8 +78,18 @@ class mzXML {
      * 从base64存储的数据之中解析出质谱的二级碎片数据
     */
     public static function mzInto($base64) {
-        $zip    = base64_decode($base64);
-        $bytes  = zlib_decode($zip); 
+        if (empty($base64) || strlen($base64) == 0) {
+            return [];
+        } else {
+            return self::mzIntoImpl(
+                zlib_decode(
+                    base64_decode($base64)
+                )
+            );
+        }        
+    }
+
+    private static function mzIntoImpl($bytes) {
         $floats = self::networkByteOrderNumbers($bytes);
         $mzInt  = [];
         $i      = 0;
