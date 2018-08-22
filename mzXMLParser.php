@@ -49,7 +49,8 @@ class mzXML {
         for ($i = 0; $i < $len; $i++) {
             $scan             = $scans[$i];
             $peakData         = $peaks[$i];
-            $peakData["data"] = self::mzInto($peakData["data"]);
+            $data             = Utils::ReadValue($peakData, "data");
+            $peakData["data"] = self::mzInto($data);
             $precursorMz      = null;
             $msLevel          = $scan["msLevel"];
 
@@ -78,11 +79,13 @@ class mzXML {
      * 从base64存储的数据之中解析出质谱的二级碎片数据
     */
     public static function mzInto($base64) {
+        $base64 = trim($base64);
+
         if (empty($base64) || strlen($base64) == 0) {
             return [];
         } else {
             return self::mzIntoImpl(
-                zlib_decode(
+                @zlib_decode(
                     base64_decode($base64)
                 )
             );
