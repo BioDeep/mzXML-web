@@ -1,0 +1,17 @@
+#Header
+#Fri Mar 13 08:33:20 CET 2015
+indexFile=L\:\\Controlled_Exp_LDA2\\Experiment2\\Orbitrap_CID\\003_Ex2_Orbitrap_CID.chrom\\003_Ex2_Orbitrap_CID.idx
+numberOfScans2=737
+retentionTimeFile=L\:\\Controlled_Exp_LDA2\\Experiment2\\Orbitrap_CID\\003_Ex2_Orbitrap_CID.chrom\\003_Ex2_Orbitrap_CID.rtt
+lowestResolution=1
+indexFile2=L\:\\Controlled_Exp_LDA2\\Experiment2\\Orbitrap_CID\\003_Ex2_Orbitrap_CID.chrom\\003_Ex2_Orbitrap_CID.idx2
+numberOfScans=125
+highestMz=1002995
+msLevel=2
+msmsType=precursorFragmentation
+indexedFile2=L\:\\Controlled_Exp_LDA2\\Experiment2\\Orbitrap_CID\\003_Ex2_Orbitrap_CID.chrom\\003_Ex2_Orbitrap_CID.chrom2
+numberOfEntriesForIndex=1000
+retentionTimeFile2=L\:\\Controlled_Exp_LDA2\\Experiment2\\Orbitrap_CID\\003_Ex2_Orbitrap_CID.chrom\\003_Ex2_Orbitrap_CID.rtt2
+mzMultiplicationFactorForInt=1000
+indexedFile=L\:\\Controlled_Exp_LDA2\\Experiment2\\Orbitrap_CID\\003_Ex2_Orbitrap_CID.chrom\\003_Ex2_Orbitrap_CID.chrom
+lowestMz=400001

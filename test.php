@@ -2,7 +2,7 @@
 
 include "./mzXMLParser.php";
 
-$file  = "../lxy-CID30.mzXML";
+$file  = "./003_Ex2_Orbitrap_CID/003_Ex2_Orbitrap_CID.mzXML";
 
 
 #region "raw test"
@@ -33,7 +33,7 @@ echo var_dump($mzInt);
 $mzXML = new mzXML($file);
 
 
-var_dump($mzXML->ms1Scans[5]);
-# var_dump($mzXML->ms2Scans[1]);
+var_dump($mzXML->ms1Scans[1]);
+var_dump($mzXML->ms2Scans[1]);
 
 ?>
