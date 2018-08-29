@@ -37,7 +37,7 @@ namespace BioDeep {
             return $out;
         }
 
-        private static $Calculator = [
+        public static $Calculator = [
             "+" => \BioDeep\PrecursorType::Positive(),
             "-" => \BioDeep\PrecursorType::Negative()
         ];
