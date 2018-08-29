@@ -13,3 +13,10 @@ use Microsoft\VisualBasic\Data\csv\TableView as TableRender;
 $table = TableRender::ToHTMLTable($table);
 
 echo $table;
+
+
+$table = \BioDeep\MzCalculator::doCalculate($mass, -1);
+
+$table = TableRender::ToHTMLTable($table);
+
+echo $table;
