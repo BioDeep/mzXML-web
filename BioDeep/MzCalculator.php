@@ -21,7 +21,7 @@ namespace BioDeep {
         public static function doCalculate($mass, $mode = 1) {
 
             # 枚举计算器之中的所有的前体离子的类型，然后计算完成之后返回数据框
-            $calc = PrecursorType::LoadDefault();
+            $calc = PrecursorType::LoadDefault($mode);
             $out  = [];
 
             foreach($calc as $name => $cal) {
@@ -36,11 +36,6 @@ namespace BioDeep {
 
             return $out;
         }
-
-        public static $Calculator = [
-            "+" => PrecursorType::Positive(),
-            "-" => PrecursorType::Negative()
-        ];
         
         /**
          * 自身可以发生离子化的类型
@@ -59,11 +54,11 @@ namespace BioDeep {
                 return function($x) {
                     return $x;
                 };
-            } else if (!array_key_exists($chargeMode, self::$Calculator)) {
+            } else if (!($chargeMode == "+" || $chargeMode == "-")) {
                 throw new \exception("Invalid charge mode value: '$chargeMode'");
             }
 
-            $mode = self::$Calculator[$chargeMode];
+            $mode = \BioDeep\PrecursorType::LoadDefault($chargeMode);
 
             foreach($mode as $name => $calc) {
                 if ($calc->Name == $precursorType) {

@@ -68,7 +68,7 @@ namespace BioDeep {
         */
         private static function measureImpl($mass, $precursorMZ, $charge) {
             # 得到某一个离子模式下的计算程序
-            $mode    = MzCalculator::$Calculator[$chargeMode];
+            $mode    = \BioDeep\PrecursorType::LoadDefault($chargeMode);
             $min     = 999999;
             $minType = NULL;
 

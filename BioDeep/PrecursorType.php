@@ -100,10 +100,17 @@ namespace BioDeep {
             ];
         }
 
+        /**
+         * 加载指定模式的预设的``m/z``计算模块
+         * 
+         * @param string|integer $mode When this parameter is string type, required 
+         *      value should be one of the value of ``+/-``, 
+         *      and ``1/-1`` when the parameter value type is integer.
+        */
         public static function LoadDefault($mode) {
-            if ($mode == 1) {
+            if ($mode == 1 || $mode == "+") {
                 return self::Positive();
-            } else if ($mode == -1) {
+            } else if ($mode == -1 || $mode == "-") {
                 return self::Negative();
             } else {
                 throw new \exception("Invalid ion mode!");
