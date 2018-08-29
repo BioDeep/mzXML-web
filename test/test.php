@@ -33,8 +33,12 @@ echo var_dump($mzInt);
 
 $mzXML = new \BioDeep\mzXML($file);
 
-
+echo "ms1:\n\n";
 var_dump($mzXML->ms1Scans[1]);
+
+echo "\n\n\n";
+
+echo "ms2:\n\n";
 var_dump($mzXML->ms2Scans[1]);
 
 ?>
