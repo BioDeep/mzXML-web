@@ -97,7 +97,17 @@ namespace BioDeep {
                 "2M+FA-H"	     => self::new("[2M+FA-H]-",       -1, 2,  44.998201), # 2M  +  44.998201	 1-	2.00	44.998201	1751.659981	1707.641799
                 "2M+Hac-H"	     => self::new("[2M+Hac-H]-",      -1, 2,  59.013851), # 2M  +  59.013851	 1-	2.00	59.013851	1765.675631	1693.626149
                 "3M-H"	         => self::new("[3M-H]-",          -1, 3,  -1.007276)  # 3M  -   1.007276	 1-	3.00	1.007276	2560.999946	2627.952724
-        ];
+            ];
+        }
+
+        public static function LoadDefault($mode) {
+            if ($mode == 1) {
+                return self::Positive();
+            } else if ($mode == -1) {
+                return self::Negative();
+            } else {
+                throw new \exception("Invalid ion mode!");
+            }
         }
     }
 }
