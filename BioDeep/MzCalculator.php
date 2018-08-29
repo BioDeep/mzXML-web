@@ -29,7 +29,7 @@ namespace BioDeep {
                     "precursor_type" => $cal->Name,
                     "charge"         => $cal->charge,
                     "M"              => $cal->M,
-                    "adduct"         => $cal->adduct,
+                    "adduct"         => $cal->adducts,
                     "m/z"            => $cal->CalMz($mass)
                 ];
             }
