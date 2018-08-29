@@ -6,4 +6,10 @@ include "../autoload.php";
 $mass  = 853.33089;
 $table = \BioDeep\MzCalculator::doCalculate($mass);
 
-echo var_dump($table);
+Imports("Microsoft.VisualBasic.Data.csv.Table");
+
+use Microsoft\VisualBasic\Data\csv\TableView as TableRender;
+
+$table = TableRender::ToHTMLTable($table);
+
+echo $table;
