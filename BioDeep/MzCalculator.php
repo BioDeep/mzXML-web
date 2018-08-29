@@ -19,18 +19,19 @@ namespace BioDeep {
          * @return array \code{m/z} dataframe for all precursor types.
         */
         public static function doCalculate($mass, $mode = 1) {
-
             # 枚举计算器之中的所有的前体离子的类型，然后计算完成之后返回数据框
             $calc = PrecursorType::LoadDefault($mode);
             $out  = [];
 
             foreach($calc as $name => $cal) {
+                $mz    = $cal->CalMz($mass);
                 $out[] = [
                     "precursor_type" => $cal->Name,
                     "charge"         => $cal->charge,
                     "M"              => $cal->M,
                     "adduct"         => $cal->adducts,
-                    "m/z"            => $cal->CalMz($mass)
+                    "m/z"            => $mz,
+                    "mass"           => $cal->Mass($mz)
                 ];
             }
 
