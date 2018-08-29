@@ -57,7 +57,7 @@ namespace BioDeep {
                     $x = $x - ($M * self::$weights[$token]);
                 }
 
-                if ($i <= count($op) - 1) {
+                if (!empty($op) && ($op !== false) && ($i <= count($op) - 1)) {
                     $next = $op[$i];
                 }
             }
