@@ -1,5 +1,6 @@
 <?php
 
+include "../../dotnet/package.php";
 include "../autoload.php";
 
 $file  = "../003_Ex2_Orbitrap_CID/003_Ex2_Orbitrap_CID.mzXML";
