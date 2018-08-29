@@ -30,12 +30,10 @@ namespace BioDeep {
         ## neg "[3M-H]-"   charge = -1, 2560.999946	find.PrecursorType(853.33089, 2560.999946, charge = -1, chargeMode = "-")
         ## neg "[M-H]-"    charge = -1, 852.323614  find.PrecursorType(853.33089, 852.323614,  charge = -1, chargeMode = "-")
         ##
-        public static function measurePrecursorType($mass, $precursorMZ, $charge, $chargeMode = "+", $minErrorPpm = 100) {
+        public static function Measure($mass, $precursorMZ, $charge, $chargeMode = "+", $minErrorPpm = 100) {
             if ($charge == 0) {
                 throw new \exception("I can't calculate the ionization mode for no charge(charge = 0)!");
-            }
-
-            if (empty($mass) || empty($precursorMZ) || $mass === false || $precursorMZ === false) {		
+            } else if (empty($mass) || empty($precursorMZ) || $mass === false || $precursorMZ === false) {		
                 return "NA";
             }
 
@@ -49,15 +47,29 @@ namespace BioDeep {
                 } else {
                     # 电荷量不省略
                     return "[M]{$charge}{$chargeMode}";
-                }
-            }
+                }                
+            } else {
 
-           
+                $measure             = self::measureImpl($mass, $precursorMZ, $charge);
+                list($minType, $min) = \Utils::Tuple($measure);
+
+                if ($min <= $minErrorPpm) {
+                    return $minType;
+                } else {
+                    return "NA";
+                }
+
+            }
+        }
+
+        /**
+         * 每一个模式都计算一遍，然后返回最小的ppm差值结果
+        */
+        private static function measureImpl($mass, $precursorMZ, $charge) {
+            # 得到某一个离子模式下的计算程序
+            $mode    = MzCalculator::$Calculator[$chargeMode];
             $min     = 999999;
             $minType = NULL;
-
-            ## 得到某一个离子模式下的计算程序
-            $mode    = MzCalculator::$Calculator[$chargeMode];
 
             if ($chargeMode == "-") {
                 ## 对于负离子模式而言，虽然电荷量是负数的，但是使用xcms解析出来的却是一个电荷数的绝对值
@@ -67,38 +79,27 @@ namespace BioDeep {
                 }
             }
 
-            ## 然后遍历这个模式下的所有离子前体计算
+            # 然后遍历这个模式下的所有离子前体计算
             foreach ($mode as $name => $calc) {
-                ## 跳过电荷数不匹配的离子模式计算表达式
+                
                 if ($charge != $calc->charge) {
+                    # 跳过电荷数不匹配的离子模式计算表达式
                     continue;
                 }
 
-                ## 这里实际上是根据数据库之中的分子质量，通过前体离子的质量计算出mz结果
-                ## 然后计算mz计算结果和precursorMZ的ppm信息
-                $massR = $calc->Mass($precursorMZ);
+                # 这里实际上是根据数据库之中的分子质量，通过前体离子的质量计算出mz结果
+                # 然后计算mz计算结果和precursorMZ的ppm信息
+                $massR    = $calc->Mass($precursorMZ);
                 $deltaPpm = \BioDeep\Utils::PPM($massR, $mass);
 
-                ## 根据质量计算出前体质量，然后计算出差值
+                # 根据质量计算出前体质量，然后计算出差值
                 if ($deltaPpm < $min) {
-                    $min    = $deltaPpm;
+                    $min     = $deltaPpm;
                     $minType = $calc->Name;
                 }
             }
-        
-            if ($min <= $minErrorPpm) {
-            return $minType;
-            } else {
 
-            return "NA";
-            }
-        }
-
-        /**
-         * 每一个模式都计算一遍，然后返回最小的ppm差值结果
-        */
-        private static function measureImpl() {
-
+            return [$minType => $min];
         }
     }
 }
