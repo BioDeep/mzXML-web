@@ -33,7 +33,7 @@ namespace BioDeep {
          * @return double The molecule mass.
         */
         public static function ReverseMass($precursorMZ, $M, $charge, $adduct) {
-            return ($precursorMZ - $adduct) * abs($charge) / $M;
+            return ($precursorMZ * abs($charge) - $adduct) / $M;
         }
 
         /**
