@@ -17,7 +17,7 @@ namespace BioDeep {
          * @return double Returns the m/z value of the precursor ion
         */
         public static function AdductMz($mass, $adduct, $charge) {
-            return $mass / abs($charge) + $adduct;
+            return ($mass + $adduct) / abs($charge);
         }
 
         /**
