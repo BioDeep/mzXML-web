@@ -15,7 +15,7 @@ namespace BioDeep {
                 "ACN" => 41.04746,  # Acetonitrile (CH3CN)
               "CH3OH" => 32.03773,
                "DMSO" => 78.12089,  # dimethyl sulfoxide (CH3)2SO 
-            "IsoProp" => 61.065340, # Unknown
+            "IsoProp" => 60.058064, # Unknown
                  "Cl" => 35.446,
                  "FA" => 46.00548,  # Unknown
                 "Hac" => 60.04636,  # AceticAcid (CH3COOH)
