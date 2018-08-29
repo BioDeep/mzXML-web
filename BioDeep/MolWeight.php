@@ -18,15 +18,46 @@ namespace BioDeep {
             "IsoProp" => 61.065340  # Unknown
         ];
         
+        public static function Weight($symbol) {
+            if (array_key_exists($symbol, self::$weights)) {
+                return self::$weights[$symbol];
+            } else {
+                return -1;
+            }
+        }
+
         public static function Eval($formula) {
-            $mt = \Regex::Split($formula,   "[+-]");
-            $op = \Regex::Matches($formula, "[+-]");
-            $x  = 0;
+            if ($formula[0] == "+" || $formula[0] == "-") {
+                $formula = "0H$formula";
+            }
+
+            $mt   = \Regex::Split($formula,   "[+-]");
+            $op   = \Regex::Matches($formula, "[+-]");
+            $x    = 0;
+            $next = "+";
 
             for($i = 0; $i < count($mt); $i++) {
                 $token = self::Mul($mt[$i]);
+                $M     = $token["M"]; 
+                $token = $token["name"];
                 
+                if (!array_key_exists($token, self::$weights)) {
+                    $msg = "Unknown symbol in: '$formula', where symbol=$token";
+                    throw new \exception($msg);
+                }
+
+                if ($next == "+") {
+                    $x = $x + ($M * self::$weights[$token]);
+                } else {
+                    $x = $x - ($M * self::$weights[$token]);
+                }
+
+                if ($i <= count($op) - 1) {
+                    $next = $op[$i];
+                }
             }
+
+            return $x;
         }
 
         /**
@@ -41,7 +72,7 @@ namespace BioDeep {
             for($i = 0; $i < $len; $i++) {
                 $x = ord($token[$i]);
 
-                if ($x > $x0 && $x <= $x9) {
+                if ($x >= $x0 && $x <= $x9) {
                     $n = $n . $x;
                 } else {
                     break;
@@ -51,7 +82,7 @@ namespace BioDeep {
             if (\strlen($n) == 0) {
                 return ["name" => $token, "M" => 1];
             } else {
-                $token = substr($token, strlen($n));
+                $token = substr($token, strlen($n) - 1);
             }
             
             return [
