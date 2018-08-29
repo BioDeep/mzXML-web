@@ -47,7 +47,8 @@ namespace BioDeep {
                 } else {
                     # 电荷量不省略
                     return "[M]{$charge}{$chargeMode}";
-                }                
+                }
+
             } else {
 
                 $measure             = self::measureImpl($mass, $precursorMZ, $charge);
