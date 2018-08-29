@@ -38,8 +38,8 @@ namespace BioDeep {
         }
 
         public static $Calculator = [
-            "+" => \BioDeep\PrecursorType::Positive(),
-            "-" => \BioDeep\PrecursorType::Negative()
+            "+" => PrecursorType::Positive(),
+            "-" => PrecursorType::Negative()
         ];
         
         /**
