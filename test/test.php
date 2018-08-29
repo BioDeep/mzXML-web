@@ -1,8 +1,8 @@
 <?php
 
-include "./mzXMLParser.php";
+include "../autoload.php";
 
-$file  = "./003_Ex2_Orbitrap_CID/003_Ex2_Orbitrap_CID.mzXML";
+$file  = "../003_Ex2_Orbitrap_CID/003_Ex2_Orbitrap_CID.mzXML";
 
 
 #region "raw test"
@@ -30,7 +30,7 @@ echo var_dump($mzInt);
 #endregion
 
 
-$mzXML = new mzXML($file);
+$mzXML = new \BioDeep\mzXML($file);
 
 
 var_dump($mzXML->ms1Scans[1]);
