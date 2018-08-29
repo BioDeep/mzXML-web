@@ -73,7 +73,7 @@ namespace BioDeep {
                 $x = ord($token[$i]);
 
                 if ($x >= $x0 && $x <= $x9) {
-                    $n = $n . $x;
+                    $n = $n . $token[$i];
                 } else {
                     break;
                 }
@@ -82,7 +82,7 @@ namespace BioDeep {
             if (\strlen($n) == 0) {
                 return ["name" => $token, "M" => 1];
             } else {
-                $token = substr($token, strlen($n) - 1);
+                $token = substr($token, strlen($n));
             }
             
             return [
