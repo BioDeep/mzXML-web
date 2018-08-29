@@ -29,7 +29,7 @@ namespace BioDeep {
         public function __construct($path) {
             $this->ms1Scans = [];
             $this->ms2Scans = [];
-            $this->loadScans(XmlParser::LoadFromURL($path));
+            $this->loadScans(\XmlParser::LoadFromURL($path));
         }
 
         /**
@@ -51,7 +51,7 @@ namespace BioDeep {
             for ($i = 0; $i < $len; $i++) {
                 $scan             = $scans[$i];
                 $peakData         = $peaks[$i];
-                $data             = Utils::ReadValue($peakData, "data");
+                $data             = \Utils::ReadValue($peakData, "data");
                 $peakData["data"] = self::mzInto($data);
                 $precursorMz      = null;
                 $msLevel          = $scan["msLevel"];
