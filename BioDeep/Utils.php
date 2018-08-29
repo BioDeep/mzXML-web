@@ -78,5 +78,26 @@ namespace BioDeep {
             # |(measure - reference)| / measure * 1000000
             return abs((($measured - $actualValue) / $actualValue) * 1000000);
         }
+
+        /**
+         * Get ionlization mode
+         *
+         * Get ionlization mode from a given precursor type name
+         *
+         * @param string $type The precursor type name, it should be in format like: \code{[M+H]+}.
+         * @param boolean $numeric
+         *
+         * @return string|integer Function returns character \code{+} or \code{-}.
+        */
+        public static function getPolarity($type, $numeric = false) {
+            $type = trim($type);
+            $type = $type[strlen($type) - 1];
+
+            if ($numeric) {
+                return ($type === "+") ? 1 : -1;
+            } else {
+                return $type;
+            }
+        }
     }
 }

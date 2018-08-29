@@ -36,5 +36,44 @@ namespace BioDeep {
 
             return $out;
         }
+
+        private static $Calculator = [
+            "+" => \BioDeep\PrecursorType::Positive(),
+            "-" => \BioDeep\PrecursorType::Negative()
+        ];
+        
+        /**
+         * 自身可以发生离子化的类型
+        */
+        private static $autoIonization = [
+            "[M]+" => 1, "[M]-" => -1
+        ];
+
+        /**
+         * Get mass calculator
+         *
+         * @param string $chargeMode Character value of \code{+/-}.
+        */
+        public static function getMass($chargeMode, $charge, $precursorType) {
+            if (array_key_exists($precursorType, self::$autoIonization)) {
+                return function($x) {
+                    return $x;
+                };
+            } else if (!array_key_exists($chargeMode, self::$Calculator)) {
+                throw new \exception("Invalid charge mode value: '$chargeMode'");
+            }
+
+            $mode = self::$Calculator[$chargeMode];
+
+            foreach($mode as $name => $calc) {
+                if ($calc->Name == $precursorType) {
+                    return function($x) use ($calc) {
+                        return $calc->Mass($x);
+                    };
+                }
+            }
+
+            throw new \exception("Unsupported precursor_type value: '$precursorType'");
+        }
     }
 }
