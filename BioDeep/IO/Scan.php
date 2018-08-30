@@ -1,13 +1,33 @@
 <?php
 
-class Scan {
+namespace BioDeep\IO {
 
-    /**
-     * @var array
-    */
-    var $raw;
+    class Scan {
+    
+        #region "property"
 
-    public function __construct($scan) {
-        $this->raw = $scan;
+        public $num;
+        public $scanType;
+        public $centroided;
+        public $msLevel;
+        public $peaksCount;
+        public $polarity;
+        public $retentionTime;
+        public $collisionEnergy;
+        public $lowMz;
+        public $highMz;
+        public $basePeakMz;
+        public $basePeakIntensity;
+        public $totIonCurrent;
+        public $msInstrumentID;
+
+        #endregion
+
+        public function __construct($scan) {
+            foreach($scan as $name => $val) {
+                $this->{$name} = $val;
+            }
+        }
     }
 }
+
