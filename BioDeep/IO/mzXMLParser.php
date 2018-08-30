@@ -19,12 +19,39 @@ namespace BioDeep\IO {
          * @var array
         */
         var $ms1Scans;
+
         /**
          * 二级碎片数据
          * 
          * @var array
         */
         var $ms2Scans;
+
+        #region "readers"
+
+        /**
+         * 获取某一个一级质谱扫描数据
+         * 
+         * @param integer $x
+         * 
+         * @return ScanReader
+        */
+        public function Ms1Scan($x) {
+            return new ScanReader($this->ms1Scans[$x]);
+        }
+
+        /**
+         * 获取某一个二级质谱扫描数据
+         * 
+         * @param integer $x
+         * 
+         * @return ScanReader
+        */
+        public function Ms2Scan($x) {
+            return new ScanReader($this->ms2Scans[$x]);
+        }
+
+        #endregion
 
         public function __construct($path) {
             $this->ms1Scans = [];
