@@ -1,6 +1,6 @@
 <?php
 
-namespace BioDeep {
+namespace BioDeep\IO {
 
     # Required reference to the php.NET framework
     # https://github.com/GCModeller-Cloud/php-dotnet

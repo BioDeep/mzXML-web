@@ -31,7 +31,7 @@ echo var_dump($mzInt);
 #endregion
 
 
-$mzXML = new \BioDeep\mzXML($file);
+$mzXML = new \BioDeep\IO\mzXML($file);
 
 echo "ms1:\n\n";
 var_dump($mzXML->ms1Scans[1]);
