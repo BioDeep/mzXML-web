@@ -72,20 +72,20 @@ declare namespace BioDeep.IO.Ms2Reader {
         /**
          * The name of the software used to create the MS2 file
         */
-        Extractor: string;
+        readonly Extractor: string;
         /**
          * The version number of the Extractor software
         */
-        ExtractorVersion: string;
-        SourceFile: string;
+        readonly ExtractorVersion: string;
+        readonly SourceFile: string;
         /**
          * Remarks. Multiple comment lines are allowed
         */
-        Comments: string;
+        readonly Comments: string;
         /**
          * The options used in running the extractor software
         */
-        ExtractorOptions: string;
+        readonly ExtractorOptions: string;
         private static readonly fieldMaps;
         private readonly meta;
         constructor(data: string[]);

@@ -1,5 +1,5 @@
-﻿/// <reference path="../../../build/linq.d.ts" />
-/// <reference path="../Models/Abstract.ts" />
+﻿/// <reference path="../../../../build/linq.d.ts" />
+/// <reference path="../../Models/Abstract.ts" />
 
 /**
  * The ``*.ms2`` file format reader
@@ -100,90 +100,6 @@ namespace BioDeep.IO.Ms2Reader {
             }
 
             return new Scan(meta, matrix);
-        }
-    }
-
-    export class Ms2Header {
-
-        /**
-         * The date and time when the file was created
-        */
-        public get CreationDate(): string {          
-            return this.meta.GetValue();
-        };
-        /**
-         * The name of the software used to create the MS2 file
-        */
-        public Extractor: string;
-        /**
-         * The version number of the Extractor software
-        */
-        public ExtractorVersion: string;
-        public SourceFile: string;
-        /**
-         * Remarks. Multiple comment lines are allowed
-        */
-        public Comments: string;
-        /**
-         * The options used in running the extractor software
-        */
-        public ExtractorOptions: string;
-
-        private static readonly fieldMaps = {
-            "Extractor version": "ExtractorVersion",
-            "Source file": "SourceFile"
-        };
-
-        private readonly meta: TsLinq.MetaReader;
-
-        public constructor(data: string[]) {
-            var tags = From(data)
-                .Select(s => s.substr(2))
-                .Select(s => {
-                    if (s.indexOf("\t") > -1) {
-                        return Strings.GetTagValue(s, "\t");
-                    } else {
-                        return Strings.GetTagValue(s, " ");
-                    }
-                });
-
-            this.meta = TypeInfo.CreateMetaReader(tags);
-        }
-    }
-
-    /**
-     * Each scan begins with a few records listing the parameters describing the spectrum. 
-     * These lines must begin with ``S``, ``I``, ``Z``, or ``D``. The records are followed 
-     * by pairs of m/z and intensity values, one pair per line.
-    */
-    export class Scan extends Models.IMs2Scan {
-
-        //#region "S"
-        public get firstScan(): number {
-            return this.meta.GetValue();
-        };
-        public secondScan: number;
-        public precursorMz: number;
-        //#endregion
-
-        //#region "I"
-        public RTime: number;
-        public BPI: number;
-        public BPM: number;
-        public TIC: number;
-        //#endregion
-
-        //#region "Z"
-        public charge: number;
-        public mass: number;
-        //#endregion
-
-        private readonly meta: TsLinq.MetaReader;
-
-        public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
-            super(matrix);
-            // read meta object value by call name
-            this.meta = new TsLinq.MetaReader(meta);
         }
     }
 }

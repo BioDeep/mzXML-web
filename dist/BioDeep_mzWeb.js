@@ -240,9 +240,61 @@ var BioDeep;
                     configurable: true
                 });
                 ;
+                Object.defineProperty(Ms2Header.prototype, "Extractor", {
+                    /**
+                     * The name of the software used to create the MS2 file
+                    */
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Ms2Header.prototype, "ExtractorVersion", {
+                    /**
+                     * The version number of the Extractor software
+                    */
+                    get: function () {
+                        return this.meta.GetValue("Extractor version");
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Ms2Header.prototype, "SourceFile", {
+                    get: function () {
+                        return this.meta.GetValue("Source file");
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Ms2Header.prototype, "Comments", {
+                    /**
+                     * Remarks. Multiple comment lines are allowed
+                    */
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Ms2Header.prototype, "ExtractorOptions", {
+                    /**
+                     * The options used in running the extractor software
+                    */
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
                 Ms2Header.fieldMaps = {
-                    "Extractor version": "ExtractorVersion",
-                    "Source file": "SourceFile"
+                    "ExtractorVersion": "Extractor version",
+                    "SourceFile": "Source file"
                 };
                 return Ms2Header;
             }());

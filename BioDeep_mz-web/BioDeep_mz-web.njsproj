@@ -39,7 +39,13 @@
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <TypeScriptCompile Include="IO\Ms2.ts">
+    <TypeScriptCompile Include="IO\Ms2Reader\Ms2.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="IO\Ms2Reader\Ms2Header.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="IO\Ms2Reader\Ms2Scan.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Models\Abstract.ts">
@@ -54,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IO\" />
+    <Folder Include="IO\Ms2Reader\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
