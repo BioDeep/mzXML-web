@@ -1,4 +1,10 @@
 /// <reference path="../../build/linq.d.ts" />
+declare namespace BioDeep {
+    /**
+     * 将文本字符串按照newline进行分割
+    */
+    function lineTokens(text: string): string[];
+}
 declare namespace BioDeep.Models {
     class IMs2Scan extends IEnumerator<BioDeep.Models.mzInto> {
         readonly mzInto: BioDeep.Models.mzInto[];
@@ -49,6 +55,8 @@ declare namespace BioDeep.IO {
     class Ms2 {
         header: Ms2Header;
         scans: Scan[];
+        static Parse(text: string): Ms2;
+        private static ParseScan;
     }
     class Ms2Header {
         /**

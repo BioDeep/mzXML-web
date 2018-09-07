@@ -8,6 +8,16 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var BioDeep;
+(function (BioDeep) {
+    /**
+     * 将文本字符串按照newline进行分割
+    */
+    function lineTokens(text) {
+        return (!text) ? [] : text.trim().split("\n");
+    }
+    BioDeep.lineTokens = lineTokens;
+})(BioDeep || (BioDeep = {}));
 /// <reference path="../../../build/linq.d.ts" />
 var BioDeep;
 (function (BioDeep) {
@@ -57,10 +67,11 @@ var BioDeep;
                 return _this;
             }
             mgf.Parse = function (text) {
-                var lines = (!text) ? [] : text.trim().split("\n");
-                return From(lines)
-                    .ChunkWith(function (line) { return line == mgfEndIons; })
-                    .Select(function (data) { return mgf.IonParse(data); });
+                return From(BioDeep.lineTokens(text))
+                    .ChunkWith(function (line) {
+                    return line == mgfEndIons;
+                })
+                    .Select(mgf.IonParse);
             };
             mgf.IonParse = function (data) {
                 var line = data[0] == mgfBeginIons ? 1 : 0;
@@ -122,6 +133,14 @@ var BioDeep;
         var Ms2 = /** @class */ (function () {
             function Ms2() {
             }
+            Ms2.Parse = function (text) {
+                var lines = From(BioDeep.lineTokens(text));
+                var headers = lines
+                    .TakeWhile(function (s) { return s.charAt(0) == "H"; })
+                    .ToArray();
+            };
+            Ms2.ParseScan = function (data) {
+            };
             return Ms2;
         }());
         IO.Ms2 = Ms2;
