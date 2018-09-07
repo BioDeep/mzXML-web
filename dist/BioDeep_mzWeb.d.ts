@@ -65,7 +65,7 @@ declare namespace BioDeep.IO {
         /**
          * The date and time when the file was created
         */
-        CreationDate: string;
+        readonly CreationDate: string;
         /**
          * The name of the software used to create the MS2 file
         */
@@ -83,6 +83,8 @@ declare namespace BioDeep.IO {
          * The options used in running the extractor software
         */
         ExtractorOptions: string;
+        private static readonly fieldMaps;
+        private readonly meta;
         constructor(data: string[]);
     }
     /**
@@ -91,7 +93,7 @@ declare namespace BioDeep.IO {
      * by pairs of m/z and intensity values, one pair per line.
     */
     class Scan extends Models.IMs2Scan {
-        firstScan: number;
+        readonly firstScan: number;
         secondScan: number;
         precursorMz: number;
         RTime: number;
@@ -100,6 +102,7 @@ declare namespace BioDeep.IO {
         TIC: number;
         charge: number;
         mass: number;
+        private readonly meta;
         constructor(meta: object, matrix: BioDeep.Models.mzInto[]);
     }
 }

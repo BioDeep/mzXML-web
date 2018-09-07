@@ -45,13 +45,30 @@ namespace BioDeep.IO {
                     break;
                 }
 
+                var tokens: string[] = data[i].split("\t");
+
                 switch (first) {
                     case "S":
+
+                        // S	2	2	0
+                        meta["firstScan"] = parseFloat(tokens[1]);
+                        meta["secondScan"] = parseFloat(tokens[2]);
+                        meta["precursorMz"] = parseFloat(tokens[3]);
                         break;
+
                     case "I":
+
+                        // I	RTime	0.01252833
+                        meta[tokens[1]] = tokens[2];
                         break;
+
                     case "Z":
+
+                        // Z	1	482.4038
+                        meta["charge"] = parseFloat(tokens[1]);
+                        meta["mass"] = parseFloat(tokens[2]);
                         break;
+
                     default:
                         throw `Parser for ${first} not implements yet.`;
                 }
@@ -87,7 +104,9 @@ namespace BioDeep.IO {
         /**
          * The date and time when the file was created
         */
-        public CreationDate: string;
+        public get CreationDate(): string {
+            return this.meta.GetValue();
+        };
         /**
          * The name of the software used to create the MS2 file
         */
@@ -106,8 +125,25 @@ namespace BioDeep.IO {
         */
         public ExtractorOptions: string;
 
-        public constructor(data: string[]) {
+        private static readonly fieldMaps = {
+            "Extractor version": "ExtractorVersion",
+            "Source file": "SourceFile"
+        };
 
+        private readonly meta: data.MetaReader;
+
+        public constructor(data: string[]) {
+            var tags = From(data)
+                .Select(s => s.substr(2))
+                .Select(s => {
+                    if (s.indexOf("\t") > -1) {
+                        return Strings.GetTagValue(s, "\t");
+                    } else {
+                        return Strings.GetTagValue(s, " ");
+                    }
+                });
+
+            this.meta = TypeInfo.CreateMetaReader(tags);
         }
     }
 
@@ -119,7 +155,9 @@ namespace BioDeep.IO {
     export class Scan extends Models.IMs2Scan {
 
         //#region "S"
-        public firstScan: number;
+        public get firstScan(): number {
+            return this.meta.GetValue();
+        };
         public secondScan: number;
         public precursorMz: number;
         //#endregion
@@ -136,9 +174,12 @@ namespace BioDeep.IO {
         public mass: number;
         //#endregion
 
+        private readonly meta: data.MetaReader;
+
         public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
             super(matrix);
-
+            // read meta object value by call name
+            this.meta = new data.MetaReader(meta);
         }
     }
 }

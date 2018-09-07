@@ -164,12 +164,22 @@ var BioDeep;
                         line = i;
                         break;
                     }
+                    var tokens = data[i].split("\t");
                     switch (first) {
                         case "S":
+                            // S	2	2	0
+                            meta["firstScan"] = parseFloat(tokens[1]);
+                            meta["secondScan"] = parseFloat(tokens[2]);
+                            meta["precursorMz"] = parseFloat(tokens[3]);
                             break;
                         case "I":
+                            // I	RTime	0.01252833
+                            meta[tokens[1]] = tokens[2];
                             break;
                         case "Z":
+                            // Z	1	482.4038
+                            meta["charge"] = parseFloat(tokens[1]);
+                            meta["mass"] = parseFloat(tokens[2]);
                             break;
                         default:
                             throw "Parser for " + first + " not implements yet.";
@@ -201,7 +211,33 @@ var BioDeep;
         IO.Ms2 = Ms2;
         var Ms2Header = /** @class */ (function () {
             function Ms2Header(data) {
+                var tags = From(data)
+                    .Select(function (s) { return s.substr(2); })
+                    .Select(function (s) {
+                    if (s.indexOf("\t") > -1) {
+                        return Strings.GetTagValue(s, "\t");
+                    }
+                    else {
+                        return Strings.GetTagValue(s, " ");
+                    }
+                });
+                this.meta = TypeInfo.CreateMetaReader(tags);
             }
+            Object.defineProperty(Ms2Header.prototype, "CreationDate", {
+                /**
+                 * The date and time when the file was created
+                */
+                get: function () {
+                    return this.meta.GetValue();
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ;
+            Ms2Header.fieldMaps = {
+                "Extractor version": "ExtractorVersion",
+                "Source file": "SourceFile"
+            };
             return Ms2Header;
         }());
         IO.Ms2Header = Ms2Header;
@@ -212,10 +248,21 @@ var BioDeep;
         */
         var Scan = /** @class */ (function (_super) {
             __extends(Scan, _super);
-            //#endregion
             function Scan(meta, matrix) {
-                return _super.call(this, matrix) || this;
+                var _this = _super.call(this, matrix) || this;
+                // read meta object value by call name
+                _this.meta = new data.MetaReader(meta);
+                return _this;
             }
+            Object.defineProperty(Scan.prototype, "firstScan", {
+                //#region "S"
+                get: function () {
+                    return this.meta.GetValue();
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ;
             return Scan;
         }(BioDeep.Models.IMs2Scan));
         IO.Scan = Scan;
