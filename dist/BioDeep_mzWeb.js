@@ -47,7 +47,6 @@ var BioDeep;
                     .Select(function (data) { return mgf.IonParse(data); });
             };
             mgf.IonParse = function (data) {
-                console.log(data);
                 var line = data[0] == mgfBeginIons ? 1 : 0;
                 var mgfFields = {};
                 for (var i = line; i < data.length; i++) {

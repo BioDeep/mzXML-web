@@ -59,8 +59,7 @@ namespace BioDeep.IO {
             "TITLE": "title"
         });
 
-        public static IonParse(data: string[]): mgf {
-            console.log(data);
+        public static IonParse(data: string[]): mgf {            
             var line: number = data[0] == mgfBeginIons ? 1 : 0;
             var mgfFields: object = {};
 
