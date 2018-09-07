@@ -133,7 +133,7 @@ namespace BioDeep.IO.Ms2Reader {
             "Source file": "SourceFile"
         };
 
-        private readonly meta: data.MetaReader;
+        private readonly meta: TsLinq.MetaReader;
 
         public constructor(data: string[]) {
             var tags = From(data)
@@ -177,12 +177,12 @@ namespace BioDeep.IO.Ms2Reader {
         public mass: number;
         //#endregion
 
-        private readonly meta: data.MetaReader;
+        private readonly meta: TsLinq.MetaReader;
 
         public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
             super(matrix);
             // read meta object value by call name
-            this.meta = new data.MetaReader(meta);
+            this.meta = new TsLinq.MetaReader(meta);
         }
     }
 }

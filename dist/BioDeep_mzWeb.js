@@ -256,7 +256,7 @@ var BioDeep;
                 function Scan(meta, matrix) {
                     var _this = _super.call(this, matrix) || this;
                     // read meta object value by call name
-                    _this.meta = new data.MetaReader(meta);
+                    _this.meta = new TsLinq.MetaReader(meta);
                     return _this;
                 }
                 Object.defineProperty(Scan.prototype, "firstScan", {
