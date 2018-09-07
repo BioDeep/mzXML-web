@@ -90,11 +90,10 @@ namespace BioDeep.IO.Ms2Reader {
                         var mz: number = parseFloat(tokens[0]);
                         var into: number = parseFloat(tokens[1]);
 
-                        return <BioDeep.Models.mzInto>{
-                            mz: mz,
-                            into: into,
-                            id: (i + 1).toString()
-                        };
+                        return new BioDeep.Models.mzInto(
+                            (i + 1).toString(),
+                            mz, into
+                        );
                     })
                     .ToArray();
             }

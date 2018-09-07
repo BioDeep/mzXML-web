@@ -48,6 +48,9 @@
     <TypeScriptCompile Include="IO\Ms2Reader\Ms2Scan.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="IO\MSP.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="Models\Abstract.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

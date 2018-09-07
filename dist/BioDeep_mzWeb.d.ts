@@ -57,6 +57,7 @@ declare namespace BioDeep.Models {
          * intensity
         */
         into: number;
+        constructor(id: string, mz: number, into: number);
         toString(): string;
     }
 }

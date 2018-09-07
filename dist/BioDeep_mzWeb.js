@@ -128,7 +128,10 @@ var BioDeep;
     var Models;
     (function (Models) {
         var mzInto = /** @class */ (function () {
-            function mzInto() {
+            function mzInto(id, mz, into) {
+                this.id = id;
+                this.mz = mz;
+                this.into = into;
             }
             mzInto.prototype.toString = function () {
                 return this.mz + "/" + this.into;
@@ -217,11 +220,7 @@ var BioDeep;
                             var tokens = text.split(" ");
                             var mz = parseFloat(tokens[0]);
                             var into = parseFloat(tokens[1]);
-                            return {
-                                mz: mz,
-                                into: into,
-                                id: (i + 1).toString()
-                            };
+                            return new BioDeep.Models.mzInto((i + 1).toString(), mz, into);
                         })
                             .ToArray();
                     }
