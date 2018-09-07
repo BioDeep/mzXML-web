@@ -7,12 +7,6 @@ declare namespace BioDeep {
      * 将文本字符串按照newline进行分割
     */
     function lineTokens(text: string): string[];
-    function stackTrace(): {
-        file: string;
-        member: string;
-        location: string[];
-        caller: string;
-    }[];
 }
 declare namespace BioDeep.Models {
     class IMs2Scan extends IEnumerator<BioDeep.Models.mzInto> {

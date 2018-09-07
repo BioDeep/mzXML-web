@@ -24,31 +24,6 @@ var BioDeep;
         return (!text) ? [] : text.trim().split("\n");
     }
     BioDeep.lineTokens = lineTokens;
-    function stackTrace() {
-        var err = new Error().stack.split("\n");
-        var trace = From(err).Skip(1)
-            .Select(function (s) { return s.trim(); })
-            .Select(function (line) {
-            var file = line.match(/\(.+\)/)[0];
-            var caller = line.replace(file, "").trim().substr(3);
-            file = file.substr(1, file.length - 2);
-            var pos = file.match(/([:]\d+){2}$/m)[0];
-            file = file.substr(0, file.length - pos.length);
-            var aliases = caller.match(/\[.+\]/);
-            var alias = (!aliases || aliases.length == 0) ? null : aliases[0];
-            if (alias) {
-                caller = caller.substr(0, caller.length - alias.length).trim();
-                alias = alias.substr(3, alias.length - 4).trim();
-            }
-            else {
-                var t = caller.split(".");
-                alias = t[t.length - 1];
-            }
-            return { file: file, member: alias, location: pos.split(":"), caller: caller };
-        });
-        return trace.ToArray();
-    }
-    BioDeep.stackTrace = stackTrace;
 })(BioDeep || (BioDeep = {}));
 /// <reference path="../../../build/linq.d.ts" />
 var BioDeep;
@@ -259,7 +234,6 @@ var BioDeep;
                      * The date and time when the file was created
                     */
                     get: function () {
-                        console.log(BioDeep.stackTrace());
                         return this.meta.GetValue();
                     },
                     enumerable: true,

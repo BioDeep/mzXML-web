@@ -40,7 +40,7 @@ namespace BioDeep.IO.Ms2Reader {
         private static ParseScan(data: string[]): Scan {
             var line: number = -1;
             var meta: object = {};
-            
+
             for (var i: number = 0; i < data.length; i++) {
                 var first = data[i].charAt(0);
 
@@ -108,8 +108,7 @@ namespace BioDeep.IO.Ms2Reader {
         /**
          * The date and time when the file was created
         */
-        public get CreationDate(): string {
-            console.log(BioDeep.stackTrace());
+        public get CreationDate(): string {          
             return this.meta.GetValue();
         };
         /**
