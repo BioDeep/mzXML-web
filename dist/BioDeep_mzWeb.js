@@ -36,9 +36,9 @@ var BioDeep;
             });
             ;
             mgf.Parse = function (text) {
-                var lines = text.split("\n");
-                var list = [];
-                return new IEnumerator(list);
+                return From(text.split("\n"))
+                    .ChunkWith(function (line) { return line == mgfEndIons; })
+                    .Select(function (data) { return mgf.IonParse(data); });
             };
             mgf.IonParse = function (data) {
             };
