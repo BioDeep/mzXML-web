@@ -21,11 +21,64 @@ namespace BioDeep.IO {
             var headers = lines
                 .TakeWhile(s => s.charAt(0) == "H")
                 .ToArray();
+            var scans = lines
+                .Skip(headers.length)
+                .ChunkWith(line => line.charAt(0) == "S")
+                .Select(Ms2.ParseScan)
+                .ToArray();
 
+            return <Ms2>{
+                header: new Ms2Header(headers),
+                scans: scans
+            };
         }
 
         private static ParseScan(data: string[]): Scan {
+            var line: number = -1;
+            var meta: object = {};
 
+            for (var i: number = 0; i < data.length; i++) {
+                var first = data[i].charAt(0);
+
+                if (BioDeep.isNumber(first)) {
+                    line = i;
+                    break;
+                }
+
+                switch (first) {
+                    case "S":
+                        break;
+                    case "I":
+                        break;
+                    case "Z":
+                        break;
+                    default:
+                        throw `Parser for ${first} not implements yet.`;
+                }
+            }
+
+            var matrix: BioDeep.Models.mzInto[];
+
+            if (line == -1) {
+                matrix = [];
+            } else {
+                matrix = From(data)
+                    .Skip(line)
+                    .Select((text, i) => {
+                        var tokens: string[] = text.split(" ");
+                        var mz: number = parseFloat(tokens[0]);
+                        var into: number = parseFloat(tokens[1]);
+
+                        return <BioDeep.Models.mzInto>{
+                            mz: mz,
+                            into: into,
+                            id: (i + 1).toString()
+                        };
+                    })
+                    .ToArray();
+            }
+
+            return new Scan(meta, matrix);
         }
     }
 
@@ -52,6 +105,10 @@ namespace BioDeep.IO {
          * The options used in running the extractor software
         */
         public ExtractorOptions: string;
+
+        public constructor(data: string[]) {
+
+        }
     }
 
     /**
@@ -78,5 +135,10 @@ namespace BioDeep.IO {
         public charge: number;
         public mass: number;
         //#endregion
+
+        public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
+            super(matrix);
+
+        }
     }
 }

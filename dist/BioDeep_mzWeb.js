@@ -10,6 +10,13 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var BioDeep;
 (function (BioDeep) {
+    BioDeep.x0 = "0".charCodeAt(0);
+    BioDeep.x9 = "9".charCodeAt(0);
+    function isNumber(text) {
+        var code = text.charCodeAt(0);
+        return code >= BioDeep.x0 && code <= BioDeep.x9;
+    }
+    BioDeep.isNumber = isNumber;
     /**
      * 将文本字符串按照newline进行分割
     */
@@ -138,14 +145,62 @@ var BioDeep;
                 var headers = lines
                     .TakeWhile(function (s) { return s.charAt(0) == "H"; })
                     .ToArray();
+                var scans = lines
+                    .Skip(headers.length)
+                    .ChunkWith(function (line) { return line.charAt(0) == "S"; })
+                    .Select(Ms2.ParseScan)
+                    .ToArray();
+                return {
+                    header: new Ms2Header(headers),
+                    scans: scans
+                };
             };
             Ms2.ParseScan = function (data) {
+                var line = -1;
+                var meta = {};
+                for (var i = 0; i < data.length; i++) {
+                    var first = data[i].charAt(0);
+                    if (BioDeep.isNumber(first)) {
+                        line = i;
+                        break;
+                    }
+                    switch (first) {
+                        case "S":
+                            break;
+                        case "I":
+                            break;
+                        case "Z":
+                            break;
+                        default:
+                            throw "Parser for " + first + " not implements yet.";
+                    }
+                }
+                var matrix;
+                if (line == -1) {
+                    matrix = [];
+                }
+                else {
+                    matrix = From(data)
+                        .Skip(line)
+                        .Select(function (text, i) {
+                        var tokens = text.split(" ");
+                        var mz = parseFloat(tokens[0]);
+                        var into = parseFloat(tokens[1]);
+                        return {
+                            mz: mz,
+                            into: into,
+                            id: (i + 1).toString()
+                        };
+                    })
+                        .ToArray();
+                }
+                return new Scan(meta, matrix);
             };
             return Ms2;
         }());
         IO.Ms2 = Ms2;
         var Ms2Header = /** @class */ (function () {
-            function Ms2Header() {
+            function Ms2Header(data) {
             }
             return Ms2Header;
         }());
@@ -157,8 +212,9 @@ var BioDeep;
         */
         var Scan = /** @class */ (function (_super) {
             __extends(Scan, _super);
-            function Scan() {
-                return _super !== null && _super.apply(this, arguments) || this;
+            //#endregion
+            function Scan(meta, matrix) {
+                return _super.call(this, matrix) || this;
             }
             return Scan;
         }(BioDeep.Models.IMs2Scan));

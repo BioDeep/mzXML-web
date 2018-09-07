@@ -1,5 +1,8 @@
 /// <reference path="../../build/linq.d.ts" />
 declare namespace BioDeep {
+    const x0: number;
+    const x9: number;
+    function isNumber(text: string): boolean;
     /**
      * 将文本字符串按照newline进行分割
     */
@@ -80,6 +83,7 @@ declare namespace BioDeep.IO {
          * The options used in running the extractor software
         */
         ExtractorOptions: string;
+        constructor(data: string[]);
     }
     /**
      * Each scan begins with a few records listing the parameters describing the spectrum.
@@ -96,6 +100,7 @@ declare namespace BioDeep.IO {
         TIC: number;
         charge: number;
         mass: number;
+        constructor(meta: object, matrix: BioDeep.Models.mzInto[]);
     }
 }
 declare namespace BioDeep.Models {
