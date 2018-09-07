@@ -17,20 +17,36 @@ namespace BioDeep.IO.Ms2Reader {
         public get firstScan(): number {
             return this.meta.GetValue();
         };
-        public secondScan: number;
-        public precursorMz: number;
+        public get secondScan(): number {
+            return this.meta.GetValue();
+        };
+        public get precursorMz(): number {
+            return this.meta.GetValue();
+        };
         //#endregion
 
         //#region "I"
-        public RTime: number;
-        public BPI: number;
-        public BPM: number;
-        public TIC: number;
+        public get RTime(): number {
+            return this.meta.GetValue();
+        };
+        public get BPI(): number {
+            return this.meta.GetValue();
+        };
+        public get BPM(): number {
+            return this.meta.GetValue();
+        };
+        public get TIC(): number {
+            return this.meta.GetValue();
+        };
         //#endregion
 
         //#region "Z"
-        public charge: number;
-        public mass: number;
+        public get charge(): number {
+            return this.meta.GetValue();
+        };
+        public get mass(): number {
+            return this.meta.GetValue();
+        };
         //#endregion
 
         private readonly meta: TsLinq.MetaReader;

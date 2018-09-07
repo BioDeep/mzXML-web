@@ -46,6 +46,20 @@ declare namespace BioDeep.IO {
         toString(): string;
     }
 }
+declare namespace BioDeep.Models {
+    class mzInto {
+        id: string;
+        /**
+         * m/z
+        */
+        mz: number;
+        /**
+         * intensity
+        */
+        into: number;
+        toString(): string;
+    }
+}
 /**
  * The ``*.ms2`` file format reader
 */
@@ -64,6 +78,11 @@ declare namespace BioDeep.IO.Ms2Reader {
         static Parse(text: string): Ms2;
         private static ParseScan;
     }
+}
+/**
+ * The ``*.ms2`` file format reader
+*/
+declare namespace BioDeep.IO.Ms2Reader {
     class Ms2Header {
         /**
          * The date and time when the file was created
@@ -90,6 +109,11 @@ declare namespace BioDeep.IO.Ms2Reader {
         private readonly meta;
         constructor(data: string[]);
     }
+}
+/**
+ * The ``*.ms2`` file format reader
+*/
+declare namespace BioDeep.IO.Ms2Reader {
     /**
      * Each scan begins with a few records listing the parameters describing the spectrum.
      * These lines must begin with ``S``, ``I``, ``Z``, or ``D``. The records are followed
@@ -97,29 +121,15 @@ declare namespace BioDeep.IO.Ms2Reader {
     */
     class Scan extends Models.IMs2Scan {
         readonly firstScan: number;
-        secondScan: number;
-        precursorMz: number;
-        RTime: number;
-        BPI: number;
-        BPM: number;
-        TIC: number;
-        charge: number;
-        mass: number;
+        readonly secondScan: number;
+        readonly precursorMz: number;
+        readonly RTime: number;
+        readonly BPI: number;
+        readonly BPM: number;
+        readonly TIC: number;
+        readonly charge: number;
+        readonly mass: number;
         private readonly meta;
         constructor(meta: object, matrix: BioDeep.Models.mzInto[]);
-    }
-}
-declare namespace BioDeep.Models {
-    class mzInto {
-        id: string;
-        /**
-         * m/z
-        */
-        mz: number;
-        /**
-         * intensity
-        */
-        into: number;
-        toString(): string;
     }
 }

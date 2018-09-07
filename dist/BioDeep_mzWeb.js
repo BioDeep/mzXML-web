@@ -123,8 +123,23 @@ var BioDeep;
         IO.mgf = mgf;
     })(IO = BioDeep.IO || (BioDeep.IO = {}));
 })(BioDeep || (BioDeep = {}));
-/// <reference path="../../../build/linq.d.ts" />
-/// <reference path="../Models/Abstract.ts" />
+var BioDeep;
+(function (BioDeep) {
+    var Models;
+    (function (Models) {
+        var mzInto = /** @class */ (function () {
+            function mzInto() {
+            }
+            mzInto.prototype.toString = function () {
+                return this.mz + "/" + this.into;
+            };
+            return mzInto;
+        }());
+        Models.mzInto = mzInto;
+    })(Models = BioDeep.Models || (BioDeep.Models = {}));
+})(BioDeep || (BioDeep = {}));
+/// <reference path="../../../../build/linq.d.ts" />
+/// <reference path="../../Models/Abstract.ts" />
 /**
  * The ``*.ms2`` file format reader
 */
@@ -157,7 +172,7 @@ var BioDeep;
                         .Select(Ms2.ParseScan)
                         .ToArray();
                     return {
-                        header: new Ms2Header(headers),
+                        header: new Ms2Reader.Ms2Header(headers),
                         scans: scans
                     };
                 };
@@ -210,11 +225,25 @@ var BioDeep;
                         })
                             .ToArray();
                     }
-                    return new Scan(meta, matrix);
+                    return new Ms2Reader.Scan(meta, matrix);
                 };
                 return Ms2;
             }());
             Ms2Reader.Ms2 = Ms2;
+        })(Ms2Reader = IO.Ms2Reader || (IO.Ms2Reader = {}));
+    })(IO = BioDeep.IO || (BioDeep.IO = {}));
+})(BioDeep || (BioDeep = {}));
+/// <reference path="../../../../build/linq.d.ts" />
+/// <reference path="../../Models/Abstract.ts" />
+/**
+ * The ``*.ms2`` file format reader
+*/
+var BioDeep;
+(function (BioDeep) {
+    var IO;
+    (function (IO) {
+        var Ms2Reader;
+        (function (Ms2Reader) {
             var Ms2Header = /** @class */ (function () {
                 function Ms2Header(data) {
                     var tags = From(data)
@@ -299,6 +328,20 @@ var BioDeep;
                 return Ms2Header;
             }());
             Ms2Reader.Ms2Header = Ms2Header;
+        })(Ms2Reader = IO.Ms2Reader || (IO.Ms2Reader = {}));
+    })(IO = BioDeep.IO || (BioDeep.IO = {}));
+})(BioDeep || (BioDeep = {}));
+/// <reference path="../../../../build/linq.d.ts" />
+/// <reference path="../../Models/Abstract.ts" />
+/**
+ * The ``*.ms2`` file format reader
+*/
+var BioDeep;
+(function (BioDeep) {
+    var IO;
+    (function (IO) {
+        var Ms2Reader;
+        (function (Ms2Reader) {
             /**
              * Each scan begins with a few records listing the parameters describing the spectrum.
              * These lines must begin with ``S``, ``I``, ``Z``, or ``D``. The records are followed
@@ -321,25 +364,78 @@ var BioDeep;
                     configurable: true
                 });
                 ;
+                Object.defineProperty(Scan.prototype, "secondScan", {
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Scan.prototype, "precursorMz", {
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Scan.prototype, "RTime", {
+                    //#endregion
+                    //#region "I"
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Scan.prototype, "BPI", {
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Scan.prototype, "BPM", {
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Scan.prototype, "TIC", {
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Scan.prototype, "charge", {
+                    //#endregion
+                    //#region "Z"
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                Object.defineProperty(Scan.prototype, "mass", {
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
                 return Scan;
             }(BioDeep.Models.IMs2Scan));
             Ms2Reader.Scan = Scan;
         })(Ms2Reader = IO.Ms2Reader || (IO.Ms2Reader = {}));
     })(IO = BioDeep.IO || (BioDeep.IO = {}));
-})(BioDeep || (BioDeep = {}));
-var BioDeep;
-(function (BioDeep) {
-    var Models;
-    (function (Models) {
-        var mzInto = /** @class */ (function () {
-            function mzInto() {
-            }
-            mzInto.prototype.toString = function () {
-                return this.mz + "/" + this.into;
-            };
-            return mzInto;
-        }());
-        Models.mzInto = mzInto;
-    })(Models = BioDeep.Models || (BioDeep.Models = {}));
 })(BioDeep || (BioDeep = {}));
 //# sourceMappingURL=BioDeep_mzWeb.js.map
