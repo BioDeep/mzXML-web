@@ -1,4 +1,5 @@
 ﻿/// <reference path="../../../build/linq.d.ts" />
+/// <reference path="../Models/Abstract.ts" />
 
 namespace BioDeep.IO {
 
@@ -12,7 +13,7 @@ namespace BioDeep.IO {
      * 
      * 在这个模块之中解析mgf格式的质谱图数据
     */
-    export class mgf extends IEnumerator<BioDeep.Models.mzInto> {
+    export class mgf extends Models.IMs2Scan {
 
         /**
          * PEPMASS
@@ -30,10 +31,6 @@ namespace BioDeep.IO {
          * TITLE
         */
         public title: string;
-
-        public get mzInto(): BioDeep.Models.mzInto[] {
-            return [...this.sequence];
-        };
 
         public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
             super(matrix);
@@ -59,7 +56,7 @@ namespace BioDeep.IO {
             "TITLE": "title"
         });
 
-        public static IonParse(data: string[]): mgf {            
+        public static IonParse(data: string[]): mgf {
             var line: number = data[0] == mgfBeginIons ? 1 : 0;
             var mgfFields: object = {};
 

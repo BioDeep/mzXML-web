@@ -11,6 +11,30 @@ var __extends = (this && this.__extends) || (function () {
 /// <reference path="../../../build/linq.d.ts" />
 var BioDeep;
 (function (BioDeep) {
+    var Models;
+    (function (Models) {
+        var IMs2Scan = /** @class */ (function (_super) {
+            __extends(IMs2Scan, _super);
+            function IMs2Scan(matrix) {
+                return _super.call(this, matrix) || this;
+            }
+            Object.defineProperty(IMs2Scan.prototype, "mzInto", {
+                get: function () {
+                    return this.sequence.slice();
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ;
+            return IMs2Scan;
+        }(IEnumerator));
+        Models.IMs2Scan = IMs2Scan;
+    })(Models = BioDeep.Models || (BioDeep.Models = {}));
+})(BioDeep || (BioDeep = {}));
+/// <reference path="../../../build/linq.d.ts" />
+/// <reference path="../Models/Abstract.ts" />
+var BioDeep;
+(function (BioDeep) {
     var IO;
     (function (IO) {
         var mgfBeginIons = "BEGIN IONS";
@@ -32,14 +56,6 @@ var BioDeep;
                 _this.precursor_mass = parseFloat(meta["precursor_mass"]);
                 return _this;
             }
-            Object.defineProperty(mgf.prototype, "mzInto", {
-                get: function () {
-                    return this.sequence.slice();
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ;
             mgf.Parse = function (text) {
                 var lines = (!text) ? [] : text.trim().split("\n");
                 return From(lines)
@@ -85,8 +101,49 @@ var BioDeep;
                 "TITLE": "title"
             });
             return mgf;
-        }(IEnumerator));
+        }(BioDeep.Models.IMs2Scan));
         IO.mgf = mgf;
+    })(IO = BioDeep.IO || (BioDeep.IO = {}));
+})(BioDeep || (BioDeep = {}));
+/// <reference path="../../../build/linq.d.ts" />
+/// <reference path="../Models/Abstract.ts" />
+var BioDeep;
+(function (BioDeep) {
+    var IO;
+    (function (IO) {
+        /**
+         * The MS2 file format is used to record MS/MS spectra. A full description of the
+         * MS2 file format may be found in:
+         *
+         * > McDonald,W.H. et al. MS1, MS2, and SQT-three unified, compact, and easily
+         * > parsed file formats for the storage of shotgun proteomic spectra and
+         * > identifications. Rapid Commun. Mass Spectrom. 18, 2162-2168 (2004).
+        */
+        var Ms2 = /** @class */ (function () {
+            function Ms2() {
+            }
+            return Ms2;
+        }());
+        IO.Ms2 = Ms2;
+        var Ms2Header = /** @class */ (function () {
+            function Ms2Header() {
+            }
+            return Ms2Header;
+        }());
+        IO.Ms2Header = Ms2Header;
+        /**
+         * Each scan begins with a few records listing the parameters describing the spectrum.
+         * These lines must begin with ``S``, ``I``, ``Z``, or ``D``. The records are followed
+         * by pairs of m/z and intensity values, one pair per line.
+        */
+        var Scan = /** @class */ (function (_super) {
+            __extends(Scan, _super);
+            function Scan() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            return Scan;
+        }(BioDeep.Models.IMs2Scan));
+        IO.Scan = Scan;
     })(IO = BioDeep.IO || (BioDeep.IO = {}));
 })(BioDeep || (BioDeep = {}));
 var BioDeep;
