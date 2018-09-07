@@ -36,12 +36,9 @@ namespace BioDeep.IO {
         };
 
         public static Parse(text: string): IEnumerator<mgf> {
-            var lines: string[] = text.split("\n");
-            var list: mgf[] = [];
-
-
-
-            return new IEnumerator<mgf>(list);
+            return From(text.split("\n"))
+                .ChunkWith(line => line == mgfEndIons)
+                .Select(data => mgf.IonParse(data));
         }
 
         public static IonParse(data: string[]): mgf {

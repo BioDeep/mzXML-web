@@ -13,7 +13,13 @@ var BioDeep;
 (function (BioDeep) {
     var IO;
     (function (IO) {
+        var mgfBeginIons = "BEGIN IONS";
+        var mgfEndIons = "END IONS";
         /**
+         * mascot generic format files
+         *
+         * > http://fiehnlab.ucdavis.edu/projects/LipidBlast/mgf-files
+         *
          * 在这个模块之中解析mgf格式的质谱图数据
         */
         var mgf = /** @class */ (function (_super) {
@@ -30,6 +36,14 @@ var BioDeep;
             });
             ;
             mgf.Parse = function (text) {
+                var lines = text.split("\n");
+                var list = [];
+                return new IEnumerator(list);
+            };
+            mgf.IonParse = function (data) {
+            };
+            mgf.prototype.toString = function () {
+                return this.title;
             };
             return mgf;
         }(IEnumerator));
