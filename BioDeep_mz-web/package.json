@@ -1,0 +1,12 @@
+{
+  "name": "bio-deep_mz-web",
+  "version": "0.0.0",
+  "description": "BioDeep_mz-web",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.14"
+  }
+}
