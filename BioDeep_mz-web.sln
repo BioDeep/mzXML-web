@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27906.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "BioDeep_mz-web", "BioDeep_mz-web.njsproj", "{293B88F8-D6F0-4FE7-906D-7F62747A4046}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "BioDeep_mz-web", "BioDeep_mz-web\BioDeep_mz-web.njsproj", "{293B88F8-D6F0-4FE7-906D-7F62747A4046}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Linq.ts", "..\..\Linq\Linq.ts\Linq.ts.njsproj", "{E0AEC189-6D05-47E4-9F69-DAFE43AC8398}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Linq.ts", "..\Linq\Linq.ts\Linq.ts.njsproj", "{E0AEC189-6D05-47E4-9F69-DAFE43AC8398}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runtime", "runtime", "{2A5DE212-A966-4D6A-ABFD-093B03BFE5A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +26,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E0AEC189-6D05-47E4-9F69-DAFE43AC8398} = {2A5DE212-A966-4D6A-ABFD-093B03BFE5A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2F420643-5D9B-4A7A-8DE1-9BF041681094}

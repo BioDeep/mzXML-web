@@ -1,0 +1,35 @@
+<script type="text/javascript" src="http://msms.biodeep.cn/modules/build/linq.js"></script>
+<script type="text/javascript" src="./BioDeep_mzWeb.js"></script>
+
+<script type="text/html" id="mgf-data">
+BEGIN IONS
+TITLE=003_Ex2_Orbitrap_CID.2.2.1 File:"", NativeID:"controllerType=0 controllerNumber=1 scan=2"
+RTINSECONDS=0.5642
+PEPMASS=476.306457519531 14336.8515625
+CHARGE=1+
+175.1937866 6.7122807503
+417.5123901 20.8370780945
+419.4351501 10.4548578262
+431.6585388 28.1394748688
+465.2776489 4.0057487488
+467.3275452 9.0306663513
+489.1283875 8.6942596436
+END IONS
+BEGIN IONS
+TITLE=003_Ex2_Orbitrap_CID.3.3.1 File:"", NativeID:"controllerType=0 controllerNumber=1 scan=3"
+RTINSECONDS=0.7517
+PEPMASS=482.403778076172 8296.046875
+CHARGE=1+
+259.0870361 6.8198237419
+460.0747986 8.0557174683
+464.8643188 2.8943283558
+469.3442688 12.2613239288
+END IONS
+</script>
+
+<script type="text/javascript">
+	var data = LoadText("mgf-data");
+	var mgf = BioDeep.IO.mgf.Parse(data).ToArray();
+
+	console.log(mgf);
+</script>
