@@ -125,147 +125,153 @@ var BioDeep;
 })(BioDeep || (BioDeep = {}));
 /// <reference path="../../../build/linq.d.ts" />
 /// <reference path="../Models/Abstract.ts" />
+/**
+ * The ``*.ms2`` file format reader
+*/
 var BioDeep;
 (function (BioDeep) {
     var IO;
     (function (IO) {
-        /**
-         * The MS2 file format is used to record MS/MS spectra. A full description of the
-         * MS2 file format may be found in:
-         *
-         * > McDonald,W.H. et al. MS1, MS2, and SQT-three unified, compact, and easily
-         * > parsed file formats for the storage of shotgun proteomic spectra and
-         * > identifications. Rapid Commun. Mass Spectrom. 18, 2162-2168 (2004).
-        */
-        var Ms2 = /** @class */ (function () {
-            function Ms2() {
-            }
-            Ms2.Parse = function (text) {
-                var lines = From(BioDeep.lineTokens(text));
-                var headers = lines
-                    .TakeWhile(function (s) { return s.charAt(0) == "H"; })
-                    .ToArray();
-                var scans = lines
-                    .Skip(headers.length)
-                    .ChunkWith(function (line) { return line.charAt(0) == "S"; })
-                    .Select(Ms2.ParseScan)
-                    .ToArray();
-                return {
-                    header: new Ms2Header(headers),
-                    scans: scans
-                };
-            };
-            Ms2.ParseScan = function (data) {
-                var line = -1;
-                var meta = {};
-                for (var i = 0; i < data.length; i++) {
-                    var first = data[i].charAt(0);
-                    if (BioDeep.isNumber(first)) {
-                        line = i;
-                        break;
-                    }
-                    var tokens = data[i].split("\t");
-                    switch (first) {
-                        case "S":
-                            // S	2	2	0
-                            meta["firstScan"] = parseFloat(tokens[1]);
-                            meta["secondScan"] = parseFloat(tokens[2]);
-                            meta["precursorMz"] = parseFloat(tokens[3]);
-                            break;
-                        case "I":
-                            // I	RTime	0.01252833
-                            meta[tokens[1]] = tokens[2];
-                            break;
-                        case "Z":
-                            // Z	1	482.4038
-                            meta["charge"] = parseFloat(tokens[1]);
-                            meta["mass"] = parseFloat(tokens[2]);
-                            break;
-                        default:
-                            throw "Parser for " + first + " not implements yet.";
-                    }
+        var Ms2Reader;
+        (function (Ms2Reader) {
+            /**
+             * The MS2 file format is used to record MS/MS spectra. A full description of the
+             * MS2 file format may be found in:
+             *
+             * > McDonald,W.H. et al. MS1, MS2, and SQT-three unified, compact, and easily
+             * > parsed file formats for the storage of shotgun proteomic spectra and
+             * > identifications. Rapid Commun. Mass Spectrom. 18, 2162-2168 (2004).
+            */
+            var Ms2 = /** @class */ (function () {
+                function Ms2() {
                 }
-                var matrix;
-                if (line == -1) {
-                    matrix = [];
-                }
-                else {
-                    matrix = From(data)
-                        .Skip(line)
-                        .Select(function (text, i) {
-                        var tokens = text.split(" ");
-                        var mz = parseFloat(tokens[0]);
-                        var into = parseFloat(tokens[1]);
-                        return {
-                            mz: mz,
-                            into: into,
-                            id: (i + 1).toString()
-                        };
-                    })
+                Ms2.Parse = function (text) {
+                    var lines = From(BioDeep.lineTokens(text));
+                    var headers = lines
+                        .TakeWhile(function (s) { return s.charAt(0) == "H"; })
                         .ToArray();
-                }
-                return new Scan(meta, matrix);
-            };
-            return Ms2;
-        }());
-        IO.Ms2 = Ms2;
-        var Ms2Header = /** @class */ (function () {
-            function Ms2Header(data) {
-                var tags = From(data)
-                    .Select(function (s) { return s.substr(2); })
-                    .Select(function (s) {
-                    if (s.indexOf("\t") > -1) {
-                        return Strings.GetTagValue(s, "\t");
+                    var scans = lines
+                        .Skip(headers.length)
+                        .ChunkWith(function (line) { return line.charAt(0) == "S"; })
+                        .Select(Ms2.ParseScan)
+                        .ToArray();
+                    return {
+                        header: new Ms2Header(headers),
+                        scans: scans
+                    };
+                };
+                Ms2.ParseScan = function (data) {
+                    var line = -1;
+                    var meta = {};
+                    for (var i = 0; i < data.length; i++) {
+                        var first = data[i].charAt(0);
+                        if (BioDeep.isNumber(first)) {
+                            line = i;
+                            break;
+                        }
+                        var tokens = data[i].split("\t");
+                        switch (first) {
+                            case "S":
+                                // S	2	2	0
+                                meta["firstScan"] = parseFloat(tokens[1]);
+                                meta["secondScan"] = parseFloat(tokens[2]);
+                                meta["precursorMz"] = parseFloat(tokens[3]);
+                                break;
+                            case "I":
+                                // I	RTime	0.01252833
+                                meta[tokens[1]] = tokens[2];
+                                break;
+                            case "Z":
+                                // Z	1	482.4038
+                                meta["charge"] = parseFloat(tokens[1]);
+                                meta["mass"] = parseFloat(tokens[2]);
+                                break;
+                            default:
+                                throw "Parser for " + first + " not implements yet.";
+                        }
+                    }
+                    var matrix;
+                    if (line == -1) {
+                        matrix = [];
                     }
                     else {
-                        return Strings.GetTagValue(s, " ");
+                        matrix = From(data)
+                            .Skip(line)
+                            .Select(function (text, i) {
+                            var tokens = text.split(" ");
+                            var mz = parseFloat(tokens[0]);
+                            var into = parseFloat(tokens[1]);
+                            return {
+                                mz: mz,
+                                into: into,
+                                id: (i + 1).toString()
+                            };
+                        })
+                            .ToArray();
                     }
+                    return new Scan(meta, matrix);
+                };
+                return Ms2;
+            }());
+            Ms2Reader.Ms2 = Ms2;
+            var Ms2Header = /** @class */ (function () {
+                function Ms2Header(data) {
+                    var tags = From(data)
+                        .Select(function (s) { return s.substr(2); })
+                        .Select(function (s) {
+                        if (s.indexOf("\t") > -1) {
+                            return Strings.GetTagValue(s, "\t");
+                        }
+                        else {
+                            return Strings.GetTagValue(s, " ");
+                        }
+                    });
+                    this.meta = TypeInfo.CreateMetaReader(tags);
+                }
+                Object.defineProperty(Ms2Header.prototype, "CreationDate", {
+                    /**
+                     * The date and time when the file was created
+                    */
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
                 });
-                this.meta = TypeInfo.CreateMetaReader(tags);
-            }
-            Object.defineProperty(Ms2Header.prototype, "CreationDate", {
-                /**
-                 * The date and time when the file was created
-                */
-                get: function () {
-                    return this.meta.GetValue();
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ;
-            Ms2Header.fieldMaps = {
-                "Extractor version": "ExtractorVersion",
-                "Source file": "SourceFile"
-            };
-            return Ms2Header;
-        }());
-        IO.Ms2Header = Ms2Header;
-        /**
-         * Each scan begins with a few records listing the parameters describing the spectrum.
-         * These lines must begin with ``S``, ``I``, ``Z``, or ``D``. The records are followed
-         * by pairs of m/z and intensity values, one pair per line.
-        */
-        var Scan = /** @class */ (function (_super) {
-            __extends(Scan, _super);
-            function Scan(meta, matrix) {
-                var _this = _super.call(this, matrix) || this;
-                // read meta object value by call name
-                _this.meta = new data.MetaReader(meta);
-                return _this;
-            }
-            Object.defineProperty(Scan.prototype, "firstScan", {
-                //#region "S"
-                get: function () {
-                    return this.meta.GetValue();
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ;
-            return Scan;
-        }(BioDeep.Models.IMs2Scan));
-        IO.Scan = Scan;
+                ;
+                Ms2Header.fieldMaps = {
+                    "Extractor version": "ExtractorVersion",
+                    "Source file": "SourceFile"
+                };
+                return Ms2Header;
+            }());
+            Ms2Reader.Ms2Header = Ms2Header;
+            /**
+             * Each scan begins with a few records listing the parameters describing the spectrum.
+             * These lines must begin with ``S``, ``I``, ``Z``, or ``D``. The records are followed
+             * by pairs of m/z and intensity values, one pair per line.
+            */
+            var Scan = /** @class */ (function (_super) {
+                __extends(Scan, _super);
+                function Scan(meta, matrix) {
+                    var _this = _super.call(this, matrix) || this;
+                    // read meta object value by call name
+                    _this.meta = new data.MetaReader(meta);
+                    return _this;
+                }
+                Object.defineProperty(Scan.prototype, "firstScan", {
+                    //#region "S"
+                    get: function () {
+                        return this.meta.GetValue();
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                ;
+                return Scan;
+            }(BioDeep.Models.IMs2Scan));
+            Ms2Reader.Scan = Scan;
+        })(Ms2Reader = IO.Ms2Reader || (IO.Ms2Reader = {}));
     })(IO = BioDeep.IO || (BioDeep.IO = {}));
 })(BioDeep || (BioDeep = {}));
 var BioDeep;

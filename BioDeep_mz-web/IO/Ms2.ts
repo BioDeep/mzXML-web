@@ -1,7 +1,10 @@
 ﻿/// <reference path="../../../build/linq.d.ts" />
 /// <reference path="../Models/Abstract.ts" />
 
-namespace BioDeep.IO {
+/**
+ * The ``*.ms2`` file format reader
+*/
+namespace BioDeep.IO.Ms2Reader {
 
     /**
      * The MS2 file format is used to record MS/MS spectra. A full description of the 

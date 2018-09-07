@@ -46,7 +46,10 @@ declare namespace BioDeep.IO {
         toString(): string;
     }
 }
-declare namespace BioDeep.IO {
+/**
+ * The ``*.ms2`` file format reader
+*/
+declare namespace BioDeep.IO.Ms2Reader {
     /**
      * The MS2 file format is used to record MS/MS spectra. A full description of the
      * MS2 file format may be found in:
