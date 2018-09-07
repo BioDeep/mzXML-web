@@ -41,11 +41,13 @@ var BioDeep;
             });
             ;
             mgf.Parse = function (text) {
-                return From(text.split("\n"))
+                var lines = (!text) ? [] : text.trim().split("\n");
+                return From(lines)
                     .ChunkWith(function (line) { return line == mgfEndIons; })
                     .Select(function (data) { return mgf.IonParse(data); });
             };
             mgf.IonParse = function (data) {
+                console.log(data);
                 var line = data[0] == mgfBeginIons ? 1 : 0;
                 var mgfFields = {};
                 for (var i = line; i < data.length; i++) {
@@ -62,13 +64,14 @@ var BioDeep;
                 }
                 var matrix = From(data)
                     .Skip(line)
-                    .Select(function (text) {
+                    .Select(function (text, i) {
                     var tokens = text.split(" ");
                     var mz = parseFloat(tokens[0]);
                     var into = parseFloat(tokens[1]);
                     return {
                         mz: mz,
-                        into: into
+                        into: into,
+                        id: (i + 1).toString()
                     };
                 }).ToArray();
                 return new mgf(mgfFields, matrix);

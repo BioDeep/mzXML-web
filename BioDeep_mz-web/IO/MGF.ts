@@ -45,7 +45,9 @@ namespace BioDeep.IO {
         }
 
         public static Parse(text: string): IEnumerator<mgf> {
-            return From(text.split("\n"))
+            var lines: string[] = (!text) ? <string[]>[] : text.trim().split("\n");
+
+            return From(lines)
                 .ChunkWith(line => line == mgfEndIons)
                 .Select(data => mgf.IonParse(data));
         }
@@ -58,6 +60,7 @@ namespace BioDeep.IO {
         });
 
         public static IonParse(data: string[]): mgf {
+            console.log(data);
             var line: number = data[0] == mgfBeginIons ? 1 : 0;
             var mgfFields: object = {};
 
@@ -77,14 +80,15 @@ namespace BioDeep.IO {
 
             var matrix: BioDeep.Models.mzInto[] = From(data)
                 .Skip(line)
-                .Select(text => {
+                .Select((text, i) => {
                     var tokens: string[] = text.split(" ");
                     var mz: number = parseFloat(tokens[0]);
                     var into: number = parseFloat(tokens[1]);
 
                     return <BioDeep.Models.mzInto>{
                         mz: mz,
-                        into: into
+                        into: into,
+                        id: (i + 1).toString()
                     };
                 }).ToArray();
 
