@@ -15,6 +15,18 @@ namespace BioDeep.IO {
 
         public header: Ms2Header;
         public scans: Scan[];
+
+        public static Parse(text: string): Ms2 {
+            var lines: IEnumerator<string> = From(BioDeep.lineTokens(text));
+            var headers = lines
+                .TakeWhile(s => s.charAt(0) == "H")
+                .ToArray();
+
+        }
+
+        private static ParseScan(data: string[]): Scan {
+
+        }
     }
 
     export class Ms2Header {

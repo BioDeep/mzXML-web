@@ -42,11 +42,11 @@ namespace BioDeep.IO {
         }
 
         public static Parse(text: string): IEnumerator<mgf> {
-            var lines: string[] = (!text) ? <string[]>[] : text.trim().split("\n");
-
-            return From(lines)
-                .ChunkWith(line => line == mgfEndIons)
-                .Select(data => mgf.IonParse(data));
+            return From(BioDeep.lineTokens(text))
+                .ChunkWith(line => {
+                    return line == mgfEndIons;
+                })
+                .Select(mgf.IonParse);
         }
 
         static readonly fieldMaps: Dictionary<string> = new Dictionary<string>({
