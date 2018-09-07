@@ -25,7 +25,9 @@ declare namespace BioDeep.IO {
         */
         title: string;
         readonly mzInto: BioDeep.Models.mzInto[];
+        constructor(meta: object, matrix: BioDeep.Models.mzInto[]);
         static Parse(text: string): IEnumerator<mgf>;
+        static readonly fieldMaps: Dictionary<string>;
         static IonParse(data: string[]): mgf;
         toString(): string;
     }

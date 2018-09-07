@@ -24,8 +24,13 @@ var BioDeep;
         */
         var mgf = /** @class */ (function (_super) {
             __extends(mgf, _super);
-            function mgf() {
-                return _super !== null && _super.apply(this, arguments) || this;
+            function mgf(meta, matrix) {
+                var _this = _super.call(this, matrix) || this;
+                _this.charge = parseFloat(meta["charge"]);
+                _this.rt = parseFloat(meta["rt"]);
+                _this.title = meta["title"];
+                _this.precursor_mass = parseFloat(meta["precursor_mass"]);
+                return _this;
             }
             Object.defineProperty(mgf.prototype, "mzInto", {
                 get: function () {
@@ -41,10 +46,42 @@ var BioDeep;
                     .Select(function (data) { return mgf.IonParse(data); });
             };
             mgf.IonParse = function (data) {
+                var line = data[0] == mgfBeginIons ? 1 : 0;
+                var mgfFields = {};
+                for (var i = line; i < data.length; i++) {
+                    var str = data[i];
+                    if (str.indexOf("=") == -1) {
+                        line = i;
+                        break;
+                    }
+                    else {
+                        var tuple = Strings.GetTagValue(data[i], "=");
+                        var key = BioDeep.IO.mgf.fieldMaps.Item(tuple.name);
+                        mgfFields[key] = tuple.value;
+                    }
+                }
+                var matrix = From(data)
+                    .Skip(line)
+                    .Select(function (text) {
+                    var tokens = text.split(" ");
+                    var mz = parseFloat(tokens[0]);
+                    var into = parseFloat(tokens[1]);
+                    return {
+                        mz: mz,
+                        into: into
+                    };
+                }).ToArray();
+                return new mgf(mgfFields, matrix);
             };
             mgf.prototype.toString = function () {
                 return this.title;
             };
+            mgf.fieldMaps = new Dictionary({
+                "PEPMASS": "precursor_mass",
+                "CHARGE": "charge",
+                "RTINSECONDS": "rt",
+                "TITLE": "title"
+            });
             return mgf;
         }(IEnumerator));
         IO.mgf = mgf;
