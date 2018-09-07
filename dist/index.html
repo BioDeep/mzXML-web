@@ -27,9 +27,44 @@ CHARGE=1+
 END IONS
 </script>
 
+<script type="text/html" id="ms2-data">
+H	CreationDate Fri Sep 07 13:40:37 2018
+H	Extractor	ProteoWizard
+H	Extractor version	Xcalibur software
+H	Source file	003_Ex2_Orbitrap_CID.raw
+S	2	2	0
+I	RTime	0.009403333
+I	BPI	28.13947
+I	BPM	431.6585
+I	TIC	87.87437
+Z	1	476.3065
+175.1938 6.712281
+417.5124 20.83708
+419.4352 10.45486
+431.6585 28.13947
+465.2776 4.005749
+467.3275 9.030666
+489.1284 8.69426
+S	3	3	0
+I	RTime	0.01252833
+I	BPI	12.26132
+I	BPM	469.3443
+I	TIC	30.03119
+Z	1	482.4038
+259.087 6.819824
+460.0748 8.055717
+464.8643 2.894328
+469.3443 12.26132
+</script>
+
 <script type="text/javascript">
 	var data = LoadText("mgf-data");
 	var mgf = BioDeep.IO.mgf.Parse(data).ToArray();
 
 	console.log(mgf);
+	
+	data = LoadText("ms2-data");
+	var ms2 = BioDeep.IO.Ms2Reader.Ms2.Parse(data);
+	
+	console.log(ms2);
 </script>
