@@ -7,10 +7,34 @@ namespace BioDeep {
     */
     class PrecursorType {
 
+        #region "properties"
+
+        /**
+         * 加和物的名称全程
+         * 
+         * @var string
+        */
         var $Name;
+        /**
+         * 电荷数
+         * 
+         * @var integer
+        */
         var $charge;
+        /**
+         * 分子的数量
+         * 
+         * @var integer
+        */
         var $M;
+        /**
+         * 前体离子加和物的分子质量
+         * 
+         * @var double
+        */
         var $adducts;
+
+        #endregion
 
         /**
          * @param double $charge 电荷数，这里只需要绝对值就行了，不需要带有符号
@@ -25,17 +49,24 @@ namespace BioDeep {
 
         /**
          * 从MS/MS之中的加和物离子的m/z结果 precursorMZ 反推回mass结果的计算过程
+         * 
+         * @return double
         */
         public function Mass($mz) {
             return Utils::ReverseMass($mz, $this->M, $this->charge, $this->adducts);
         }
 
+        /**
+         * @return double
+        */
         public function CalMz($mass) {
             return Utils::AdductMz($mass * $this->M, $this->adducts, $this->charge);
         }
 
         /**
          * 为了方便编写代码
+         * 
+         * @return PrecursorType
         */
         private static function new($type, $charge, $M, $adducts) {
             $adducts = \BioDeep\MolWeight::Eval($adducts);
@@ -44,6 +75,8 @@ namespace BioDeep {
 
         /**
          * 返回预设的阳离子计算组
+         * 
+         * @return PrecursorType[]
         */
         public static function Positive() {
             return [
@@ -82,6 +115,9 @@ namespace BioDeep {
             ];
         }
 
+        /**
+         * @return PrecursorType[]
+        */
         public static function Negative() {
             return [
                 "M-3H"	         => self::new("[M-3H]3-",         -3, 1, "-3H"),    # M/3 -   1.007276	 3-	0.33	-1.007276	283.436354	293.113943
@@ -103,11 +139,29 @@ namespace BioDeep {
         }
 
         /**
+         * 函数返回某一种离子化模式的所有的加和物的名称列表
+         * 
+         * @return string[]
+        */
+        public static function DefaultAdductNames($mode) {
+            $types = self::LoadDefault($mode);
+            $names = [];
+
+            foreach($types as $type) {
+                array_push($names, $type->Name);
+            }
+
+            return $names;
+        }
+
+        /**
          * 加载指定模式的预设的``m/z``计算模块
          * 
          * @param string|integer $mode When this parameter is string type, required 
          *      value should be one of the value of ``+/-``, 
          *      and ``1/-1`` when the parameter value type is integer.
+         * 
+         * @return PrecursorType[]
         */
         public static function LoadDefault($mode) {
             if ($mode == 1 || $mode == "+") {
