@@ -23,14 +23,14 @@ var BioDeep;
     }
     BioDeep.GenericMatrixParser = GenericMatrixParser;
     function mzIntoParser(line, index) {
-        var chars = Strings.ToCharArray(Strings.Trim(line, "\t\n "));
-        var mz = [];
-        var into = [];
-        if (mz.length == 0 || into.length == 0) {
+        var data = Strings.Trim(line, " \t\n").split(/\s+/g);
+        var mz = data[0];
+        var into = data[1];
+        if ((!mz) || (!into)) {
             throw "Data format error: missing m/z or into (line[" + index + "]='" + line + "')";
         }
         else {
-            return new BioDeep.Models.mzInto(index.toString(), parseFloat(mz.join("")), parseFloat(into.join("")));
+            return new BioDeep.Models.mzInto(index.toString(), parseFloat(mz), parseFloat(into));
         }
     }
 })(BioDeep || (BioDeep = {}));
