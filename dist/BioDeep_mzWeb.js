@@ -10,11 +10,29 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var BioDeep;
 (function (BioDeep) {
+    /**
+     * 一个比较通用的二级质谱矩阵解析函数
+     *
+     * @param text 要求这个文本之中的每一行数据都应该是mz into的键值对
+     *            mz和into之间的空白可以是任意空白
+    */
     function GenericMatrixParser(text) {
-        return $ts(Strings.lineTokens(text)).Select(function (line) {
-        });
+        return $ts(Strings.lineTokens(text))
+            .Select(function (line, i) { return mzIntoParser(line, i); })
+            .ToArray();
     }
     BioDeep.GenericMatrixParser = GenericMatrixParser;
+    function mzIntoParser(line, index) {
+        var chars = Strings.ToCharArray(Strings.Trim(line, "\t\n "));
+        var mz = [];
+        var into = [];
+        if (mz.length == 0 || into.length == 0) {
+            throw "Data format error: missing m/z or into (line[" + index + "]='" + line + "')";
+        }
+        else {
+            return new BioDeep.Models.mzInto(index.toString(), parseFloat(mz.join("")), parseFloat(into.join("")));
+        }
+    }
 })(BioDeep || (BioDeep = {}));
 /// <reference path="../../../build/linq.d.ts" />
 var BioDeep;

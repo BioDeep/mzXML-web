@@ -1,5 +1,11 @@
 /// <reference path="../../build/linq.d.ts" />
 declare namespace BioDeep {
+    /**
+     * 一个比较通用的二级质谱矩阵解析函数
+     *
+     * @param text 要求这个文本之中的每一行数据都应该是mz into的键值对
+     *            mz和into之间的空白可以是任意空白
+    */
     function GenericMatrixParser(text: string): Models.mzInto[];
 }
 declare namespace BioDeep.Models {

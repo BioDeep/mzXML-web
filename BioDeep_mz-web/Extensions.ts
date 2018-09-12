@@ -8,11 +8,23 @@
     */
     export function GenericMatrixParser(text: string): Models.mzInto[] {
         return (<IEnumerator<string>>$ts(Strings.lineTokens(text)))
-            .Select(line => mzIntoParser(line))
+            .Select((line, i) => mzIntoParser(line, i))
             .ToArray();
     }
 
-    function mzIntoParser(line: string): Models.mzInto {
-        var chars: string[] = Strings.ToCharArray(line.trim());
+    function mzIntoParser(line: string, index: number): Models.mzInto {
+        var data: string[] = Strings.Trim(line, " \t\n").split(/\s+/g);
+        var mz: string = data[0];
+        var into: string = data[1];
+
+        if ((!mz) || (!into)) {
+            throw `Data format error: missing m/z or into (line[${index}]='${line}')`;
+        } else {
+            return new Models.mzInto(
+                index.toString(),
+                parseFloat(mz),
+                parseFloat(into)
+            );
+        }
     }
 }
