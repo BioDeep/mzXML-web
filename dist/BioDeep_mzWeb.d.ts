@@ -1,12 +1,6 @@
 /// <reference path="../../build/linq.d.ts" />
 declare namespace BioDeep {
-    const x0: number;
-    const x9: number;
-    function isNumber(text: string): boolean;
-    /**
-     * 将文本字符串按照newline进行分割
-    */
-    function lineTokens(text: string): string[];
+    function GenericMatrixParser(text: string): Models.mzInto[];
 }
 declare namespace BioDeep.Models {
     class IMs2Scan extends IEnumerator<BioDeep.Models.mzInto> {
@@ -45,6 +39,8 @@ declare namespace BioDeep.IO {
         static IonParse(data: string[]): mgf;
         toString(): string;
     }
+}
+declare namespace BioDeep.IO {
 }
 declare namespace BioDeep.Models {
     class mzInto {
