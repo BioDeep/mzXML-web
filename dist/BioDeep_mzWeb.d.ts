@@ -46,6 +46,8 @@ declare namespace BioDeep.IO {
         toString(): string;
     }
 }
+declare namespace BioDeep.IO {
+}
 declare namespace BioDeep.Models {
     class mzInto {
         id: string;

@@ -123,6 +123,8 @@ var BioDeep;
         IO.mgf = mgf;
     })(IO = BioDeep.IO || (BioDeep.IO = {}));
 })(BioDeep || (BioDeep = {}));
+/// <reference path="../../../build/linq.d.ts" />
+/// <reference path="../Models/Abstract.ts" />
 var BioDeep;
 (function (BioDeep) {
     var Models;
