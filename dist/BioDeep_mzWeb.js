@@ -10,20 +10,29 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var BioDeep;
 (function (BioDeep) {
-    BioDeep.x0 = "0".charCodeAt(0);
-    BioDeep.x9 = "9".charCodeAt(0);
-    function isNumber(text) {
-        var code = text.charCodeAt(0);
-        return code >= BioDeep.x0 && code <= BioDeep.x9;
-    }
-    BioDeep.isNumber = isNumber;
     /**
-     * 将文本字符串按照newline进行分割
+     * 一个比较通用的二级质谱矩阵解析函数
+     *
+     * @param text 要求这个文本之中的每一行数据都应该是mz into的键值对
+     *            mz和into之间的空白可以是任意空白
     */
-    function lineTokens(text) {
-        return (!text) ? [] : text.trim().split("\n");
+    function GenericMatrixParser(text) {
+        return $ts(Strings.lineTokens(text))
+            .Select(function (line, i) { return mzIntoParser(line, i); })
+            .ToArray();
     }
-    BioDeep.lineTokens = lineTokens;
+    BioDeep.GenericMatrixParser = GenericMatrixParser;
+    function mzIntoParser(line, index) {
+        var data = Strings.Trim(line, " \t\n").split(/\s+/g);
+        var mz = data[0];
+        var into = data[1];
+        if ((!mz) || (!into)) {
+            throw "Data format error: missing m/z or into (line[" + index + "]='" + line + "')";
+        }
+        else {
+            return new BioDeep.Models.mzInto(index.toString(), parseFloat(mz), parseFloat(into));
+        }
+    }
 })(BioDeep || (BioDeep = {}));
 /// <reference path="../../../build/linq.d.ts" />
 var BioDeep;
@@ -74,7 +83,7 @@ var BioDeep;
                 return _this;
             }
             mgf.Parse = function (text) {
-                return From(BioDeep.lineTokens(text))
+                return From(Strings.lineTokens(text))
                     .ChunkWith(function (line) {
                     return line == mgfEndIons;
                 })
@@ -166,7 +175,7 @@ var BioDeep;
                 function Ms2() {
                 }
                 Ms2.Parse = function (text) {
-                    var lines = From(BioDeep.lineTokens(text));
+                    var lines = From(Strings.lineTokens(text));
                     var headers = lines
                         .TakeWhile(function (s) { return s.charAt(0) == "H"; })
                         .ToArray();
@@ -186,7 +195,7 @@ var BioDeep;
                     var meta = {};
                     for (var i = 0; i < data.length; i++) {
                         var first = data[i].charAt(0);
-                        if (BioDeep.isNumber(first)) {
+                        if (Strings.isNumber(first)) {
                             line = i;
                             break;
                         }

@@ -1,12 +1,12 @@
 /// <reference path="../../build/linq.d.ts" />
 declare namespace BioDeep {
-    const x0: number;
-    const x9: number;
-    function isNumber(text: string): boolean;
     /**
-     * 将文本字符串按照newline进行分割
+     * 一个比较通用的二级质谱矩阵解析函数
+     *
+     * @param text 要求这个文本之中的每一行数据都应该是mz into的键值对
+     *            mz和into之间的空白可以是任意空白
     */
-    function lineTokens(text: string): string[];
+    function GenericMatrixParser(text: string): Models.mzInto[];
 }
 declare namespace BioDeep.Models {
     class IMs2Scan extends IEnumerator<BioDeep.Models.mzInto> {

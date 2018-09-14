@@ -1,17 +1,30 @@
 ﻿namespace BioDeep {
 
-    export const x0: number = "0".charCodeAt(0);
-    export const x9: number = "9".charCodeAt(0);
-
-    export function isNumber(text: string): boolean {
-        var code = text.charCodeAt(0);
-        return code >= x0 && code <= x9;
+    /**
+     * 一个比较通用的二级质谱矩阵解析函数
+     * 
+     * @param text 要求这个文本之中的每一行数据都应该是mz into的键值对
+     *            mz和into之间的空白可以是任意空白
+    */
+    export function GenericMatrixParser(text: string): Models.mzInto[] {
+        return (<IEnumerator<string>>$ts(Strings.lineTokens(text)))
+            .Select((line, i) => mzIntoParser(line, i))
+            .ToArray();
     }
 
-    /**
-     * 将文本字符串按照newline进行分割
-    */
-    export function lineTokens(text: string): string[] {
-        return (!text) ? <string[]>[] : text.trim().split("\n");
+    function mzIntoParser(line: string, index: number): Models.mzInto {
+        var data: string[] = Strings.Trim(line, " \t\n").split(/\s+/g);
+        var mz: string = data[0];
+        var into: string = data[1];
+
+        if ((!mz) || (!into)) {
+            throw `Data format error: missing m/z or into (line[${index}]='${line}')`;
+        } else {
+            return new Models.mzInto(
+                index.toString(),
+                parseFloat(mz),
+                parseFloat(into)
+            );
+        }
     }
 }

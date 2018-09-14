@@ -57,6 +57,16 @@ Z	1	482.4038
 469.3443 12.26132
 </script>
 
+<script type="text/html" id="ms2-general-matrix">
+   175.1938   6.7181
+417.5124 20.83708
+419.4352    10.46
+431.6585 28.13947
+465.2776    4.009
+    467.3275    9.036
+489.1284  8.69426
+</script>
+
 <script type="text/javascript">
 	var data = LoadText("mgf-data");
 	var mgf = BioDeep.IO.mgf.Parse(data).ToArray();
@@ -67,4 +77,8 @@ Z	1	482.4038
 	var ms2 = BioDeep.IO.Ms2Reader.Ms2.Parse(data);
 	
 	console.log(ms2);
+	
+	var matrix = BioDeep.GenericMatrixParser(LoadText("ms2-general-matrix"));
+	
+	console.log(matrix);
 </script>

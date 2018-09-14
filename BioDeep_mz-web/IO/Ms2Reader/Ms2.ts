@@ -20,7 +20,7 @@ namespace BioDeep.IO.Ms2Reader {
         public scans: Scan[];
 
         public static Parse(text: string): Ms2 {
-            var lines: IEnumerator<string> = From(BioDeep.lineTokens(text));
+            var lines: IEnumerator<string> = From(Strings.lineTokens(text));
             var headers = lines
                 .TakeWhile(s => s.charAt(0) == "H")
                 .ToArray();
@@ -44,7 +44,7 @@ namespace BioDeep.IO.Ms2Reader {
             for (var i: number = 0; i < data.length; i++) {
                 var first = data[i].charAt(0);
 
-                if (BioDeep.isNumber(first)) {
+                if (Strings.isNumber(first)) {
                     line = i;
                     break;
                 }

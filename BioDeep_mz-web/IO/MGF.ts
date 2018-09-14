@@ -42,7 +42,7 @@ namespace BioDeep.IO {
         }
 
         public static Parse(text: string): IEnumerator<mgf> {
-            return From(BioDeep.lineTokens(text))
+            return From(Strings.lineTokens(text))
                 .ChunkWith(line => {
                     return line == mgfEndIons;
                 })
