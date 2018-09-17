@@ -21,10 +21,10 @@ namespace BioDeep\IO {
         public static function CreateDocument($meta, $ms2) {
             $mgf = new \StringBuilder();
             $mgf->AppendLine(self::BeginIons);
-            $title  = Utils::ReadValue($meta, "title", "Custom Generated Mgf Document");
-            $mz     = Utils::ReadValue($meta, "mz", "NA");
-            $rt     = Utils::ReadValue($meta, "rt", "NA");
-            $charge = Utils::ReadValue($meta, "charge", "NA"); 
+            $title  = \Utils::ReadValue($meta, "title", "Custom Generated Mgf Document");
+            $mz     = \Utils::ReadValue($meta, "mz", "NA");
+            $rt     = \Utils::ReadValue($meta, "rt", "NA");
+            $charge = \Utils::ReadValue($meta, "charge", "NA"); 
 
             $mgf->AppendLine("TITLE=$title")
                 ->AppendLine("RTINSECONDS=$rt")
