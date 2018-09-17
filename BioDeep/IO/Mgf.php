@@ -37,7 +37,7 @@ namespace BioDeep\IO {
 
                 for($i = 0; $i < count($mz); $i++) {
                     $mzi   = $mz[$i];
-                    $intoi = $into[i];
+                    $intoi = $into[$i];
                     $mgf->AppendLine("$mzi $intoi");
                 }
             } else {
