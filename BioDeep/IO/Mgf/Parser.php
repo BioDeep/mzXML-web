@@ -5,7 +5,7 @@ namespace BioDeep\IO {
     Imports("System.Linq.IEnumerator");
     Imports("System.Text.StringBuilder");
 
-    class Mgf {
+    class MgfParser {
 
         public const BeginIons = "BEGIN IONS";
         public const EndIons   = "END IONS";
@@ -30,6 +30,14 @@ namespace BioDeep\IO {
                 ->AppendLine("RTINSECONDS=$rt")
                 ->AppendLine("PEPMASS=$mz 100")
                 ->AppendLine("CHARGE=$charge");
+            $mgf->AppendLine(self::SpectraMs2($ms2));
+            $mgf->AppendLine(self::EndIons);
+
+            return $mgf->ToString();
+        }
+
+        private static function SpectraMs2($ms2) {
+            $spectra = new StringBuilder();
 
             if (self::isMzIntoVectorTuple($ms2)) {
                 $mz   = $ms2["mz"];
@@ -38,19 +46,17 @@ namespace BioDeep\IO {
                 for($i = 0; $i < count($mz); $i++) {
                     $mzi   = $mz[$i];
                     $intoi = $into[$i];
-                    $mgf->AppendLine("$mzi $intoi");
+                    $spectra->AppendLine("$mzi $intoi");
                 }
             } else {
                 foreach($ms2 as $mzinto) {
                     $mz   = $mzinto["mz"];
                     $into = $mzinto["into"];
-                    $mgf->AppendLine("$mz $into");
+                    $spectra->AppendLine("$mz $into");
                 }
             }
 
-            $mgf->AppendLine(self::EndIons);
-
-            return $mgf->ToString();
+            return $spectra->ToString();
         }
 
         /**
