@@ -53,10 +53,15 @@ declare namespace BioDeep.Models {
         id: string;
         /**
          * m/z
+         *
+         * X 坐标轴数据
         */
         mz: number;
         /**
          * intensity
+         *
+         * 进行绘图操作的时候所需要的Y坐标轴数据，以及鼠标提示
+         * 显示所需要用到的原始的质谱信号强度数据
         */
         into: number;
         constructor(id: string, mz: number, into: number);
