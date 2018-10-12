@@ -39,12 +39,13 @@ namespace BioDeep\IO {
             foreach(\FileSystem::IteratesAllLines($file) as $line) {
                 if ($line == MgfParser::BeginIons) {
                     $buffer = [$line];
-                } else if ($line = MgfParser::EndIons) {
+                } else if ($line == MgfParser::EndIons) {
                     # Push the last line
                     array_push($buffer, $line);
                     # This is a new ion
                     # Parse this new ion data.
                     yield self::ParseIon($buffer);
+                    exit(0);
                 } else {
                     array_push($buffer, $line);
                 }
@@ -67,9 +68,10 @@ namespace BioDeep\IO {
             $line   = "";
             $name   = "";
             $value  = "";
+            $length = count($buffer);
             
             # i = 1 for skip the first line: BEGIN IONS
-            for($i = 1; $i < count($buffer); $i++) {
+            for($i = 1; $i < $length; $i++) {
                 $line = $buffer[$i];
 
                 if (\Strings::InStr($line, "=") > 0) {
@@ -83,15 +85,18 @@ namespace BioDeep\IO {
                     } else {
                         $header[$name] = $value;
                     }
+                } else {
+                    break;
                 }
             }
 
             # skip the last line: END IONS
-            for ($i = 1; $i < count($buffer) - 1; $i++) {
+            while ($i < $length - 1) {
                 $line = explode(" ", $buffer[$i]);
                 $data = new MzInto($line[0], $line[1]);
 
                 array_push($mzInto, $data);
+                $i++;
             }
 
             return new \BioDeep\IO\MgfIon(

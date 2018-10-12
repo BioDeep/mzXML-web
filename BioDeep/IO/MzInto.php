@@ -16,7 +16,7 @@ namespace BioDeep\IO {
         public function __construct($mz, $rt, $into, $charge = 1, $title = "<Unknown>") {
             parent::__construct($mz, $into);
 
-            $this->rt     = $rt;
+            $this->rt     = doubleval($rt);
             $this->charge = $charge;
             $this->title  = $title;
         }
@@ -38,8 +38,8 @@ namespace BioDeep\IO {
         public $into;
 
         public function __construct($mz, $into) {
-            $this->mz   = $mz;
-            $this->into = $into;
+            $this->mz   = doubleval($mz);
+            $this->into = doubleval($into);
         }
 
         public function ToString() {
