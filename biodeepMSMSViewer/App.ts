@@ -1,11 +1,10 @@
 ﻿namespace BioDeep.MSMSViewer {
 
-    export const title: string = "Biodeep® MS/MS alignment viewer";
+    export const title: string = "BioDeep® MS/MS alignment viewer";
 
     export function renderChart(containerId: string, api: string, id: string): void {
         var url: string = sprintf(api, encodeURIComponent(id));
-        // var container: HTMLElement = $ts(containerId);
-
+        
         $.getJSON(url, result => {
             if (result.code == 0) {
                 var data: Data.mzData = Data.JSONParser(<Data.JSONrespon>(result.info));
@@ -23,7 +22,8 @@
      * 注释输出的svg id和数据源的api链接，然后返回渲染动作的函数指针
      * 
      * @param svgDisplay 需要显示SVG图表的html的节点的id编号属性值
-     * @param api 这个参数为url字符串，指示如何从服务器获取绘图数据，使用%s占位符标记资源编号
+     * @param api 这个参数为url字符串模板，指示如何从服务器获取绘图数据，使用%s占位符标记资源编号
+     *            api所返回来的数据应该是满足``JSONrespon``对象的格式要求的
      * 
      * @returns ``(res_id: string) => void``
     */
