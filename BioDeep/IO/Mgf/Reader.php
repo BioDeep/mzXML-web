@@ -19,6 +19,10 @@ namespace BioDeep\IO {
         */
         public $MzInto;
 
+        public function Fragments() {
+            return count($this->MzInto);
+        }
+
         public function __construct(PrecursorIon $precursor, $mzInto) {
             $this->precursor = $precursor;
             $this->MzInto    = $mzInto;

@@ -26,6 +26,9 @@ namespace BioDeep\IO {
         }
     }
 
+    /**
+     * 一个二级碎片信息
+    */
     class MzInto extends \System\TObject {
 
         /**
