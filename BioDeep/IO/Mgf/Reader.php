@@ -2,6 +2,7 @@
 
 namespace BioDeep\IO {
 
+    Imports("System.Object");
     Imports("Microsoft.VisualBasic.FileIO.FileSystem");
 
     /**
