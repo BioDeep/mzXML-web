@@ -45,7 +45,6 @@ namespace BioDeep\IO {
                     # This is a new ion
                     # Parse this new ion data.
                     yield self::ParseIon($buffer);
-                    exit(0);
                 } else {
                     array_push($buffer, $line);
                 }
