@@ -3,7 +3,7 @@
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">14.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <Name>biodeepMSMSViewer</Name>
+    <Name>BioDeep_MSMSViewer</Name>
     <RootNamespace>biodeepMSMSViewer</RootNamespace>
     <LastActiveSolutionConfig>Debug|Any CPU</LastActiveSolutionConfig>
     <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
@@ -13,7 +13,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>345c4454-3b07-48a4-91e7-424342e56a67</ProjectGuid>
-    <ProjectHome>.</ProjectHome>
+    <ProjectHome>
+    </ProjectHome>
     <StartupFile>data.ts</StartupFile>
     <StartWebBrowser>True</StartWebBrowser>
     <SearchPath>
