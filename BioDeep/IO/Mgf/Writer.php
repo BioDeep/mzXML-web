@@ -47,7 +47,7 @@ namespace BioDeep\IO {
         }
 
         private static function FragmentArrayMatrix($ms2) {
-            $spectra = new StringBuilder();
+            $spectra = new \StringBuilder();
 
             if (is_array($ms2[0])) {
                 foreach($ms2 as $mzinto) {
@@ -67,7 +67,7 @@ namespace BioDeep\IO {
         }
 
         private static function VectorTupleMatrix($ms2) {
-            $spectra = new StringBuilder();
+            $spectra = new \StringBuilder();
 
             $mz   = $ms2["mz"];
             $into = $ms2["into"];
