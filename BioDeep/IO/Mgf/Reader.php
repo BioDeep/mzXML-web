@@ -4,8 +4,29 @@ namespace BioDeep\IO {
 
     Imports("Microsoft.VisualBasic.FileIO.FileSystem");
 
-    class MgfReader {
+    /**
+     * The mgf ion object model
+    */
+    class MgfIon extends \System\TObject {
         
+        /**
+         * @var PrecursorIon
+        */
+        public $precursor;
+        /**
+         * @var MzInto[] 
+        */
+        public $MzInto;
+
+        public function __construct(PrecursorIon $precursor, $mzInto) {
+            $this->precursor = $precursor;
+            $this->MzInto    = $mzInto;
+        }
+
+        public function ToString() {
+            return $this->precursor->ToString();
+        }
+
         /**
          * @param string $file File path or file content.
         */
@@ -51,7 +72,9 @@ namespace BioDeep\IO {
                     list($name, $value) = \Utils::Tuple($tuple);
                     
                     if ($name == "PEPMASS") {
-                        $header[$name] = explode(" ", $value)[0];
+                        $values              = explode(" ", $value);
+                        $header[$name]       = $values[0];
+                        $header["INTENSITY"] = $values[1];
                     } else {
                         $header[$name] = $value;
                     }
@@ -66,17 +89,23 @@ namespace BioDeep\IO {
                 array_push($mzInto, $data);
             }
 
-            return [
-                "headers" => self::mgfHeader($header),
-                "MzInto"  => $mzInto
-            ];
+            return new \BioDeep\IO\MgfIon(
+                $precursor = self::mgfHeader($header),
+                $MzInto    = $mzInto
+            );
         }
 
         /**
          * @return PrecursorIon
         */
         private static function mgfHeader($data) {
-
+            return new \BioDeep\IO\PrecursorIon(
+                $mz     = $data["PEPMASS"],
+                $rt     = $data["RTINSECONDS"],
+                $into   = $data["INTENSITY"],
+                $charge = $data["CHARGE"],
+                $title  = $data["TITLE"]
+            );
         }
     }
 }
