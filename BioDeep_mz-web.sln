@@ -9,7 +9,7 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Linq.ts", "..\Linq\Linq.ts\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runtime", "runtime", "{2A5DE212-A966-4D6A-ABFD-093B03BFE5A7}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "BioDeep_MSMSViewer", "biodeepMSMSViewer\BioDeep_MSMSViewer.njsproj", "{345C4454-3B07-48A4-91E7-424342E56A67}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "BioDeepMSMSViewer", "biodeepMSMSViewer\BioDeepMSMSViewer.njsproj", "{345C4454-3B07-48A4-91E7-424342E56A67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
