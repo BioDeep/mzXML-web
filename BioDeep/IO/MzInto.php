@@ -45,5 +45,19 @@ namespace BioDeep\IO {
         public function ToString() {
             return "[{$this->mz}, {$this->into}]";
         }
+
+        /**
+         * 将``[mz, into]``数组编码为base64字符串数据
+         * 
+         * @param MzInto[]
+         * 
+         * @return string
+        */
+        public static function MatrixEncode($matrix) {
+            $text = MgfWriter::MzIntoMatrix($matrix);
+            $text = \base64_encode($text);
+
+            return $text;
+        }
     }
 }

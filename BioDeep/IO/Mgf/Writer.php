@@ -47,22 +47,32 @@ namespace BioDeep\IO {
         }
 
         private static function FragmentArrayMatrix($ms2) {
-            $spectra = new \StringBuilder();
-
             if (is_array($ms2[0])) {
+                $spectra = new \StringBuilder();
+
                 foreach($ms2 as $mzinto) {
                     $mz   = $mzinto["mz"];
                     $into = $mzinto["into"];
                     $spectra->AppendLine("$mz $into");
                 }
-            } else {
-                foreach($ms2 as $mzinto) {
-                    $mz   = $mzinto->mz;
-                    $into = $mzinto->into;
-                    $spectra->AppendLine("$mz $into");
-                }
-            }
 
+                return $spectra->ToString();
+            } else {
+                return self::MzIntoMatrix($ms2);
+            }
+        }
+
+        /**
+         * @param MzInto[] $ms2
+        */
+        public static function MzIntoMatrix($ms2) {
+            $spectra = new \StringBuilder();
+
+            foreach($ms2 as $mzinto) {
+                $mz   = $mzinto->mz;
+                $into = $mzinto->into;
+                $spectra->AppendLine("$mz $into");
+            }
             return $spectra->ToString();
         }
 
