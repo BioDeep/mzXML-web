@@ -14,5 +14,5 @@ foreach (Reader::PopulateIons(__DIR__ . "/GABA.mgf") as $ion) {
     $doc = Writer::CreateDocument($ion->precursor, $ion->MzInto);
     echo $doc;
     echo "\n\n\n\n";
-    exit(0);
+#    exit(0);
 }
