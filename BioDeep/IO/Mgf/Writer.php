@@ -5,7 +5,7 @@ namespace BioDeep\IO {
     Imports("System.Linq.IEnumerator");
     Imports("System.Text.StringBuilder");
 
-    class MgfParser {
+    class MgfWriter {
 
         public const BeginIons = "BEGIN IONS";
         public const EndIons   = "END IONS";
