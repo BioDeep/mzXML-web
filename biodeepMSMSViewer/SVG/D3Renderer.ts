@@ -62,9 +62,6 @@ namespace BioDeep.MSMSViewer {
 
             // 因为在下面的chartting函数调用之中需要使用tip对象来绑定鼠标事件，
             // 所以在这里需要先于chartting函数将tip对象初始化完毕  
-            console.log(this.tip);
-            console.log(this.svg);
-
             this.svg.call(<any>this.tip);
 
             renderingWork.chartting(this);
