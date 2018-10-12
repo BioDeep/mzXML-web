@@ -13,8 +13,9 @@ namespace BioDeep\IO {
         /**
          * 生成一个mgf对象数据
          * 
-         * @param array $meta 在这个字典数组之中应该至少要包括有字段：``mz``，``rt``，可选字段有``title``，``charge``。
-         * @param array $ms2 二级质谱数据矩阵，格式为[mz => xxx, into => xxx]的数组
+         * @param array|PrecursorIon $meta 在这个字典数组之中应该至少要包括有字段：``mz``，``rt``，
+         *                                 可选字段有``title``，``charge``。
+         * @param array $ms2 二级质谱数据矩阵，格式为``[mz => xxx, into => xxx]``的数组
          * 
          * @return string
         */
@@ -24,11 +25,12 @@ namespace BioDeep\IO {
             $title  = \Utils::ReadValue($meta, "title", "Custom Generated Mgf Document");
             $mz     = \Utils::ReadValue($meta, "mz", "NA");
             $rt     = \Utils::ReadValue($meta, "rt", "NA");
-            $charge = \Utils::ReadValue($meta, "charge", "NA"); 
+            $charge = \Utils::ReadValue($meta, "charge", "NA");
+            $into   = \Utils::ReadValue($meta, "into", 100);
 
             $mgf->AppendLine("TITLE=$title")
                 ->AppendLine("RTINSECONDS=$rt")
-                ->AppendLine("PEPMASS=$mz 100")
+                ->AppendLine("PEPMASS=$mz $into")
                 ->AppendLine("CHARGE=$charge");
             $mgf->AppendLine(self::SpectraMs2($ms2));
             $mgf->AppendLine(self::EndIons);
@@ -49,10 +51,18 @@ namespace BioDeep\IO {
                     $spectra->AppendLine("$mzi $intoi");
                 }
             } else {
-                foreach($ms2 as $mzinto) {
-                    $mz   = $mzinto["mz"];
-                    $into = $mzinto["into"];
-                    $spectra->AppendLine("$mz $into");
+                if (is_array($ms2[0])) {
+                    foreach($ms2 as $mzinto) {
+                        $mz   = $mzinto["mz"];
+                        $into = $mzinto["into"];
+                        $spectra->AppendLine("$mz $into");
+                    }
+                } else {
+                    foreach($ms2 as $mzinto) {
+                        $mz   = $mzinto->mz;
+                        $into = $mzinto->into;
+                        $spectra->AppendLine("$mz $into");
+                    }
                 }
             }
 
