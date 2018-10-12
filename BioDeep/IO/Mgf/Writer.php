@@ -32,7 +32,7 @@ namespace BioDeep\IO {
                 ->AppendLine("RTINSECONDS=$rt")
                 ->AppendLine("PEPMASS=$mz $into")
                 ->AppendLine("CHARGE=$charge");
-            $mgf->AppendLine(self::SpectraMs2($ms2));
+            $mgf->AppendLine(rtrim(self::SpectraMs2($ms2), "\r\n"));
             $mgf->AppendLine(self::EndIons);
 
             return $mgf->ToString();
