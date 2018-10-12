@@ -5,7 +5,7 @@
     "lib": [ "dom", "es5", "dom.iterable", "scripthost" ],
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
-    "outFile": "../build/biodeepMSMSViewer.js",
+    "outFile": "../../build/biodeepMSMSViewer.js",
     "declaration": true
   },
   "exclude": [

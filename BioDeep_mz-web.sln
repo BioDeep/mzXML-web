@@ -9,6 +9,8 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Linq.ts", "..\Linq\Linq.ts\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runtime", "runtime", "{2A5DE212-A966-4D6A-ABFD-093B03BFE5A7}"
 EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "biodeepMSMSViewer", "biodeepMSMSViewer\biodeepMSMSViewer.njsproj", "{345C4454-3B07-48A4-91E7-424342E56A67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{E0AEC189-6D05-47E4-9F69-DAFE43AC8398}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0AEC189-6D05-47E4-9F69-DAFE43AC8398}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0AEC189-6D05-47E4-9F69-DAFE43AC8398}.Release|Any CPU.Build.0 = Release|Any CPU
+		{345C4454-3B07-48A4-91E7-424342E56A67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{345C4454-3B07-48A4-91E7-424342E56A67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{345C4454-3B07-48A4-91E7-424342E56A67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{345C4454-3B07-48A4-91E7-424342E56A67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
