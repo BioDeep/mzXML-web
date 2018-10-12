@@ -29,6 +29,8 @@ namespace BioDeep\IO {
 
         /**
          * @param string $file File path or file content.
+         * 
+         * @return \BioDeep\IO\MgfIon[]
         */
         public static function PopulateIons($file) {
             $buffer = NULL;
@@ -50,6 +52,8 @@ namespace BioDeep\IO {
 
         /**
          * @param string|string[] $buffer Data text content or text lines.
+         * 
+         * @return \BioDeep\IO\MgfIon
         */
         public static function ParseIon($buffer) {
             if (is_string($buffer)) {
