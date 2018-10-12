@@ -9,7 +9,7 @@
   "devDependencies": {
     "@types/d3": "3.5.41",
     "@types/jquery": "3.2.11",
-    "@types/node": "^8.10.22"
+    "@types/node": "^8.10.36"
   },
   "dependencies": {
     "@types/d3-tip": "^3.5.5"
