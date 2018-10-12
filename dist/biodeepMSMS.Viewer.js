@@ -1,3 +1,10 @@
+/**
+ * ## mzXML file reader and javascript data visualization tools
+ *
+ * - http://www.biodeep.cn
+ *
+ * > https://github.com/BioDeep/mzXML-web
+*/
 var BioDeep;
 (function (BioDeep) {
     var MSMSViewer;

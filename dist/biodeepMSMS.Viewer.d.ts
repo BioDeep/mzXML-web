@@ -2,6 +2,13 @@
 /// <reference path="BioDeep_mzWeb.d.ts" />
 /// <reference types="d3-tip" />
 /// <reference types="d3" />
+/**
+ * ## mzXML file reader and javascript data visualization tools
+ *
+ * - http://www.biodeep.cn
+ *
+ * > https://github.com/BioDeep/mzXML-web
+*/
 declare namespace BioDeep.MSMSViewer {
     const title: string;
     function renderChart(containerId: string, api: string, id: string): void;
