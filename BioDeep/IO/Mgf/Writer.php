@@ -65,13 +65,13 @@ namespace BioDeep\IO {
         /**
          * @param MzInto[] $ms2
         */
-        public static function MzIntoMatrix($ms2) {
+        public static function MzIntoMatrix($ms2, $deli = " ") {
             $spectra = new \StringBuilder();
 
             foreach($ms2 as $mzinto) {
                 $mz   = $mzinto->mz;
                 $into = $mzinto->into;
-                $spectra->AppendLine("$mz $into");
+                $spectra->AppendLine($mz . $deli . $into);
             }
             return $spectra->ToString();
         }
