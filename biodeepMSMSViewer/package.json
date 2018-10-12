@@ -1,0 +1,17 @@
+{
+  "name": "biodeep-msmsviewer",
+  "version": "0.0.0",
+  "description": "biodeepMSMSViewer",
+  "main": "App.js",
+  "author": {
+    "name": ""
+  },
+  "devDependencies": {
+    "@types/d3": "3.5.41",
+    "@types/jquery": "3.2.11",
+    "@types/node": "^8.10.22"
+  },
+  "dependencies": {
+    "@types/d3-tip": "^3.5.5"
+  }
+}
