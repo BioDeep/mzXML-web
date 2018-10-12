@@ -60,8 +60,16 @@ namespace BioDeep\IO {
 
             # skip the last line: END IONS
             for ($i = 1; $i < count($buffer) - 1; $i++) {
+                $line = explode(" ", $buffer[$i]);
+                $data = new MzInto($line[0], $line[1]);
 
+                array_push($mzInto, $data);
             }
+
+            return [
+                "headers" => $header, 
+                "MzInto"  => $mzInto
+            ];
         }
     }
 }
