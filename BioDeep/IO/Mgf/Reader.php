@@ -41,9 +41,9 @@ namespace BioDeep\IO {
             $buffer = NULL;
 
             foreach(\FileSystem::IteratesAllLines($file) as $line) {
-                if ($line == MgfWriter::BeginIons) {
+                if ($line == MgfWriter::$BeginIons) {
                     $buffer = [$line];
-                } else if ($line == MgfWriter::EndIons) {
+                } else if ($line == MgfWriter::$EndIons) {
                     # Push the last line
                     array_push($buffer, $line);
                     # This is a new ion

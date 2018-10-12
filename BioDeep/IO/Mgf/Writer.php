@@ -7,8 +7,8 @@ namespace BioDeep\IO {
 
     class MgfWriter {
 
-        public const BeginIons = "BEGIN IONS";
-        public const EndIons   = "END IONS";
+        public static $BeginIons = "BEGIN IONS";
+        public static $EndIons   = "END IONS";
 
         /**
          * 生成一个mgf对象数据
@@ -21,7 +21,7 @@ namespace BioDeep\IO {
         */
         public static function CreateDocument($meta, $ms2) {
             $mgf = new \StringBuilder();
-            $mgf->AppendLine(self::BeginIons);
+            $mgf->AppendLine(self::$BeginIons);
             $title  = \Utils::ReadValue($meta, "title", "Custom Generated Mgf Document");
             $mz     = \Utils::ReadValue($meta, "mz", "NA");
             $rt     = \Utils::ReadValue($meta, "rt", "NA");
@@ -33,7 +33,7 @@ namespace BioDeep\IO {
                 ->AppendLine("PEPMASS=$mz $into")
                 ->AppendLine("CHARGE=$charge");
             $mgf->AppendLine(rtrim(self::SpectraMs2($ms2), "\r\n"));
-            $mgf->AppendLine(self::EndIons);
+            $mgf->AppendLine(self::$EndIons);
 
             return $mgf->ToString();
         }
