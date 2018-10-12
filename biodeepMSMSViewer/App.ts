@@ -1,4 +1,11 @@
-﻿namespace BioDeep.MSMSViewer {
+﻿/**
+ * ## mzXML file reader and javascript data visualization tools
+ * 
+ * - http://www.biodeep.cn
+ * 
+ * > https://github.com/BioDeep/mzXML-web
+*/
+namespace BioDeep.MSMSViewer {
 
     export const title: string = "BioDeep® MS/MS alignment viewer";
 
