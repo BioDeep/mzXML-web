@@ -39,31 +39,43 @@ namespace BioDeep\IO {
         }
 
         private static function SpectraMs2($ms2) {
+            if (self::isMzIntoVectorTuple($ms2)) {
+                return self::VectorTupleMatrix($ms2);
+            } else {
+                return self::FragmentArrayMatrix($ms2);
+            }
+        }
+
+        private static function FragmentArrayMatrix($ms2) {
             $spectra = new StringBuilder();
 
-            if (self::isMzIntoVectorTuple($ms2)) {
-                $mz   = $ms2["mz"];
-                $into = $ms2["into"];
-
-                for($i = 0; $i < count($mz); $i++) {
-                    $mzi   = $mz[$i];
-                    $intoi = $into[$i];
-                    $spectra->AppendLine("$mzi $intoi");
+            if (is_array($ms2[0])) {
+                foreach($ms2 as $mzinto) {
+                    $mz   = $mzinto["mz"];
+                    $into = $mzinto["into"];
+                    $spectra->AppendLine("$mz $into");
                 }
             } else {
-                if (is_array($ms2[0])) {
-                    foreach($ms2 as $mzinto) {
-                        $mz   = $mzinto["mz"];
-                        $into = $mzinto["into"];
-                        $spectra->AppendLine("$mz $into");
-                    }
-                } else {
-                    foreach($ms2 as $mzinto) {
-                        $mz   = $mzinto->mz;
-                        $into = $mzinto->into;
-                        $spectra->AppendLine("$mz $into");
-                    }
+                foreach($ms2 as $mzinto) {
+                    $mz   = $mzinto->mz;
+                    $into = $mzinto->into;
+                    $spectra->AppendLine("$mz $into");
                 }
+            }
+
+            return $spectra->ToString();
+        }
+
+        private static function VectorTupleMatrix($ms2) {
+            $spectra = new StringBuilder();
+
+            $mz   = $ms2["mz"];
+            $into = $ms2["into"];
+
+            for($i = 0; $i < count($mz); $i++) {
+                $mzi   = $mz[$i];
+                $intoi = $into[$i];
+                $spectra->AppendLine("$mzi $intoi");
             }
 
             return $spectra->ToString();
