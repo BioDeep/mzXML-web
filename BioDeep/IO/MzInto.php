@@ -2,7 +2,31 @@
 
 namespace BioDeep\IO {
 
-    class MzInto {
+    Imports("System.Object");
+
+    /**
+     * 二级碎片信息的一级母离子
+    */
+    class PrecursorIon extends MzInto {
+
+        public $rt;
+        public $title;
+        public $charge;
+
+        public function __construct($mz, $rt, $into, $charge = 1, $title = "<Unknown>") {
+            parent::__construct($mz, $into);
+
+            $this->rt     = $rt;
+            $this->charge = $charge;
+            $this->title  = $title;
+        }
+
+        public function ToString() {
+            return $this->title;
+        }
+    }
+
+    class MzInto extends \System\TObject {
 
         /**
          * @var double
@@ -20,10 +44,6 @@ namespace BioDeep\IO {
 
         public function ToString() {
             return "[{$this->mz}, {$this->into}]";
-        }
-
-        public function __toString() {
-            return $this->ToString();
         }
     }
 }

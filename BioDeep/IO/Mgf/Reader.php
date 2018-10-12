@@ -67,9 +67,16 @@ namespace BioDeep\IO {
             }
 
             return [
-                "headers" => $header, 
+                "headers" => self::mgfHeader($header),
                 "MzInto"  => $mzInto
             ];
+        }
+
+        /**
+         * @return PrecursorIon
+        */
+        private static function mgfHeader($data) {
+
         }
     }
 }
