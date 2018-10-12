@@ -2,6 +2,8 @@
 
 namespace BioDeep\IO {
 
+    # XML file models
+
     class scan {
     
         #region "property"
