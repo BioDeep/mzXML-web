@@ -46,11 +46,10 @@ namespace BioDeep.MSMSViewer.renderingWork {
             .domain([-100, 100])
             .range([height, 0])
             .nice();
-        var x = d3.scale.ordinal()
-            .domain(From(engine.current.mzRange)
-                .Select(x => x.toString())
-                .ToArray())
-            .rangeRoundBands([0, width], .2);
+        var x = d3.scale.linear()
+            .domain(engine.current.mzRange)
+            .range([0, width])
+            .nice();
         var yAxis = d3.svg.axis()
             .scale(y)
             .tickFormat(n => Math.abs(n) + "%")
@@ -82,7 +81,7 @@ namespace BioDeep.MSMSViewer.renderingWork {
                 return `bar ${(d.into < 0) ? "negative" : "positive"}`;
             })
             .attr("y", (d: BioDeep.Models.mzInto) => y(Math.max(0, d.into)))
-            .attr("x", (d: BioDeep.Models.mzInto, i: number) => d.mz)
+            .attr("x", (d: BioDeep.Models.mzInto, i: number) => x(d.mz))
             .attr("height", (d: BioDeep.Models.mzInto) => Math.abs(y(d.into) - y(0)))
             .attr("width", engine.strokeWidth)
             .on('mouseover', engine.tip.show)

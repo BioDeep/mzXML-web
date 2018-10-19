@@ -297,11 +297,10 @@ var BioDeep;
                     .domain([-100, 100])
                     .range([height, 0])
                     .nice();
-                var x = d3.scale.ordinal()
-                    .domain(From(engine.current.mzRange)
-                    .Select(function (x) { return x.toString(); })
-                    .ToArray())
-                    .rangeRoundBands([0, width], .2);
+                var x = d3.scale.linear()
+                    .domain(engine.current.mzRange)
+                    .range([0, width])
+                    .nice();
                 var yAxis = d3.svg.axis()
                     .scale(y)
                     .tickFormat(function (n) { return Math.abs(n) + "%"; })
@@ -331,7 +330,7 @@ var BioDeep;
                     return "bar " + ((d.into < 0) ? "negative" : "positive");
                 })
                     .attr("y", function (d) { return y(Math.max(0, d.into)); })
-                    .attr("x", function (d, i) { return d.mz; })
+                    .attr("x", function (d, i) { return x(d.mz); })
                     .attr("height", function (d) { return Math.abs(y(d.into) - y(0)); })
                     .attr("width", engine.strokeWidth)
                     .on('mouseover', engine.tip.show)
