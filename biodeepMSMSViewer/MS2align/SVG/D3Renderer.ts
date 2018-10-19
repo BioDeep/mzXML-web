@@ -25,7 +25,7 @@ namespace BioDeep.MSMSViewer {
             canvasMargin: Canvas.Margin = renderingWork.defaultMargin(),
             csvLink: string = "matrix-csv") {
 
-            this.current = mz;
+            this.current = mz.trim();
             this.margin = canvasMargin;
             this.width = canvasSize[0] - canvasMargin.left - canvasMargin.right;
             this.height = canvasSize[1] - canvasMargin.top - canvasMargin.bottom;

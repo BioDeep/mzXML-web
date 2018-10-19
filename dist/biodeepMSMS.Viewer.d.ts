@@ -55,6 +55,7 @@ declare namespace BioDeep.MSMSViewer.Data {
         refName: string;
         metlin: string;
         constructor(mz: number[] | data.NumericRange, align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>);
+        trim(intoCutoff?: number): mzData;
         tooltip(mz: BioDeep.Models.mzInto): string;
         csv(): string;
     }

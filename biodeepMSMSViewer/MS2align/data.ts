@@ -37,6 +37,19 @@ namespace BioDeep.MSMSViewer.Data {
             this.mzMatrix = Array.isArray(align) ? align : align.ToArray();
         }
 
+        public trim(intoCutoff: number = 5): mzData {
+            var src = new IEnumerator<BioDeep.Models.mzInto>(this.mzMatrix);
+            var max: number = Math.abs(src.Max(m => Math.max(m.into)).into);
+            var trimmedData = From(this.mzMatrix).Where(m => Math.abs(m.into / max * 100) >= intoCutoff);
+            var newMatrix = new mzData(this.mzRange, trimmedData);
+
+            newMatrix.queryName = this.queryName;
+            newMatrix.refName = this.refName;
+            newMatrix.metlin = this.metlin;
+
+            return newMatrix;
+        }
+
         public tooltip(mz: BioDeep.Models.mzInto): string {
             var name: string = mz.into >= 0 ? this.queryName : this.refName;
             var tipText: string = `m/z: ${mz.mz} (

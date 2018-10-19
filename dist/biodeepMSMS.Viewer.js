@@ -90,6 +90,17 @@ var BioDeep;
                     this.mzRange = [range.min, range.max];
                     this.mzMatrix = Array.isArray(align) ? align : align.ToArray();
                 }
+                mzData.prototype.trim = function (intoCutoff) {
+                    if (intoCutoff === void 0) { intoCutoff = 5; }
+                    var src = new IEnumerator(this.mzMatrix);
+                    var max = Math.abs(src.Max(function (m) { return Math.max(m.into); }).into);
+                    var trimmedData = From(this.mzMatrix).Where(function (m) { return Math.abs(m.into / max * 100) >= intoCutoff; });
+                    var newMatrix = new mzData(this.mzRange, trimmedData);
+                    newMatrix.queryName = this.queryName;
+                    newMatrix.refName = this.refName;
+                    newMatrix.metlin = this.metlin;
+                    return newMatrix;
+                };
                 mzData.prototype.tooltip = function (mz) {
                     var name = mz.into >= 0 ? this.queryName : this.refName;
                     var tipText = "m/z: " + mz.mz + " (\n                <strong>\n                    <span style=\"color:red;\">\n                        " + Math.abs(mz.into) + "%\n                    </span>\n                </strong>)";
@@ -447,7 +458,7 @@ var BioDeep;
                 if (csvLink === void 0) { csvLink = "matrix-csv"; }
                 this.strokeWidth = 6;
                 this.radius = 6;
-                this.current = mz;
+                this.current = mz.trim();
                 this.margin = canvasMargin;
                 this.width = canvasSize[0] - canvasMargin.left - canvasMargin.right;
                 this.height = canvasSize[1] - canvasMargin.top - canvasMargin.bottom;
