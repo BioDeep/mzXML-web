@@ -95,7 +95,8 @@ var BioDeep;
                     var src = new IEnumerator(this.mzMatrix);
                     var max = Math.abs(src.Max(function (m) { return Math.max(m.into); }).into);
                     var trimmedData = From(this.mzMatrix).Where(function (m) { return Math.abs(m.into / max * 100) >= intoCutoff; });
-                    var newMatrix = new mzData(this.mzRange, trimmedData);
+                    var newRange = data.NumericRange.Create(trimmedData.Select(function (m) { return m.mz; }));
+                    var newMatrix = new mzData(newRange, trimmedData);
                     newMatrix.queryName = this.queryName;
                     newMatrix.refName = this.refName;
                     newMatrix.metlin = this.metlin;
@@ -103,7 +104,7 @@ var BioDeep;
                 };
                 mzData.prototype.tooltip = function (mz) {
                     var name = mz.into >= 0 ? this.queryName : this.refName;
-                    var tipText = "m/z: " + mz.mz + " (\n                <strong>\n                    <span style=\"color:red;\">\n                        " + Math.abs(mz.into) + "%\n                    </span>\n                </strong>)";
+                    var tipText = "m/z: " + mz.mz.toFixed(4) + " (\n                <strong>\n                    <span style=\"color:red;\">\n                        " + Math.floor(Math.abs(mz.into)) + "%\n                    </span>\n                </strong>)";
                     var html = "\n                <p>\n                    " + name + "<br />\n                           <br />\n                    " + tipText + "\n                </p>";
                     return html;
                 };

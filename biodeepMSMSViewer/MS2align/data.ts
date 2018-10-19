@@ -53,10 +53,10 @@ namespace BioDeep.MSMSViewer.Data {
 
         public tooltip(mz: BioDeep.Models.mzInto): string {
             var name: string = mz.into >= 0 ? this.queryName : this.refName;
-            var tipText: string = `m/z: ${mz.mz} (
+            var tipText: string = `m/z: ${mz.mz.toFixed(4)} (
                 <strong>
                     <span style="color:red;">
-                        ${Math.abs(mz.into)}%
+                        ${Math.floor(Math.abs(mz.into))}%
                     </span>
                 </strong>)`;
             var html: string = `
