@@ -38,6 +38,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Ms1\PeakScatter.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="MS2align\data.ts" />
     <Content Include="MS2align\CSS\style.css" />
     <Content Include="tsconfig.json" />
