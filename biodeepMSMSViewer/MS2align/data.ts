@@ -41,7 +41,8 @@ namespace BioDeep.MSMSViewer.Data {
             var src = new IEnumerator<BioDeep.Models.mzInto>(this.mzMatrix);
             var max: number = Math.abs(src.Max(m => Math.max(m.into)).into);
             var trimmedData = From(this.mzMatrix).Where(m => Math.abs(m.into / max * 100) >= intoCutoff);
-            var newMatrix = new mzData(this.mzRange, trimmedData);
+            var newRange = data.NumericRange.Create(trimmedData.Select(m => m.mz));
+            var newMatrix = new mzData(newRange, trimmedData);
 
             newMatrix.queryName = this.queryName;
             newMatrix.refName = this.refName;
