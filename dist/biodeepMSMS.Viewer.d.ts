@@ -1,5 +1,6 @@
 /// <reference path="../../build/linq.d.ts" />
 /// <reference path="BioDeep_mzWeb.d.ts" />
+/// <reference path="../../build/svg.d.ts" />
 /// <reference types="d3-tip" />
 /// <reference types="d3" />
 /**
@@ -74,6 +75,19 @@ declare namespace BioDeep.MSMSViewer.Data {
         into2: number;
     }
 }
+declare namespace BioDeep.Utils {
+    /**
+     * 因为D3里面的text不支持html标签，所以需要使用这个函数将名称
+     * 之中的html标记去除
+     *
+    */
+    function stripHTML(html: string): string;
+    /**
+     * Returns path data for a rectangle with rounded right corners.
+     * The top-left corner is (x,y).
+    */
+    function rightRoundedRect(x: number, y: number, width: number, height: number, radius: number): string;
+}
 declare namespace BioDeep.MSMSViewer {
     /**
      * 如果图表上面的二级碎片信号柱子的颜色是黑色，则肯定是没有相关的样式信息
@@ -88,19 +102,6 @@ declare namespace BioDeep.MSMSViewer {
         highlightColor: string;
         static defaultStyle(): Styles;
     }
-}
-declare namespace BioDeep.Utils {
-    /**
-     * 因为D3里面的text不支持html标签，所以需要使用这个函数将名称
-     * 之中的html标记去除
-     *
-    */
-    function stripHTML(html: string): string;
-    /**
-     * Returns path data for a rectangle with rounded right corners.
-     * The top-left corner is (x,y).
-    */
-    function rightRoundedRect(x: number, y: number, width: number, height: number, radius: number): string;
 }
 declare namespace BioDeep.MSMSViewer.renderingWork {
     function tooltip(mz: Data.mzData): d3.Tooltip;
@@ -121,7 +122,7 @@ declare namespace BioDeep.MSMSViewer {
         current: Data.mzData;
         strokeWidth: number;
         radius: number;
-        margin: renderingWork.margin;
+        margin: Canvas.Margin;
         width: number;
         height: number;
         /**
@@ -129,7 +130,7 @@ declare namespace BioDeep.MSMSViewer {
         */
         svg: d3.Selection<any>;
         tip: d3.Tooltip;
-        constructor(mz: Data.mzData, canvasSize?: number[], canvasMargin?: renderingWork.margin, csvLink?: string);
+        constructor(mz: Data.mzData, canvasSize?: number[], canvasMargin?: Canvas.Margin, csvLink?: string);
         private registerDownloader;
         /**
          * 这个图标渲染函数的输入显示参数，同时支持节点的id编号属性和html节点对象
@@ -140,13 +141,5 @@ declare namespace BioDeep.MSMSViewer {
     }
 }
 declare namespace BioDeep.MSMSViewer.renderingWork {
-    class margin {
-        top: number;
-        right: number;
-        bottom: number;
-        left: number;
-        constructor(top?: number, right?: number, bottom?: number, left?: number);
-        static default(): margin;
-        toString(): string;
-    }
+    function defaultMargin(): Canvas.Margin;
 }

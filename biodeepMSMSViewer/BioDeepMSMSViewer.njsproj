@@ -16,7 +16,7 @@
     <ProjectGuid>345c4454-3b07-48a4-91e7-424342e56a67</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>data.ts</StartupFile>
+    <StartupFile>MS2align\data.ts</StartupFile>
     <StartWebBrowser>True</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -38,32 +38,35 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="data.ts" />
-    <Content Include="style.css" />
+    <TypeScriptCompile Include="MS2align\data.ts" />
+    <Content Include="MS2align\CSS\style.css" />
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <TypeScriptCompile Include="SVG\D3Renderer.ts">
+    <TypeScriptCompile Include="MS2align\SVG\D3Renderer.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="App.ts">
+    <TypeScriptCompile Include="MS2align\App.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="SVG\renderingWork.ts">
+    <TypeScriptCompile Include="MS2align\SVG\renderingWork.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="SVG\margin.ts">
+    <TypeScriptCompile Include="MS2align\SVG\margin.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="Styles.ts">
+    <TypeScriptCompile Include="MS2align\CSS\Styles.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="Utils.ts">
+    <TypeScriptCompile Include="MS2align\Utils.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SVG\" />
+    <Folder Include="MS2align\" />
+    <Folder Include="MS2align\CSS\" />
+    <Folder Include="MS2align\SVG\" />
+    <Folder Include="Ms1\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

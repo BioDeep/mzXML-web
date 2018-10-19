@@ -9,7 +9,7 @@ namespace BioDeep.MSMSViewer {
         public strokeWidth: number = 6;
         public radius: number = 6;
 
-        public margin: renderingWork.margin;
+        public margin: Canvas.Margin;
         public width: number;
         public height: number;
 
@@ -22,7 +22,7 @@ namespace BioDeep.MSMSViewer {
         public constructor(
             mz: Data.mzData,
             canvasSize: number[] = [960, 600],
-            canvasMargin: renderingWork.margin = renderingWork.margin.default(),
+            canvasMargin: Canvas.Margin = renderingWork.defaultMargin(),
             csvLink: string = "matrix-csv") {
 
             this.current = mz;
@@ -33,12 +33,13 @@ namespace BioDeep.MSMSViewer {
         }
 
         private registerDownloader(id: string) {
-            var a = <HTMLAnchorElement>document.getElementById(id);
+            var a = <HTMLAnchorElement>$ts(Linq.TsQuery.EnsureNodeId(id));
             var csv = this.current.csv();
 
             if (a && a != undefined) {
                 var blob = new Blob(["\ufeff", csv]);
                 var url = URL.createObjectURL(blob);
+
                 a.href = url;
                 a.download = `${this.current.refName}.csv`;
 
@@ -52,10 +53,19 @@ namespace BioDeep.MSMSViewer {
          * @param div 需要显示图标的div区域，请注意，这个函数会将这个div节点内的所有的svg节点都清除掉
         */
         public rendering(div: string | HTMLElement): void {
+            if (div instanceof HTMLElement) {
+                div = `#${div.id}`;
+            } else {
+                div = Linq.TsQuery.EnsureNodeId(div);
+            }
+
+            // 2018-10-18
+            // 会需要使用选择器来进行正确的选择svg元素
+            // 否则会出现意外的将其他的svg节点清除的bug
 
             // 在进行新的图表绘制之前，需要清除所有的已经绘制的图表
             // 否则二者会叠加在一起
-            d3.selectAll("svg").remove();
+            d3.selectAll(`${div}>svg`).remove();
 
             this.tip = renderingWork.tooltip(this.current);
             this.svg = renderingWork.svg(this, div);

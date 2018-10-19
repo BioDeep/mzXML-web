@@ -21,7 +21,7 @@ namespace BioDeep.MSMSViewer.renderingWork {
         id: string | HTMLElement = null,
         svgId: string = "viewer-svg"): d3.Selection<any> {
 
-        var margin: margin = data.margin;
+        var margin: Canvas.Margin = data.margin;
         var svg = d3.select(<any>id)
             .append("svg")
             .attr("id", svgId)
@@ -39,7 +39,7 @@ namespace BioDeep.MSMSViewer.renderingWork {
     export function chartting(engine: d3Renderer): d3Renderer {
         var width: number = engine.width;
         var height: number = engine.height;
-        var margin: margin = engine.margin;
+        var margin: Canvas.Margin = engine.margin;
 
         // 信号强度是0到100之间，不需要再进行额外的换算了
         var y = d3.scale.linear()
@@ -124,15 +124,15 @@ namespace BioDeep.MSMSViewer.renderingWork {
     export function Legend(engine: d3Renderer): d3Renderer {
         var top = 30;
         var left = engine.width - 255;
-        var rW = 240, rH = 60;
-        var dW = 15;
+        var rw = 240, rh = 60;
+        var dw = 15;
 
         var legend = engine.svg.append("g")
             .attr("class", "legend")
             .attr("x", left)
             .attr("y", top)
-            .attr("height", rH)
-            .attr("width", rW);
+            .attr("height", rh)
+            .attr("width", rw);
 
         // 外边框
         legend.append("rect")
@@ -140,8 +140,8 @@ namespace BioDeep.MSMSViewer.renderingWork {
             .attr("y", top)
             .attr("rx", engine.radius)
             .attr("ry", engine.radius)
-            .attr("height", rH)
-            .attr("width", rW)
+            .attr("height", rh)
+            .attr("width", rw)
             .style("stroke", "gray")
             .style("stroke-width", 2)
             .style("border-radius", "2px")
@@ -156,12 +156,12 @@ namespace BioDeep.MSMSViewer.renderingWork {
         legend.append("rect")
             .attr("x", left)
             .attr("y", top - 13)
-            .attr("width", dW)
-            .attr("height", dW)
+            .attr("width", dw)
+            .attr("height", dw)
             .style("fill", "steelblue");
 
         legend.append("text")
-            .attr("x", left + dW + 5)
+            .attr("x", left + dw + 5)
             .attr("y", top)
             .text(d1);
 
@@ -169,12 +169,12 @@ namespace BioDeep.MSMSViewer.renderingWork {
         legend.append("rect")
             .attr("x", left)
             .attr("y", top - 13)
-            .attr("width", dW)
-            .attr("height", dW)
+            .attr("width", dw)
+            .attr("height", dw)
             .style("fill", "brown");
 
         legend.append("text")
-            .attr("x", left + dW + 5)
+            .attr("x", left + dw + 5)
             .attr("y", top)
             .text(d2);
 

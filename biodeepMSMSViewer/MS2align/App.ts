@@ -11,11 +11,16 @@ namespace BioDeep.MSMSViewer {
 
     export function renderChart(containerId: string, api: string, id: string): void {
         var url: string = sprintf(api, encodeURIComponent(id));
-        
+        var chart: HTMLElement = $ts(containerId);
+        var size: number[] = [
+            parseInt(chart.getAttribute["width"]),
+            parseInt(chart.getAttribute("height"))
+        ];
+
         $.getJSON(url, result => {
             if (result.code == 0) {
                 var data: Data.mzData = Data.JSONParser(<Data.JSONrespon>(result.info));
-                var d3 = new d3Renderer(data);
+                var d3 = new d3Renderer(data, size);
 
                 d3.rendering(containerId);
             } else {

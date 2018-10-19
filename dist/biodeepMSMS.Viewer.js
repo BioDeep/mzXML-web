@@ -12,10 +12,15 @@ var BioDeep;
         MSMSViewer.title = "BioDeep® MS/MS alignment viewer";
         function renderChart(containerId, api, id) {
             var url = sprintf(api, encodeURIComponent(id));
+            var chart = $ts(containerId);
+            var size = [
+                parseInt(chart.getAttribute["width"]),
+                parseInt(chart.getAttribute("height"))
+            ];
             $.getJSON(url, function (result) {
                 if (result.code == 0) {
                     var data = MSMSViewer.Data.JSONParser((result.info));
-                    var d3 = new MSMSViewer.d3Renderer(data);
+                    var d3 = new MSMSViewer.d3Renderer(data, size);
                     d3.rendering(containerId);
                 }
                 else {
@@ -54,8 +59,8 @@ var BioDeep;
         MSMSViewer.previews = previews;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
-/// <reference path="../../build/linq.d.ts" />
-/// <reference path="../../mzXML-web/dist/BioDeep_mzWeb.d.ts" />
+/// <reference path="../../../build/linq.d.ts" />
+/// <reference path="../../../mzXML-web/dist/BioDeep_mzWeb.d.ts" />
 // Demo test data
 /**
  var data = {
@@ -174,6 +179,38 @@ var BioDeep;
 })(BioDeep || (BioDeep = {}));
 var BioDeep;
 (function (BioDeep) {
+    var Utils;
+    (function (Utils) {
+        /**
+         * 因为D3里面的text不支持html标签，所以需要使用这个函数将名称
+         * 之中的html标记去除
+         *
+        */
+        function stripHTML(html) {
+            var tmp = $ts("<div>").display(html);
+            // 创建节点然后赋值文本，最后取出内部的文本
+            // 即可将html标记去除
+            return tmp.textContent || tmp.innerText || "";
+        }
+        Utils.stripHTML = stripHTML;
+        /**
+         * Returns path data for a rectangle with rounded right corners.
+         * The top-left corner is (x,y).
+        */
+        function rightRoundedRect(x, y, width, height, radius) {
+            return "M" + x + "," + y
+                + "h" + (width - radius)
+                + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+                + "v" + (height - 2 * radius)
+                + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
+                + "h" + (radius - width)
+                + "z";
+        }
+        Utils.rightRoundedRect = rightRoundedRect;
+    })(Utils = BioDeep.Utils || (BioDeep.Utils = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
     var MSMSViewer;
     (function (MSMSViewer) {
         var CSS = "\n\n/* \u6837\u54C1\u4E4B\u4E2D\u7684\u5316\u5408\u7269\u7684\u8272\u8C31\u6570\u636E\u7684\u989C\u8272 */\n.bar.positive {\n    fill: %s;\n}\n\n/* \u6807\u51C6\u54C1\u5E93\u4E4B\u4E2D\u7684\u5316\u5408\u7269\u7684\u8272\u8C31\u6570\u636E\u989C\u8272 */\n.bar.negative {\n    fill: %s;\n}\n\n/* \u5F53\u9F20\u6807\u79FB\u52A8\u5230\u67F1\u5B50\u4E0A\u9762\u7684\u65F6\u5019\u7684\u989C\u8272 */\n.bar:hover {\n    fill: %s;\n}\n\n.axis text {\n    font: 10px sans-serif;\n}\n\n.axis path,\n.axis line {\n    fill: none;\n    stroke: #000;\n    shape-rendering: crispEdges;\n}\n\n/* \u901A\u8FC7tooltip\u6765\u663E\u793A\u5177\u4F53\u7684m/z\u548C\u4FE1\u53F7\u5F3A\u5EA6\u7684\u4FE1\u606F */\n\n.d3-tip {\n    line-height: 1;\n    font-weight: normal;\n    padding: 12px;\n    background: rgba(0, 0, 0, 0.8);\n    color: #fff;\n    border-radius: 2px;\n}\n\n    /* Creates a small triangle extender for the tooltip */\n    .d3-tip:after {\n        box-sizing: border-box;\n        display: inline;\n        font-size: 10px;\n        width: 100%;\n        line-height: 1;\n        color: rgba(0, 0, 0, 0.8);\n        content: \"25BC\";\n        position: absolute;\n        text-align: center;\n    }\n\n    /* Style northward tooltips differently */\n    .d3-tip.n:after {\n        margin: -1px 0 0 0;\n        top: 100%;\n        left: 0;\n    }";
@@ -212,38 +249,6 @@ var BioDeep;
         }());
         MSMSViewer.Styles = Styles;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
-})(BioDeep || (BioDeep = {}));
-var BioDeep;
-(function (BioDeep) {
-    var Utils;
-    (function (Utils) {
-        /**
-         * 因为D3里面的text不支持html标签，所以需要使用这个函数将名称
-         * 之中的html标记去除
-         *
-        */
-        function stripHTML(html) {
-            var tmp = $ts("<div>").display(html);
-            // 创建节点然后赋值文本，最后取出内部的文本
-            // 即可将html标记去除
-            return tmp.textContent || tmp.innerText || "";
-        }
-        Utils.stripHTML = stripHTML;
-        /**
-         * Returns path data for a rectangle with rounded right corners.
-         * The top-left corner is (x,y).
-        */
-        function rightRoundedRect(x, y, width, height, radius) {
-            return "M" + x + "," + y
-                + "h" + (width - radius)
-                + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
-                + "v" + (height - 2 * radius)
-                + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-                + "h" + (radius - width)
-                + "z";
-        }
-        Utils.rightRoundedRect = rightRoundedRect;
-    })(Utils = BioDeep.Utils || (BioDeep.Utils = {}));
 })(BioDeep || (BioDeep = {}));
 var BioDeep;
 (function (BioDeep) {
@@ -363,22 +368,22 @@ var BioDeep;
             function Legend(engine) {
                 var top = 30;
                 var left = engine.width - 255;
-                var rW = 240, rH = 60;
-                var dW = 15;
+                var rw = 240, rh = 60;
+                var dw = 15;
                 var legend = engine.svg.append("g")
                     .attr("class", "legend")
                     .attr("x", left)
                     .attr("y", top)
-                    .attr("height", rH)
-                    .attr("width", rW);
+                    .attr("height", rh)
+                    .attr("width", rw);
                 // 外边框
                 legend.append("rect")
                     .attr("x", left)
                     .attr("y", top)
                     .attr("rx", engine.radius)
                     .attr("ry", engine.radius)
-                    .attr("height", rH)
-                    .attr("width", rW)
+                    .attr("height", rh)
+                    .attr("width", rw)
                     .style("stroke", "gray")
                     .style("stroke-width", 2)
                     .style("border-radius", "2px")
@@ -391,22 +396,22 @@ var BioDeep;
                 legend.append("rect")
                     .attr("x", left)
                     .attr("y", top - 13)
-                    .attr("width", dW)
-                    .attr("height", dW)
+                    .attr("width", dw)
+                    .attr("height", dw)
                     .style("fill", "steelblue");
                 legend.append("text")
-                    .attr("x", left + dW + 5)
+                    .attr("x", left + dw + 5)
                     .attr("y", top)
                     .text(d1);
                 top += 25;
                 legend.append("rect")
                     .attr("x", left)
                     .attr("y", top - 13)
-                    .attr("width", dW)
-                    .attr("height", dW)
+                    .attr("width", dw)
+                    .attr("height", dw)
                     .style("fill", "brown");
                 legend.append("text")
-                    .attr("x", left + dW + 5)
+                    .attr("x", left + dw + 5)
                     .attr("y", top)
                     .text(d2);
                 var fontSize = 20;
@@ -439,7 +444,7 @@ var BioDeep;
         var d3Renderer = /** @class */ (function () {
             function d3Renderer(mz, canvasSize, canvasMargin, csvLink) {
                 if (canvasSize === void 0) { canvasSize = [960, 600]; }
-                if (canvasMargin === void 0) { canvasMargin = MSMSViewer.renderingWork.margin.default(); }
+                if (canvasMargin === void 0) { canvasMargin = MSMSViewer.renderingWork.defaultMargin(); }
                 if (csvLink === void 0) { csvLink = "matrix-csv"; }
                 this.strokeWidth = 6;
                 this.radius = 6;
@@ -450,7 +455,7 @@ var BioDeep;
                 this.registerDownloader(csvLink);
             }
             d3Renderer.prototype.registerDownloader = function (id) {
-                var a = document.getElementById(id);
+                var a = $ts(Linq.TsQuery.EnsureNodeId(id));
                 var csv = this.current.csv();
                 if (a && a != undefined) {
                     var blob = new Blob(["\ufeff", csv]);
@@ -466,9 +471,18 @@ var BioDeep;
              * @param div 需要显示图标的div区域，请注意，这个函数会将这个div节点内的所有的svg节点都清除掉
             */
             d3Renderer.prototype.rendering = function (div) {
+                if (div instanceof HTMLElement) {
+                    div = "#" + div.id;
+                }
+                else {
+                    div = Linq.TsQuery.EnsureNodeId(div);
+                }
+                // 2018-10-18
+                // 会需要使用选择器来进行正确的选择svg元素
+                // 否则会出现意外的将其他的svg节点清除的bug
                 // 在进行新的图表绘制之前，需要清除所有的已经绘制的图表
                 // 否则二者会叠加在一起
-                d3.selectAll("svg").remove();
+                d3.selectAll(div + ">svg").remove();
                 this.tip = MSMSViewer.renderingWork.tooltip(this.current);
                 this.svg = MSMSViewer.renderingWork.svg(this, div);
                 // 因为在下面的chartting函数调用之中需要使用tip对象来绑定鼠标事件，
@@ -482,32 +496,17 @@ var BioDeep;
         MSMSViewer.d3Renderer = d3Renderer;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
+/// <reference path="../../../../build/svg.d.ts" />
 var BioDeep;
 (function (BioDeep) {
     var MSMSViewer;
     (function (MSMSViewer) {
         var renderingWork;
         (function (renderingWork) {
-            var margin = /** @class */ (function () {
-                function margin(top, right, bottom, left) {
-                    if (top === void 0) { top = 70; }
-                    if (right === void 0) { right = 10; }
-                    if (bottom === void 0) { bottom = 10; }
-                    if (left === void 0) { left = 50; }
-                    this.top = top;
-                    this.right = right;
-                    this.bottom = bottom;
-                    this.left = left;
-                }
-                margin.default = function () {
-                    return new margin();
-                };
-                margin.prototype.toString = function () {
-                    return "[" + this.top + ", " + this.right + ", " + this.bottom + ", " + this.left + "]";
-                };
-                return margin;
-            }());
-            renderingWork.margin = margin;
+            function defaultMargin() {
+                return new Canvas.Margin(70, 10, 10, 50);
+            }
+            renderingWork.defaultMargin = defaultMargin;
         })(renderingWork = MSMSViewer.renderingWork || (MSMSViewer.renderingWork = {}));
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));

@@ -1,5 +1,5 @@
-﻿/// <reference path="../../build/linq.d.ts" />
-/// <reference path="../../mzXML-web/dist/BioDeep_mzWeb.d.ts" />
+﻿/// <reference path="../../../build/linq.d.ts" />
+/// <reference path="../../../mzXML-web/dist/BioDeep_mzWeb.d.ts" />
 
 // Demo test data
 
