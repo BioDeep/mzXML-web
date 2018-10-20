@@ -1,3 +1,130 @@
+/// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
+var BioDeep;
+(function (BioDeep) {
+    var MSMSViewer;
+    (function (MSMSViewer) {
+        var PeakScatter;
+        (function (PeakScatter) {
+            var PlotRenderer = /** @class */ (function () {
+                function PlotRenderer(size, margin) {
+                    if (margin === void 0) { margin = {
+                        top: 20, right: 20, bottom: 30, left: 40
+                    }; }
+                    this.margin = Canvas.Margin.Object(margin);
+                    this.size = {
+                        width: size.width - this.margin.horizontal,
+                        height: size.height - this.margin.vertical
+                    };
+                    // add the graph canvas to the body of the webpage
+                    this.svg = d3.select("body").append("svg")
+                        .attr("width", this.size.width + margin.left + margin.right)
+                        .attr("height", this.size.height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                    // add the tooltip area to the webpage
+                    this.tooltip = d3.select("body").append("div")
+                        .attr("class", "tooltip")
+                        .style("opacity", 0);
+                }
+                PlotRenderer.prototype.xAxis = function () {
+                    var xScale = d3.scale.linear().range([0, this.size.width]), xMap = function (d) { return xScale(d.rt); }, xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+                    return {
+                        scale: xScale,
+                        map: xMap,
+                        axis: xAxis,
+                        range: function (peaks) { return data.NumericRange.Create(From(peaks).Select(function (d) { return d.rt; })).range; }
+                    };
+                };
+                PlotRenderer.prototype.yAxis = function () {
+                    var yScale = d3.scale.linear().range([this.size.height, 0]), yMap = function (d) { return yScale(d.mz); }, yAxis = d3.svg.axis().scale(yScale).orient("left");
+                    return {
+                        scale: yScale,
+                        map: yMap,
+                        axis: yAxis,
+                        range: function (peaks) { return data.NumericRange.Create(From(peaks).Select(function (d) { return d.mz; })).range; }
+                    };
+                };
+                PlotRenderer.prototype.render = function (data, peakClick) {
+                    if (peakClick === void 0) { peakClick = DoNothing; }
+                    var x = this.xAxis(), y = this.yAxis();
+                    var cValue = function (d) { return d.Manufacturer; }, color = d3.scale.category10();
+                    var plot = this;
+                    // don't want dots overlapping axis, so add in buffer to data domain
+                    x.scale.domain(x.range(data)).nice();
+                    y.scale.domain(y.range(data)).nice();
+                    // x-axis
+                    plot.svg.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + plot.size.height + ")")
+                        .call(x.axis)
+                        .append("text")
+                        .attr("class", "label")
+                        .attr("x", plot.size.width)
+                        .attr("y", -6)
+                        .style("text-anchor", "end")
+                        .text("rt in seconds");
+                    // y-axis
+                    plot.svg.append("g")
+                        .attr("class", "y axis")
+                        .call(y.axis)
+                        .append("text")
+                        .attr("class", "label")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 6)
+                        .attr("dy", ".71em")
+                        .style("text-anchor", "end")
+                        .text("m/z");
+                    // draw dots
+                    plot.svg.selectAll(".dot")
+                        .data(data)
+                        .enter()
+                        .append("circle")
+                        .attr("class", "dot")
+                        .attr("r", 3.5)
+                        .attr("cx", x.map)
+                        .attr("cy", y.map)
+                        .style("fill", function (d) { return color(cValue(d)); })
+                        .on("mouseover", function (d) {
+                        plot.tooltip.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+                        plot.tooltip
+                            .html(d.name + " " + d.mz + "@" + d.rt)
+                            .style("left", (d3.event.pageX + 5) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+                    })
+                        .on("mouseout", function (d) {
+                        plot.tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+                    })
+                        .on("click", function (d) { return peakClick(d); });
+                    // draw legend
+                    var legend = plot.svg.selectAll(".legend")
+                        .data(color.domain())
+                        .enter().append("g")
+                        .attr("class", "legend")
+                        .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
+                    // draw legend colored rectangles
+                    legend.append("rect")
+                        .attr("x", plot.size.width - 18)
+                        .attr("width", 18)
+                        .attr("height", 18)
+                        .style("fill", color);
+                    // draw legend text
+                    legend.append("text")
+                        .attr("x", plot.size.width - 24)
+                        .attr("y", 9)
+                        .attr("dy", ".35em")
+                        .style("text-anchor", "end")
+                        .text(function (d) { return d; });
+                };
+                return PlotRenderer;
+            }());
+            PeakScatter.PlotRenderer = PlotRenderer;
+        })(PeakScatter = MSMSViewer.PeakScatter || (MSMSViewer.PeakScatter = {}));
+    })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
+})(BioDeep || (BioDeep = {}));
 /**
  * ## mzXML file reader and javascript data visualization tools
  *
@@ -60,7 +187,7 @@ var BioDeep;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
 /// <reference path="../../../build/linq.d.ts" />
-/// <reference path="../../../mzXML-web/dist/BioDeep_mzWeb.d.ts" />
+/// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
 // Demo test data
 /**
  var data = {

@@ -1,8 +1,20 @@
-/// <reference path="../../build/linq.d.ts" />
 /// <reference path="BioDeep_mzWeb.d.ts" />
+/// <reference path="../../build/linq.d.ts" />
 /// <reference path="../../build/svg.d.ts" />
 /// <reference types="d3-tip" />
 /// <reference types="d3" />
+declare namespace BioDeep.MSMSViewer.PeakScatter {
+    class PlotRenderer {
+        margin: Canvas.Margin;
+        size: Canvas.Size;
+        private svg;
+        private tooltip;
+        constructor(size: Canvas.Size, margin?: Canvas.Margin);
+        private xAxis;
+        private yAxis;
+        render(data: Models.IonPeak[], peakClick?: (d: Models.IonPeak) => void): void;
+    }
+}
 /**
  * ## mzXML file reader and javascript data visualization tools
  *

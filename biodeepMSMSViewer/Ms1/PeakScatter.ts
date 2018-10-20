@@ -61,7 +61,7 @@ namespace BioDeep.MSMSViewer.PeakScatter {
             }
         }
 
-        public render(data: Models.IonPeak[]): void {
+        public render(data: Models.IonPeak[], peakClick: (d: Models.IonPeak) => void = DoNothing): void {
             var x = this.xAxis(), y = this.yAxis();
             var cValue = function (d) { return d.Manufacturer; },
                 color = d3.scale.category10();
@@ -118,7 +118,8 @@ namespace BioDeep.MSMSViewer.PeakScatter {
                     plot.tooltip.transition()
                         .duration(500)
                         .style("opacity", 0);
-                });
+                })
+                .on("click", d => peakClick(d));
 
             // draw legend
             var legend = plot.svg.selectAll(".legend")
