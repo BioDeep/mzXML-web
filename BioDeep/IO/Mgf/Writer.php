@@ -33,7 +33,8 @@ namespace BioDeep\IO {
                 ->AppendLine("PEPMASS=$mz $into")
                 ->AppendLine("CHARGE=$charge");
             $mgf->AppendLine(rtrim(self::SpectraMs2($ms2), "\r\n"));
-            $mgf->AppendLine(self::$EndIons);
+            // 在这里不使用AppendLine，否则会多出来一个换行符的
+            $mgf->Append(self::$EndIons);
 
             return $mgf->ToString();
         }
