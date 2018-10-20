@@ -15,7 +15,7 @@ namespace BioDeep\IO {
          * 
          * @param array|PrecursorIon $meta 在这个字典数组之中应该至少要包括有字段：``mz``，``rt``，
          *                                 可选字段有``title``，``charge``。
-         * @param array $ms2 二级质谱数据矩阵，格式为``[mz => xxx, into => xxx]``的数组
+         * @param array|MzInto[] $ms2 二级质谱数据矩阵，格式为``[mz => xxx, into => xxx]``的数组
          * 
          * @return string
         */

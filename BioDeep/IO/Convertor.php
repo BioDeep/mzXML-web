@@ -27,12 +27,33 @@ class Convertor {
             if (!file_exists($dir)) {
                 mkdir($dir, 0777, true);
             }
-        }       
+        }
 
         using(new \StreamWriter($mgf, false), function(\StreamWriter $writer) use ($raw) {
             foreach($raw->yieldAllMs2() as $ms2) {
+                $mz     = $ms2->precursorMz->data;
+                $rt     = $ms2->scan->rt();
+                $title  = self::scanTitle($raw->fileName, $ms2);
+                $charge = $ms2->precursorMz->precursorCharge;
+                $meta   = new PrecursorIon(
+                    $mz, $rt, 
+                    $ms2->precursorMz->precursorIntensity, 
+                    $charge, $title
+                );
+                $ion = MgfWriter::CreateDocument($meta, $ms2->peaks->data);
 
+                $writer->WriteLine($ion);
             }
         });
+    }
+
+    private static function scanTitle(string $fileName, ScanReader $ms2) {
+        $tokens = [
+            "{$raw->fileName}#{$ms2->scan->num}", 
+            $ms2->precursorMz->activationMethod, 
+            $ms2->scan->collisionEnergy
+        ];
+
+        return \implode(" ", $tokens);
     }
 }
