@@ -2,7 +2,7 @@
 
 namespace BioDeep\IO;
 
-Imports("");
+Imports("System.IO.StreamWriter");
 
 /**
  * 质谱数据格式转换模块
@@ -29,13 +29,10 @@ class Convertor {
             }
         }       
 
-        $fp = fopen('data.txt', 'w');
-fwrite($fp, '1');
-fwrite($fp, '23');
-fclose($fp);
+        using(new \StreamWriter($mgf, false), function(\StreamWriter $writer) use ($raw) {
+            foreach($raw->yieldAllMs2() as $ms2) {
 
-        foreach($raw->yieldAllMs2() as $ms2) {
-
-        }
+            }
+        });
     }
 }
