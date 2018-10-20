@@ -166,6 +166,21 @@ var BioDeep;
         Models.mzInto = mzInto;
     })(Models = BioDeep.Models || (BioDeep.Models = {}));
 })(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var Models;
+    (function (Models) {
+        /**
+         * 一个一级母离子的峰
+        */
+        var IonPeak = /** @class */ (function () {
+            function IonPeak() {
+            }
+            return IonPeak;
+        }());
+        Models.IonPeak = IonPeak;
+    })(Models = BioDeep.Models || (BioDeep.Models = {}));
+})(BioDeep || (BioDeep = {}));
 /// <reference path="../../../../build/linq.d.ts" />
 /// <reference path="../../Models/Abstract.ts" />
 /**

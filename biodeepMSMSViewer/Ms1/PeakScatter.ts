@@ -1,4 +1,6 @@
-﻿namespace BioDeep.MSMSViewer.PeakScatter {
+﻿/// <reference path="../../../mzXML-web/dist/BioDeep_mzWeb.d.ts" />
+
+namespace BioDeep.MSMSViewer.PeakScatter {
 
     export class PlotRenderer {
 
@@ -33,7 +35,13 @@
                 .style("opacity", 0);
         }
 
-        public Axis(x: object, y: object) {
+        private xAxis() {
+            return {
+                xValue = (m: BioDeep.IO..)
+            }
+        }
+
+        public Axis(x: Models.IonPeak, y: object) {
             var xValue = d => d.Calories;
             var xScale = d3.scale.linear().range([0, this.size.width]);
             var xMap = d => xScale(xValue(d));

@@ -79,6 +79,18 @@ declare namespace BioDeep.Models {
         toString(): string;
     }
 }
+declare namespace BioDeep.Models {
+    /**
+     * 一个一级母离子的峰
+    */
+    class IonPeak {
+        id: string;
+        mz: number;
+        rt: number;
+        name: string;
+        intensity: number;
+    }
+}
 /**
  * The ``*.ms2`` file format reader
 */
