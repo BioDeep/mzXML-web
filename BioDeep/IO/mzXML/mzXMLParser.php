@@ -51,6 +51,15 @@ namespace BioDeep\IO {
             return new ScanReader($this->ms2Scans[$x]);
         }
 
+        /**
+         * @return ScanReader
+        */
+        public function yieldAllMs2() {
+            foreach($this->ms2Scans as $ms2) {
+                yield new \BioDeep\IO\ScanReader($ms2);
+            }
+        }
+
         #endregion
 
         public function __construct($path) {
