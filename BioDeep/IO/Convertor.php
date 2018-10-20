@@ -49,9 +49,9 @@ class Convertor {
 
     private static function scanTitle(string $fileName, ScanReader $ms2) {
         $tokens = [
-            "{$raw->fileName}#{$ms2->scan->num}", 
-            $ms2->precursorMz->activationMethod, 
-            $ms2->scan->collisionEnergy
+            "$fileName#{$ms2->scan->num}", 
+             $ms2->precursorMz->activationMethod, 
+             $ms2->scan->collisionEnergy
         ];
 
         return \implode(" ", $tokens);
