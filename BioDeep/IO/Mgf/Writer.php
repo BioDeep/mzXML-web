@@ -47,8 +47,8 @@ namespace BioDeep\IO {
             }
         }
 
-        private static function FragmentArrayMatrix($ms2) {
-            if (is_array($ms2[0])) {
+        private static function FragmentArrayMatrix($ms2) {            
+            if (is_array(\Utils::First($ms2))) {
                 $spectra = new \StringBuilder();
 
                 foreach($ms2 as $mzinto) {

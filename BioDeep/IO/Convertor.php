@@ -34,20 +34,20 @@ class Convertor {
                 if ($ms2->peaks->PeaksLength() == 0) {
                     # 没有碎片峰。。。
                     continue;
+                } else {
+                    $mz     = $ms2->precursorMz->data;
+                    $rt     = $ms2->scan->rt();
+                    $title  = self::scanTitle($raw->fileName, $ms2);
+                    $charge = $ms2->precursorMz->precursorCharge;
+                    $meta   = new PrecursorIon(
+                        $mz, $rt, 
+                        $ms2->precursorMz->precursorIntensity, 
+                        $charge, $title
+                    );
+                    $ion = MgfWriter::CreateDocument($meta, $ms2->peaks->data);
+    
+                    $writer->WriteLine($ion);
                 }
-
-                $mz     = $ms2->precursorMz->data;
-                $rt     = $ms2->scan->rt();
-                $title  = self::scanTitle($raw->fileName, $ms2);
-                $charge = $ms2->precursorMz->precursorCharge;
-                $meta   = new PrecursorIon(
-                    $mz, $rt, 
-                    $ms2->precursorMz->precursorIntensity, 
-                    $charge, $title
-                );
-                $ion = MgfWriter::CreateDocument($meta, $ms2->peaks->data);
-
-                $writer->WriteLine($ion);
             }
         });
     }
