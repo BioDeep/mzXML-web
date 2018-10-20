@@ -1,4 +1,4 @@
-﻿/// <reference path="../../../mzXML-web/dist/BioDeep_mzWeb.d.ts" />
+﻿/// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
 
 namespace BioDeep.MSMSViewer.PeakScatter {
 
@@ -36,112 +36,111 @@ namespace BioDeep.MSMSViewer.PeakScatter {
         }
 
         private xAxis() {
+            var xScale = d3.scale.linear().range([0, this.size.width]),
+                xMap = (d: Models.IonPeak) => xScale(d.rt),
+                xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+
             return {
-                xValue = (m: BioDeep.IO..)
+                scale: xScale,
+                map: xMap,
+                axis: xAxis,
+                range: (peaks: Models.IonPeak[]) => data.NumericRange.Create(From(peaks).Select(d => d.rt)).range
             }
         }
 
-        public Axis(x: Models.IonPeak, y: object) {
-            var xValue = d => d.Calories;
-            var xScale = d3.scale.linear().range([0, this.size.width]);
-            var xMap = d => xScale(xValue(d));
-            var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+        private yAxis() {
+            var yScale = d3.scale.linear().range([this.size.height, 0]),
+                yMap = (d: Models.IonPeak) => yScale(d.mz),
+                yAxis = d3.svg.axis().scale(yScale).orient("left");
 
-            var yValue = d => d["key"];
-            var yScale = d3.scale.linear().range([this.size.height, 0]);
-            var yMap = d => yScale(yValue(d));
-            var yAxis = d3.svg.axis().scale(yScale).orient("left");
+            return {
+                scale: yScale,
+                map: yMap,
+                axis: yAxis,
+                range: (peaks: Models.IonPeak[]) => data.NumericRange.Create(From(peaks).Select(d => d.mz)).range
+            }
+        }
 
+        public render(data: Models.IonPeak[]): void {
+            var x = this.xAxis(), y = this.yAxis();
             var cValue = function (d) { return d.Manufacturer; },
                 color = d3.scale.category10();
-
             var plot: PlotRenderer = this;
 
-            // load data
-            d3.csv("cereal.csv", function (error, data) {
+            // don't want dots overlapping axis, so add in buffer to data domain
+            x.scale.domain(x.range(data)).nice();
+            y.scale.domain(y.range(data)).nice();
 
-                // change string (from CSV) into number format
-                data.forEach(function (d) {
-                    d.Calories = +d.Calories;
-                    d["Protein (g)"] = +d["Protein (g)"];
-                    //    console.log(d);
+            // x-axis
+            plot.svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", `translate(0,${plot.size.height})`)
+                .call(x.axis)
+                .append("text")
+                .attr("class", "label")
+                .attr("x", plot.size.width)
+                .attr("y", -6)
+                .style("text-anchor", "end")
+                .text("rt in seconds");
+
+            // y-axis
+            plot.svg.append("g")
+                .attr("class", "y axis")
+                .call(y.axis)
+                .append("text")
+                .attr("class", "label")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("m/z");
+
+            // draw dots
+            plot.svg.selectAll(".dot")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("class", "dot")
+                .attr("r", 3.5)
+                .attr("cx", x.map)
+                .attr("cy", y.map)
+                .style("fill", d => color(cValue(d)))
+                .on("mouseover", function (d) {
+                    plot.tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    plot.tooltip
+                        .html(`${d.name} ${d.mz}@${d.rt}`)
+                        .style("left", ((<any>d3.event).pageX + 5) + "px")
+                        .style("top", ((<any>d3.event).pageY - 28) + "px");
+                })
+                .on("mouseout", function (d) {
+                    plot.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
                 });
 
-                // don't want dots overlapping axis, so add in buffer to data domain
-                xScale.domain([d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]);
-                yScale.domain([d3.min(data, yValue) - 1, d3.max(data, yValue) + 1]);
+            // draw legend
+            var legend = plot.svg.selectAll(".legend")
+                .data(color.domain())
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => `translate(0,${i * 20})`);
 
-                // x-axis
-                plot.svg.append("g")
-                    .attr("class", "x axis")
-                    .attr("transform", `translate(0,${plot.size.height})`)
-                    .call(xAxis)
-                    .append("text")
-                    .attr("class", "label")
-                    .attr("x", plot.size.width)
-                    .attr("y", -6)
-                    .style("text-anchor", "end")
-                    .text("Calories");
+            // draw legend colored rectangles
+            legend.append("rect")
+                .attr("x", plot.size.width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", color);
 
-                // y-axis
-                plot.svg.append("g")
-                    .attr("class", "y axis")
-                    .call(yAxis)
-                    .append("text")
-                    .attr("class", "label")
-                    .attr("transform", "rotate(-90)")
-                    .attr("y", 6)
-                    .attr("dy", ".71em")
-                    .style("text-anchor", "end")
-                    .text("Protein (g)");
-
-                // draw dots
-                plot.svg.selectAll(".dot")
-                    .data(data)
-                    .enter().append("circle")
-                    .attr("class", "dot")
-                    .attr("r", 3.5)
-                    .attr("cx", xMap)
-                    .attr("cy", yMap)
-                    .style("fill", d => color(cValue(d)))
-                    .on("mouseover", function (d) {
-                        plot.tooltip.transition()
-                            .duration(200)
-                            .style("opacity", .9);
-                        plot.tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d)
-                            + ", " + yValue(d) + ")")
-                            .style("left", ((<any>d3.event).pageX + 5) + "px")
-                            .style("top", ((<any>d3.event).pageY - 28) + "px");
-                    })
-                    .on("mouseout", function (d) {
-                        plot.tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0);
-                    });
-
-                // draw legend
-                var legend = plot.svg.selectAll(".legend")
-                    .data(color.domain())
-                    .enter().append("g")
-                    .attr("class", "legend")
-                    .attr("transform", (d, i) => `translate(0,${i * 20})`);
-
-                // draw legend colored rectangles
-                legend.append("rect")
-                    .attr("x", plot.size.width - 18)
-                    .attr("width", 18)
-                    .attr("height", 18)
-                    .style("fill", color);
-
-                // draw legend text
-                legend.append("text")
-                    .attr("x", plot.size.width - 24)
-                    .attr("y", 9)
-                    .attr("dy", ".35em")
-                    .style("text-anchor", "end")
-                    .text(d => d);
-            });
-
+            // draw legend text
+            legend.append("text")
+                .attr("x", plot.size.width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(d => d);
         }
     }
 }
