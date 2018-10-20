@@ -31,6 +31,11 @@ class Convertor {
 
         using(new \StreamWriter($mgf, false), function(\StreamWriter $writer) use ($raw) {
             foreach($raw->yieldAllMs2() as $ms2) {
+                if ($ms2->peaks->PeaksLength() == 0) {
+                    # 没有碎片峰。。。
+                    continue;
+                }
+
                 $mz     = $ms2->precursorMz->data;
                 $rt     = $ms2->scan->rt();
                 $title  = self::scanTitle($raw->fileName, $ms2);

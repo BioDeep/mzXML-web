@@ -96,6 +96,19 @@ namespace BioDeep\IO {
 
         #endregion
 
+        /**
+         * 获取得到碎片峰的数量
+         * 
+         * @return integer
+        */
+        public function PeaksLength() {
+            if (empty($this->data)) {
+                return 0;
+            } else {
+                return count($this->data);
+            }            
+        }
+
         public function __construct($peaks) {
             foreach($peaks as $name => $val) {
                 $this->{$name} = $val;
