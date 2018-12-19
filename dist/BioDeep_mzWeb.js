@@ -152,6 +152,9 @@ var BioDeep;
 (function (BioDeep) {
     var Models;
     (function (Models) {
+        /**
+         * ``[mz, into]``行，即一个质谱图碎片
+        */
         var mzInto = /** @class */ (function () {
             function mzInto(id, mz, into) {
                 this.id = id;

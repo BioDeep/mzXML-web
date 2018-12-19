@@ -27,7 +27,7 @@ namespace BioDeep.MSMSViewer.Data {
         public mzMatrix: BioDeep.Models.mzInto[];
         public queryName: string;
         public refName: string;
-        public metlin: string;
+        public xref: string;
 
         public constructor(mz: number[] | data.NumericRange, align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>) {
             var range: data.NumericRange = Array.isArray(mz) ?
@@ -39,16 +39,27 @@ namespace BioDeep.MSMSViewer.Data {
 
         public trim(intoCutoff: number = 5): mzData {
             var src = new IEnumerator<BioDeep.Models.mzInto>(this.mzMatrix);
-            var max: number = Math.abs(src.Max(m => Math.max(m.into)).into);
+            var max: number = Math.abs(src.Max(m => m.into).into);
             var trimmedData = From(this.mzMatrix).Where(m => Math.abs(m.into / max * 100) >= intoCutoff);
             var newRange = data.NumericRange.Create(trimmedData.Select(m => m.mz));
             var newMatrix = new mzData(newRange, trimmedData);
 
             newMatrix.queryName = this.queryName;
             newMatrix.refName = this.refName;
-            newMatrix.metlin = this.metlin;
+            newMatrix.xref = this.xref;
 
             return newMatrix;
+        }
+
+        /**
+         * 将响应强度的数据归一化到``[0, 100]``的区间范围内，然后返回当前的数据实例自身
+        */
+        public normalize(): mzData {
+            var src = new IEnumerator<BioDeep.Models.mzInto>(this.mzMatrix);
+            var max: number = Math.abs(src.Max(m => m.into).into);
+
+            this.mzMatrix.forEach(m => m.into = m.into / max * 100);
+            return this;
         }
 
         public tooltip(mz: BioDeep.Models.mzInto): string {
@@ -70,7 +81,7 @@ namespace BioDeep.MSMSViewer.Data {
         }
 
         public csv(): string {
-            var meta = `#name=${this.refName};metlin=${this.metlin}`;
+            var meta = `#name=${this.refName};xref=${this.xref}`;
             var header = "id,mz,into";
             var table: string = "";
             var i = 0;
@@ -85,37 +96,52 @@ namespace BioDeep.MSMSViewer.Data {
         }
     }
 
-    export function JSONParser(data: JSONrespon): mzData {
-        var mzRange: number[] = [];
+    export function JSONParser(data: JSONrespon, decoder: ((string) => Models.mzInto[]) = null): mzData {
         var mzInt: BioDeep.Models.mzInto[] = [];
-        var mzX: number;
-        var into: number;
 
-        data.align
-            .forEach((x, i) => {
-                mzRange.push(x.mz);
+        if (typeof data.align == "string") {
+            if (isNullOrUndefined(decoder)) {
+                throw "No SVG decoder was provided!";
+            } else {
+                mzInt = decoder(data.align);
+            }
+        } else {
+            mzInt = parseMirror(data.align);
+        }
+
+        var mzRange: number[] = From(mzInt).Select(x => x.mz).ToArray();
+        var align: mzData = new mzData(mzRange, mzInt);
+        align.queryName = data.query;
+        align.refName = data.reference;
+        align.xref = data.xref;
+
+        return align;
+    }
+
+    function parseMirror(aligns: align[]): Models.mzInto[] {
+        return From(aligns)
+            .Select((x, i) => {
+                var a: Models.mzInto;
+                var b: Models.mzInto;
 
                 if (x.into1) {
-                    mzX = parseFloat(new Number(x.mz).toFixed(4));
-                    into = parseFloat(new Number(x.into1 * 100).toFixed(0));
-                    mzInt.push(new BioDeep.Models.mzInto(i.toString(), mzX, into));
+                    var mzX = parseFloat(new Number(x.mz).toFixed(4));
+                    var into = parseFloat(new Number(x.into1 * 100).toFixed(0));
+                    a = new BioDeep.Models.mzInto(i.toString(), mzX, into);
                 }
 
                 if (x.into2) {
                     // 参考是位于图表的下半部分，倒过来的
                     // 所以在这里会需要乘以-1来完成颠倒
-                    mzX = parseFloat(new Number(x.mz).toFixed(4));
-                    into = -1 * parseFloat(new Number(x.into2 * 100).toFixed(0));
-                    mzInt.push(new BioDeep.Models.mzInto(i.toString(), mzX, into));
+                    var mzX = parseFloat(new Number(x.mz).toFixed(4));
+                    var into = -1 * parseFloat(new Number(x.into2 * 100).toFixed(0));
+                    b = new BioDeep.Models.mzInto(i.toString(), mzX, into);
                 }
-            });
 
-        var align: mzData = new mzData(mzRange, mzInt);
-        align.queryName = data.query;
-        align.refName = data.reference;
-        align.metlin = data.metlin;
-
-        return align;
+                return [a, b];
+            })
+            .Unlist(x => x)
+            .ToArray();
     }
 
     /**
@@ -141,7 +167,7 @@ namespace BioDeep.MSMSViewer.Data {
         var align: mzData = new mzData(mzRange, mirror);
         align.queryName = `${mz}@${rt}`;
         align.refName = title;
-        align.metlin = "0";
+        align.xref = "0";
 
         return align;
     }
@@ -150,8 +176,8 @@ namespace BioDeep.MSMSViewer.Data {
 
         public query: string;
         public reference: string;
-        public align: align[];
-        public metlin: string;
+        public align: align[] | string;
+        public xref: string;
 
     }
 

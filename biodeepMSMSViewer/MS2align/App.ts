@@ -9,23 +9,23 @@ namespace BioDeep.MSMSViewer {
 
     export const title: string = "BioDeep® MS/MS alignment viewer";
 
-    export function renderChart(containerId: string, api: string, id: string): void {
+    export function renderChart(containerId: string, api: string, id: string, decoder: ((string) => Models.mzInto[]) = null): void {
         var url: string = sprintf(api, encodeURIComponent(id));
         var chart: HTMLElement = $ts(containerId);
-        var size: number[] = [
-            parseInt(chart.getAttribute["width"]),
-            parseInt(chart.getAttribute("height"))
-        ];
+        var size: Canvas.Size = SvgUtils.getSize(chart, [960, 600]);
 
-        $.getJSON(url, result => {
+        $.getJSON(url, function (result: {
+            code: number,
+            info: string | Data.JSONrespon
+        }) {
             if (result.code == 0) {
-                var data: Data.mzData = Data.JSONParser(<Data.JSONrespon>(result.info));
+                var data: Data.mzData = Data.JSONParser(<Data.JSONrespon>(result.info), decoder);
                 var d3 = new d3Renderer(data, size);
 
                 d3.rendering(containerId);
             } else {
                 // 显示错误消息
-                throw result.info;
+                throw <string>result.info + " " + url;
             }
         });
     }
@@ -39,9 +39,9 @@ namespace BioDeep.MSMSViewer {
      * 
      * @returns ``(res_id: string) => void``
     */
-    export function register(svgDisplay: string, api: string): (res_id: string) => void {
+    export function register(svgDisplay: string, api: string, decoder: ((string) => Models.mzInto[]) = null): (res_id: string) => void {
         return (res_id: string) => {
-            BioDeep.MSMSViewer.renderChart(svgDisplay, api, res_id);
+            BioDeep.MSMSViewer.renderChart(svgDisplay, api, res_id, decoder);
         }
     }
 

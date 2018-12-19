@@ -84,9 +84,10 @@ namespace BioDeep.MSMSViewer.renderingWork {
             .attr("x", (d: BioDeep.Models.mzInto, i: number) => x(d.mz))
             .attr("height", (d: BioDeep.Models.mzInto) => Math.abs(y(d.into) - y(0)))
             .attr("width", engine.strokeWidth)
+            .attr("cursor", "pointer")
             .on('mouseover', engine.tip.show)
             .on('mouseout', engine.tip.hide);
-
+    
         engine.svg.append("g")
             .attr("class", "x axis")
             .call(yAxis);

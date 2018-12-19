@@ -137,22 +137,20 @@ var BioDeep;
     var MSMSViewer;
     (function (MSMSViewer) {
         MSMSViewer.title = "BioDeep® MS/MS alignment viewer";
-        function renderChart(containerId, api, id) {
+        function renderChart(containerId, api, id, decoder) {
+            if (decoder === void 0) { decoder = null; }
             var url = sprintf(api, encodeURIComponent(id));
             var chart = $ts(containerId);
-            var size = [
-                parseInt(chart.getAttribute["width"]),
-                parseInt(chart.getAttribute("height"))
-            ];
+            var size = SvgUtils.getSize(chart, [960, 600]);
             $.getJSON(url, function (result) {
                 if (result.code == 0) {
-                    var data = MSMSViewer.Data.JSONParser((result.info));
+                    var data = MSMSViewer.Data.JSONParser((result.info), decoder);
                     var d3 = new MSMSViewer.d3Renderer(data, size);
                     d3.rendering(containerId);
                 }
                 else {
                     // 显示错误消息
-                    throw result.info;
+                    throw result.info + " " + url;
                 }
             });
         }
@@ -166,9 +164,10 @@ var BioDeep;
          *
          * @returns ``(res_id: string) => void``
         */
-        function register(svgDisplay, api) {
+        function register(svgDisplay, api, decoder) {
+            if (decoder === void 0) { decoder = null; }
             return function (res_id) {
-                BioDeep.MSMSViewer.renderChart(svgDisplay, api, res_id);
+                BioDeep.MSMSViewer.renderChart(svgDisplay, api, res_id, decoder);
             };
         }
         MSMSViewer.register = register;
@@ -220,14 +219,23 @@ var BioDeep;
                 mzData.prototype.trim = function (intoCutoff) {
                     if (intoCutoff === void 0) { intoCutoff = 5; }
                     var src = new IEnumerator(this.mzMatrix);
-                    var max = Math.abs(src.Max(function (m) { return Math.max(m.into); }).into);
+                    var max = Math.abs(src.Max(function (m) { return m.into; }).into);
                     var trimmedData = From(this.mzMatrix).Where(function (m) { return Math.abs(m.into / max * 100) >= intoCutoff; });
                     var newRange = data.NumericRange.Create(trimmedData.Select(function (m) { return m.mz; }));
                     var newMatrix = new mzData(newRange, trimmedData);
                     newMatrix.queryName = this.queryName;
                     newMatrix.refName = this.refName;
-                    newMatrix.metlin = this.metlin;
+                    newMatrix.xref = this.xref;
                     return newMatrix;
+                };
+                /**
+                 * 将响应强度的数据归一化到``[0, 100]``的区间范围内，然后返回当前的数据实例自身
+                */
+                mzData.prototype.normalize = function () {
+                    var src = new IEnumerator(this.mzMatrix);
+                    var max = Math.abs(src.Max(function (m) { return m.into; }).into);
+                    this.mzMatrix.forEach(function (m) { return m.into = m.into / max * 100; });
+                    return this;
                 };
                 mzData.prototype.tooltip = function (mz) {
                     var name = mz.into >= 0 ? this.queryName : this.refName;
@@ -236,7 +244,7 @@ var BioDeep;
                     return html;
                 };
                 mzData.prototype.csv = function () {
-                    var meta = "#name=" + this.refName + ";metlin=" + this.metlin;
+                    var meta = "#name=" + this.refName + ";xref=" + this.xref;
                     var header = "id,mz,into";
                     var table = "";
                     var i = 0;
@@ -250,34 +258,50 @@ var BioDeep;
                 return mzData;
             }());
             Data.mzData = mzData;
-            function JSONParser(data) {
-                var mzRange = [];
+            function JSONParser(data, decoder) {
+                if (decoder === void 0) { decoder = null; }
                 var mzInt = [];
-                var mzX;
-                var into;
-                data.align
-                    .forEach(function (x, i) {
-                    mzRange.push(x.mz);
+                if (typeof data.align == "string") {
+                    if (isNullOrUndefined(decoder)) {
+                        throw "No SVG decoder was provided!";
+                    }
+                    else {
+                        mzInt = decoder(data.align);
+                    }
+                }
+                else {
+                    mzInt = parseMirror(data.align);
+                }
+                var mzRange = From(mzInt).Select(function (x) { return x.mz; }).ToArray();
+                var align = new mzData(mzRange, mzInt);
+                align.queryName = data.query;
+                align.refName = data.reference;
+                align.xref = data.xref;
+                return align;
+            }
+            Data.JSONParser = JSONParser;
+            function parseMirror(aligns) {
+                return From(aligns)
+                    .Select(function (x, i) {
+                    var a;
+                    var b;
                     if (x.into1) {
-                        mzX = parseFloat(new Number(x.mz).toFixed(4));
-                        into = parseFloat(new Number(x.into1 * 100).toFixed(0));
-                        mzInt.push(new BioDeep.Models.mzInto(i.toString(), mzX, into));
+                        var mzX = parseFloat(new Number(x.mz).toFixed(4));
+                        var into = parseFloat(new Number(x.into1 * 100).toFixed(0));
+                        a = new BioDeep.Models.mzInto(i.toString(), mzX, into);
                     }
                     if (x.into2) {
                         // 参考是位于图表的下半部分，倒过来的
                         // 所以在这里会需要乘以-1来完成颠倒
-                        mzX = parseFloat(new Number(x.mz).toFixed(4));
-                        into = -1 * parseFloat(new Number(x.into2 * 100).toFixed(0));
-                        mzInt.push(new BioDeep.Models.mzInto(i.toString(), mzX, into));
+                        var mzX = parseFloat(new Number(x.mz).toFixed(4));
+                        var into = -1 * parseFloat(new Number(x.into2 * 100).toFixed(0));
+                        b = new BioDeep.Models.mzInto(i.toString(), mzX, into);
                     }
-                });
-                var align = new mzData(mzRange, mzInt);
-                align.queryName = data.query;
-                align.refName = data.reference;
-                align.metlin = data.metlin;
-                return align;
+                    return [a, b];
+                })
+                    .Unlist(function (x) { return x; })
+                    .ToArray();
             }
-            Data.JSONParser = JSONParser;
             /**
              * @param matrix 在这个函数之中会将这个二级碎片矩阵转换为一个镜像矩阵
             */
@@ -297,7 +321,7 @@ var BioDeep;
                 var align = new mzData(mzRange, mirror);
                 align.queryName = mz + "@" + rt;
                 align.refName = title;
-                align.metlin = "0";
+                align.xref = "0";
                 return align;
             }
             Data.PreviewData = PreviewData;
@@ -472,6 +496,7 @@ var BioDeep;
                     .attr("x", function (d, i) { return x(d.mz); })
                     .attr("height", function (d) { return Math.abs(y(d.into) - y(0)); })
                     .attr("width", engine.strokeWidth)
+                    .attr("cursor", "pointer")
                     .on('mouseover', engine.tip.show)
                     .on('mouseout', engine.tip.hide);
                 engine.svg.append("g")
@@ -575,27 +600,31 @@ var BioDeep;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
 /// <reference path="./renderingWork.ts" />
+/// <reference path="../../../../build/svg.d.ts" />
 var BioDeep;
 (function (BioDeep) {
     var MSMSViewer;
     (function (MSMSViewer) {
         var d3Renderer = /** @class */ (function () {
-            function d3Renderer(mz, canvasSize, canvasMargin, csvLink) {
-                if (canvasSize === void 0) { canvasSize = [960, 600]; }
-                if (canvasMargin === void 0) { canvasMargin = MSMSViewer.renderingWork.defaultMargin(); }
+            function d3Renderer(mz, size, margin, csvLink) {
+                if (size === void 0) { size = [960, 600]; }
+                if (margin === void 0) { margin = MSMSViewer.renderingWork.defaultMargin(); }
                 if (csvLink === void 0) { csvLink = "matrix-csv"; }
                 this.strokeWidth = 6;
                 this.radius = 6;
-                this.current = mz.trim();
-                this.margin = canvasMargin;
-                this.width = canvasSize[0] - canvasMargin.left - canvasMargin.right;
-                this.height = canvasSize[1] - canvasMargin.top - canvasMargin.bottom;
+                if (!Array.isArray(size)) {
+                    size = [size.width, size.height];
+                }
+                this.current = mz.trim().normalize();
+                this.margin = margin;
+                this.width = size[0] - margin.left - margin.right;
+                this.height = size[1] - margin.top - margin.bottom;
                 this.registerDownloader(csvLink);
             }
             d3Renderer.prototype.registerDownloader = function (id) {
                 var a = $ts(Linq.TsQuery.EnsureNodeId(id));
                 var csv = this.current.csv();
-                if (a && a != undefined) {
+                if (!isNullOrUndefined(a)) {
                     var blob = new Blob(["\ufeff", csv]);
                     var url = URL.createObjectURL(blob);
                     a.href = url;
@@ -628,6 +657,7 @@ var BioDeep;
                 this.svg.call(this.tip);
                 MSMSViewer.renderingWork.chartting(this);
                 MSMSViewer.renderingWork.Legend(this);
+                this.tip.hide();
             };
             return d3Renderer;
         }());

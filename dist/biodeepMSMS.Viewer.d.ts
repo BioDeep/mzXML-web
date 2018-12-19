@@ -24,7 +24,7 @@ declare namespace BioDeep.MSMSViewer.PeakScatter {
 */
 declare namespace BioDeep.MSMSViewer {
     const title: string;
-    function renderChart(containerId: string, api: string, id: string): void;
+    function renderChart(containerId: string, api: string, id: string, decoder?: ((string: any) => Models.mzInto[])): void;
     /**
      * 注释输出的svg id和数据源的api链接，然后返回渲染动作的函数指针
      *
@@ -34,7 +34,7 @@ declare namespace BioDeep.MSMSViewer {
      *
      * @returns ``(res_id: string) => void``
     */
-    function register(svgDisplay: string, api: string): (res_id: string) => void;
+    function register(svgDisplay: string, api: string, decoder?: ((string: any) => Models.mzInto[])): (res_id: string) => void;
     /**
      * 将所给定的质谱图数据显示在给定的div之中
      *
@@ -65,13 +65,17 @@ declare namespace BioDeep.MSMSViewer.Data {
         mzMatrix: BioDeep.Models.mzInto[];
         queryName: string;
         refName: string;
-        metlin: string;
+        xref: string;
         constructor(mz: number[] | data.NumericRange, align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>);
         trim(intoCutoff?: number): mzData;
+        /**
+         * 将响应强度的数据归一化到``[0, 100]``的区间范围内，然后返回当前的数据实例自身
+        */
+        normalize(): mzData;
         tooltip(mz: BioDeep.Models.mzInto): string;
         csv(): string;
     }
-    function JSONParser(data: JSONrespon): mzData;
+    function JSONParser(data: JSONrespon, decoder?: ((string: any) => Models.mzInto[])): mzData;
     /**
      * @param matrix 在这个函数之中会将这个二级碎片矩阵转换为一个镜像矩阵
     */
@@ -79,8 +83,8 @@ declare namespace BioDeep.MSMSViewer.Data {
     class JSONrespon {
         query: string;
         reference: string;
-        align: align[];
-        metlin: string;
+        align: align[] | string;
+        xref: string;
     }
     class align {
         mz: number;
@@ -143,7 +147,7 @@ declare namespace BioDeep.MSMSViewer {
         */
         svg: d3.Selection<any>;
         tip: d3.Tooltip;
-        constructor(mz: Data.mzData, canvasSize?: number[], canvasMargin?: Canvas.Margin, csvLink?: string);
+        constructor(mz: Data.mzData, size?: number[] | Canvas.Size, margin?: Canvas.Margin, csvLink?: string);
         private registerDownloader;
         /**
          * 这个图标渲染函数的输入显示参数，同时支持节点的id编号属性和html节点对象

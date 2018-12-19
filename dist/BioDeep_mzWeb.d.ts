@@ -60,6 +60,9 @@ declare namespace BioDeep.IO {
 declare namespace BioDeep.IO {
 }
 declare namespace BioDeep.Models {
+    /**
+     * ``[mz, into]``行，即一个质谱图碎片
+    */
     class mzInto {
         id: string;
         /**

@@ -1,5 +1,8 @@
 ﻿namespace BioDeep.Models {
 
+    /**
+     * ``[mz, into]``行，即一个质谱图碎片
+    */
     export class mzInto {
 
         public id: string;

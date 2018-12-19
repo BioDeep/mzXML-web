@@ -1,4 +1,5 @@
 ﻿/// <reference path="./renderingWork.ts" />
+/// <reference path="../../../../build/svg.d.ts" />
 
 namespace BioDeep.MSMSViewer {
 
@@ -21,22 +22,26 @@ namespace BioDeep.MSMSViewer {
 
         public constructor(
             mz: Data.mzData,
-            canvasSize: number[] = [960, 600],
-            canvasMargin: Canvas.Margin = renderingWork.defaultMargin(),
+            size: number[] | Canvas.Size = [960, 600],
+            margin: Canvas.Margin = renderingWork.defaultMargin(),
             csvLink: string = "matrix-csv") {
 
-            this.current = mz.trim();
-            this.margin = canvasMargin;
-            this.width = canvasSize[0] - canvasMargin.left - canvasMargin.right;
-            this.height = canvasSize[1] - canvasMargin.top - canvasMargin.bottom;
+            if (!Array.isArray(size)) {
+                size = [size.width, size.height];
+            }
+
+            this.current = mz.trim().normalize();
+            this.margin = margin;
+            this.width = size[0] - margin.left - margin.right;
+            this.height = size[1] - margin.top - margin.bottom;
             this.registerDownloader(csvLink);
         }
 
         private registerDownloader(id: string) {
-            var a = <HTMLAnchorElement>$ts(Linq.TsQuery.EnsureNodeId(id));
+            var a: HTMLAnchorElement = <any>$ts(Linq.TsQuery.EnsureNodeId(id));
             var csv = this.current.csv();
 
-            if (a && a != undefined) {
+            if (!isNullOrUndefined(a)) {
                 var blob = new Blob(["\ufeff", csv]);
                 var url = URL.createObjectURL(blob);
 
@@ -76,6 +81,8 @@ namespace BioDeep.MSMSViewer {
 
             renderingWork.chartting(this);
             renderingWork.Legend(this);
+
+            this.tip.hide();
         }
     }
 }
