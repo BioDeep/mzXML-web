@@ -44,7 +44,7 @@ namespace BioDeep.IO {
             if ("intensity" in meta) {
                 this.intensity = parseFloat(meta["intensity"]);
             } else {
-                var mass = (<string>meta["precursor_mass"]).split();
+                var mass = (<string>meta["precursor_mass"]).split(/\s+/g);
 
                 if (mass.length > 1) {
                     this.intensity = parseFloat(mass[1]);
