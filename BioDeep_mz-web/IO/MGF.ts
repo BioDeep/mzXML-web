@@ -19,6 +19,7 @@ namespace BioDeep.IO {
          * PEPMASS
         */
         public precursor_mass: number;
+        public intensity: number;
         /**
          * CHARGE
         */
@@ -39,6 +40,18 @@ namespace BioDeep.IO {
             this.rt = parseFloat(meta["rt"]);
             this.title = meta["title"];
             this.precursor_mass = parseFloat(meta["precursor_mass"]);
+
+            if ("intensity" in meta) {
+                this.intensity = parseFloat(meta["intensity"]);
+            } else {
+                var mass = (<string>meta["precursor_mass"]).split();
+
+                if (mass.length > 1) {
+                    this.intensity = parseFloat(mass[1]);
+                } else {
+                    this.intensity = 0;
+                }
+            }
         }
 
         public static Parse(text: string): IEnumerator<mgf> {
