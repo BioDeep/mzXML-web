@@ -38,6 +38,7 @@ declare namespace BioDeep.IO {
          * PEPMASS
         */
         precursor_mass: number;
+        intensity: number;
         /**
          * CHARGE
         */
@@ -50,6 +51,7 @@ declare namespace BioDeep.IO {
          * TITLE
         */
         title: string;
+        readonly ionPeak: Models.IonPeak;
         constructor(meta: object, matrix: BioDeep.Models.mzInto[]);
         static Parse(text: string): IEnumerator<mgf>;
         static readonly fieldMaps: Dictionary<string>;
@@ -86,7 +88,7 @@ declare namespace BioDeep.Models {
     /**
      * 一个一级母离子的峰
     */
-    class IonPeak {
+    interface IonPeak {
         id: string;
         mz: number;
         rt: number;

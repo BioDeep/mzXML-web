@@ -3,13 +3,13 @@
     /**
      * 一个一级母离子的峰
     */
-    export class IonPeak {
+    export interface IonPeak {
 
-        public id: string;
-        public mz: number;
-        public rt: number;
-        public name: string;
-        public intensity: number;
+        id: string;
+        mz: number;
+        rt: number;
+        name: string;
+        intensity: number;
 
     }
 }

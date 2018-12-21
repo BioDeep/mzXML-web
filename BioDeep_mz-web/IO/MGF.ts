@@ -33,6 +33,16 @@ namespace BioDeep.IO {
         */
         public title: string;
 
+        public get ionPeak(): Models.IonPeak {
+            return <Models.IonPeak>{
+                id: `${this.precursor_mass}@${this.rt}`,
+                mz: this.precursor_mass,
+                rt: this.rt,
+                name: this.title,
+                intensity: this.intensity
+            };
+        }
+
         public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
             super(matrix);
 
