@@ -9,7 +9,7 @@ declare namespace BioDeep.MSMSViewer.PeakScatter {
         size: Canvas.Size;
         private svg;
         private tooltip;
-        constructor(size: Canvas.Size, margin?: Canvas.Margin);
+        constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
         private xAxis;
         private yAxis;
         render(data: Models.IonPeak[], peakClick?: (d: Models.IonPeak) => void): void;

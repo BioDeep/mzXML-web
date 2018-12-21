@@ -1,12 +1,19 @@
 <script type="text/javascript" src="http://msms.biodeep.cn/modules/build/linq.js"></script>
 <script type="text/javascript" src="./BioDeep_mzWeb.js"></script>
-
+<script type="text/javascript" src="//msms.biodeep.cn/modules/build/svg.js"></script>
+<script type="text/javascript" src="./biodeepMSMS.Viewer.js"></script>
+   <script type="text/javascript" src="http://cdn.biodeep.cn/vendor/d3.js"></script>
+    <script type="text/javascript" src="http://cdn.biodeep.cn/vendor/d3.tip.v0.6.3.js"></script>
+	
 <script>
 $ts(() => {
 	var text = $ts.loadText("#mgf-data");
 	var ms1 = BioDeep.IO.mgf.Parse(text).Select(ion => ion.ionPeak).ToArray();
 	
 	console.log(ms1);
+	
+	var render = new BioDeep.MSMSViewer.PeakScatter.PlotRenderer();
+	render.render(ms1);
 });
 </script>
 
