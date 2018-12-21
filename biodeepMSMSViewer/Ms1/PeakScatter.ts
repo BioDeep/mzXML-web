@@ -11,21 +11,28 @@ namespace BioDeep.MSMSViewer.PeakScatter {
         private tooltip: d3.Selection<any>;
 
         public constructor(
-            size: Canvas.Size,
+            size: Canvas.Size | number[] = [960, 600],
             margin: Canvas.Margin = <Canvas.Margin>{
                 top: 20, right: 20, bottom: 30, left: 40
             }) {
 
+            if (!Array.isArray(size)) {
+                size = [size.width, size.height];
+            }
+
             this.margin = Canvas.Margin.Object(margin);
             this.size = <Canvas.Size>{
-                width: size.width - this.margin.horizontal,
-                height: size.height - this.margin.vertical
+                width: size[0] - this.margin.horizontal,
+                height: size[1] - this.margin.vertical
             };
+
+            var w = this.size.width + margin.left + margin.right;
+            var h = this.size.height + margin.top + margin.bottom;
 
             // add the graph canvas to the body of the webpage
             this.svg = d3.select("body").append("svg")
-                .attr("width", this.size.width + margin.left + margin.right)
-                .attr("height", this.size.height + margin.top + margin.bottom)
+                .attr("width", w)
+                .attr("height", h)
                 .append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 

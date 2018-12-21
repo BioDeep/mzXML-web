@@ -4,11 +4,15 @@
 <script>
 $ts(() => {
 	var text = $ts.loadText("#mgf-data");
-	var ms1 = BioDeep.IO.mgf.Parse(text);
+	var ms1 = BioDeep.IO.mgf.Parse(text).Select(ion => ion.ionPeak).ToArray();
 	
 	console.log(ms1);
 });
 </script>
+
+<body>
+
+</body>
 
 <script id="mgf-data" type="plain/text">
 BEGIN IONS

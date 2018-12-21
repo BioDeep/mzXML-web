@@ -114,7 +114,7 @@ var BioDeep;
             Object.defineProperty(mgf.prototype, "ionPeak", {
                 get: function () {
                     return {
-                        id: this.precursor_mass + "@" + this.rt,
+                        id: Math.round(this.precursor_mass) + "@" + Math.round(this.rt),
                         mz: this.precursor_mass,
                         rt: this.rt,
                         name: this.title,
