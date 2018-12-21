@@ -22,13 +22,15 @@ var BioDeep;
                     var w = this.size.width + margin.left + margin.right;
                     var h = this.size.height + margin.top + margin.bottom;
                     // add the graph canvas to the body of the webpage
-                    this.svg = d3.select("body").append("svg")
+                    this.svg = d3.select("body")
+                        .append("svg")
                         .attr("width", w)
                         .attr("height", h)
                         .append("g")
                         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
                     // add the tooltip area to the webpage
-                    this.tooltip = d3.select("body").append("div")
+                    this.tooltip = d3.select("body")
+                        .append("div")
                         .attr("class", "tooltip")
                         .style("opacity", 0);
                 }
@@ -53,7 +55,8 @@ var BioDeep;
                 PlotRenderer.prototype.render = function (data, peakClick) {
                     if (peakClick === void 0) { peakClick = DoNothing; }
                     var x = this.xAxis(), y = this.yAxis();
-                    var cValue = function (d) { return d.Manufacturer; }, color = d3.scale.category10();
+                    var group = function (d) { return Math.round(Math.log(d.intensity)).toString(); };
+                    var color = d3.scale.category20b();
                     var plot = this;
                     // don't want dots overlapping axis, so add in buffer to data domain
                     x.scale.domain(x.range(data)).nice();
@@ -68,7 +71,7 @@ var BioDeep;
                         .attr("x", plot.size.width)
                         .attr("y", -6)
                         .style("text-anchor", "end")
-                        .text("rt in seconds");
+                        .text("rt (sec)");
                     // y-axis
                     plot.svg.append("g")
                         .attr("class", "y axis")
@@ -86,16 +89,16 @@ var BioDeep;
                         .enter()
                         .append("circle")
                         .attr("class", "dot")
-                        .attr("r", 3.5)
+                        .attr("r", function (d) { return Math.log(d.intensity + 1); })
                         .attr("cx", x.map)
                         .attr("cy", y.map)
-                        .style("fill", function (d) { return color(cValue(d)); })
+                        .style("fill", function (d) { return color(group(d)); })
                         .on("mouseover", function (d) {
                         plot.tooltip.transition()
                             .duration(200)
                             .style("opacity", .9);
                         plot.tooltip
-                            .html(d.name + " " + d.mz + "@" + d.rt)
+                            .html(d.name + " " + Math.round(d.mz) + "@" + Math.round(d.rt))
                             .style("left", (d3.event.pageX + 5) + "px")
                             .style("top", (d3.event.pageY - 28) + "px");
                     })
