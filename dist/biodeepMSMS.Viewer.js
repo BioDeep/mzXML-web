@@ -631,7 +631,7 @@ var BioDeep;
                 this.registerDownloader(csvLink);
             }
             d3Renderer.prototype.registerDownloader = function (id) {
-                var a = $ts(Linq.TsQuery.EnsureNodeId(id));
+                var a = $ts(Internal.Handlers.EnsureNodeId(id));
                 var csv = this.current.csv();
                 if (!isNullOrUndefined(a)) {
                     var blob = new Blob(["\ufeff", csv]);
@@ -651,7 +651,7 @@ var BioDeep;
                     div = "#" + div.id;
                 }
                 else {
-                    div = Linq.TsQuery.EnsureNodeId(div);
+                    div = Internal.Handlers.EnsureNodeId(div);
                 }
                 // 2018-10-18
                 // 会需要使用选择器来进行正确的选择svg元素

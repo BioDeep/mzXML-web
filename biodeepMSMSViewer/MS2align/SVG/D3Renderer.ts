@@ -38,7 +38,7 @@ namespace BioDeep.MSMSViewer {
         }
 
         private registerDownloader(id: string) {
-            var a: HTMLAnchorElement = <any>$ts(Linq.TsQuery.EnsureNodeId(id));
+            var a: HTMLAnchorElement = <any>$ts(Internal.Handlers.EnsureNodeId(id));
             var csv = this.current.csv();
 
             if (!isNullOrUndefined(a)) {
@@ -61,7 +61,7 @@ namespace BioDeep.MSMSViewer {
             if (div instanceof HTMLElement) {
                 div = `#${div.id}`;
             } else {
-                div = Linq.TsQuery.EnsureNodeId(div);
+                div = Internal.Handlers.EnsureNodeId(div);
             }
 
             // 2018-10-18
