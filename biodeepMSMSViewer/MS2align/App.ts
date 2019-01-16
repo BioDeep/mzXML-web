@@ -52,7 +52,7 @@ namespace BioDeep.MSMSViewer {
      *     可以将这个参数由id字符串变为实际的节点对象值
      * @param data 图表绘图数据，请注意，需要这个数据是一个镜像数据
     */
-    export function previews(divId: string | HTMLElement, data: Data.mzData | BioDeep.IO.mgf, size: number[] = null): void {
+    export function previews(divId: string | HTMLElement, data: Data.mzData | BioDeep.IO.mgf, size: number[] = [900, 600]): void {
         if (data instanceof BioDeep.IO.mgf) {
             new d3Renderer(parseIon(data), size).rendering(divId);
         } else {

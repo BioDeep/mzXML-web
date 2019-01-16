@@ -190,7 +190,7 @@ var BioDeep;
          * @param data 图表绘图数据，请注意，需要这个数据是一个镜像数据
         */
         function previews(divId, data, size) {
-            if (size === void 0) { size = null; }
+            if (size === void 0) { size = [900, 600]; }
             if (data instanceof BioDeep.IO.mgf) {
                 new MSMSViewer.d3Renderer(parseIon(data), size).rendering(divId);
             }

@@ -11,16 +11,21 @@ $ts(() => {
 	var ms2 = BioDeep.IO.mgf.Parse(text).First;
 	
 	console.log(ms2);
+	
+	BioDeep.MSMSViewer.loadStyles();
+	BioDeep.MSMSViewer.previews("#viewer", ms2);
 });
 </script>
 
 <body>
+<div id="viewer">
 
+</div>
 </body>
 
 <script id="mgf-data" type="plain/text">
 BEGIN IONS
-TITLE=003_Ex2_Orbitrap_CID.9.9.1 File:"", NativeID:"controllerType=0 controllerNumber=1 scan=9"
+TITLE=003_Ex2_Orbitrap_CID.9.9.1#9
 RTINSECONDS=2.051
 PEPMASS=482.402404785156 11513.2705078125
 CHARGE=1+
