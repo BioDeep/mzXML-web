@@ -55,8 +55,9 @@ var BioDeep;
                 PlotRenderer.prototype.render = function (data, peakClick) {
                     if (peakClick === void 0) { peakClick = DoNothing; }
                     var x = this.xAxis(), y = this.yAxis();
-                    var group = function (d) { return Math.round(Math.log(d.intensity)).toString(); };
-                    var color = d3.scale.category20b();
+                    var intoRanges = $ts.doubleRange($ts(data).Select(function (d) { return Math.log(d.intensity); }));
+                    var colorIndex = function (d) { return intoRanges.ScaleMapping(Math.log(d.intensity), PlotRenderer.indexRange); };
+                    var color = d3.scale.linear();
                     var plot = this;
                     // don't want dots overlapping axis, so add in buffer to data domain
                     x.scale.domain(x.range(data)).nice();
@@ -92,7 +93,7 @@ var BioDeep;
                         .attr("r", function (d) { return Math.log(d.intensity + 1); })
                         .attr("cx", x.map)
                         .attr("cy", y.map)
-                        .style("fill", function (d) { return color(group(d)); })
+                        .style("fill", function (d) { return color(colorIndex(d)); })
                         .on("mouseover", function (d) {
                         plot.tooltip.transition()
                             .duration(200)
@@ -128,6 +129,7 @@ var BioDeep;
                         .style("text-anchor", "end")
                         .text(function (d) { return d; });
                 };
+                PlotRenderer.indexRange = $ts.doubleRange([0, 25]);
                 return PlotRenderer;
             }());
             PeakScatter.PlotRenderer = PlotRenderer;

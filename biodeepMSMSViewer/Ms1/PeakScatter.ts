@@ -70,10 +70,13 @@ namespace BioDeep.MSMSViewer.PeakScatter {
             }
         }
 
+        static indexRange = $ts.doubleRange([0, 25]);
+
         public render(data: Models.IonPeak[], peakClick: (d: Models.IonPeak) => void = DoNothing): void {
             var x = this.xAxis(), y = this.yAxis();
-            var group = (d: Models.IonPeak) => Math.round((<any>Math).log(d.intensity)).toString();
-            var color = d3.scale.category20b();
+            var intoRanges = $ts.doubleRange($ts(data).Select(d => Math.log(d.intensity)));
+            var colorIndex = (d: Models.IonPeak) => intoRanges.ScaleMapping((<any>Math).log(d.intensity), PlotRenderer.indexRange);
+            var color = d3.scale.linear();
             var plot: PlotRenderer = this;
 
             // don't want dots overlapping axis, so add in buffer to data domain
@@ -113,7 +116,7 @@ namespace BioDeep.MSMSViewer.PeakScatter {
                 .attr("r", d => Math.log(d.intensity + 1))
                 .attr("cx", x.map)
                 .attr("cy", y.map)
-                .style("fill", d => color(group(d)))
+                .style("fill", d => color(colorIndex(d)))
                 .on("mouseover", function (d) {
                     plot.tooltip.transition()
                         .duration(200)
