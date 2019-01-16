@@ -2,25 +2,23 @@
 <script type="text/javascript" src="./BioDeep_mzWeb.js"></script>
 <script type="text/javascript" src="http://msms.biodeep.cn/modules/build/svg.js"></script>
 <script type="text/javascript" src="./biodeepMSMS.Viewer.js"></script>
-   <script type="text/javascript" src="http://cdn.biodeep.cn/vendor/d3.js"></script>
-    <script type="text/javascript" src="http://cdn.biodeep.cn/vendor/d3.tip.v0.6.3.js"></script>
-	
+<script type="text/javascript" src="http://cdn.biodeep.cn/vendor/d3.js"></script>
+<script type="text/javascript" src="http://cdn.biodeep.cn/vendor/d3.tip.v0.6.3.js"></script>
+
 <script>
-$ts(() => {
-	var text = $ts.loadText("#mgf-data");
-	var ms2 = BioDeep.IO.mgf.Parse(text).First;
-	
-	console.log(ms2);
-	
-	BioDeep.MSMSViewer.loadStyles();
-	BioDeep.MSMSViewer.previews("#viewer", ms2);
-});
+	$ts(() => {
+		var text = $ts.loadText("#mgf-data");
+		var ms2 = BioDeep.IO.mgf.Parse(text).First;
+
+		console.log(ms2);
+
+		BioDeep.MSMSViewer.loadStyles();
+		BioDeep.MSMSViewer.previews("#viewer", ms2);
+	});
 </script>
 
 <body>
-<div id="viewer">
-
-</div>
+	<div id="viewer"></div>
 </body>
 
 <script id="mgf-data" type="plain/text">
