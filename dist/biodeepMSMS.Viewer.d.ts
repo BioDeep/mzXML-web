@@ -43,7 +43,8 @@ declare namespace BioDeep.MSMSViewer {
      *     可以将这个参数由id字符串变为实际的节点对象值
      * @param data 图表绘图数据，请注意，需要这个数据是一个镜像数据
     */
-    function previews(divId: string | HTMLElement, data: Data.mzData, size?: number[]): void;
+    function previews(divId: string | HTMLElement, data: Data.mzData | BioDeep.IO.mgf, size?: number[]): void;
+    function parseIon(ion: BioDeep.IO.mgf): Data.mzData;
 }
 /**
  var data = {
@@ -62,12 +63,22 @@ declare namespace BioDeep.MSMSViewer {
  */
 declare namespace BioDeep.MSMSViewer.Data {
     class mzData {
+        /**
+         * X坐标轴范围
+        */
         mzRange: number[];
+        /**
+         * 包含有query和reference的镜像数据
+        */
         mzMatrix: BioDeep.Models.mzInto[];
         queryName: string;
         refName: string;
         xref: string;
         constructor(mz: number[] | data.NumericRange, align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>);
+        /**
+         * Set information
+        */
+        info(queryName: string, refName: string, xref: string): mzData;
         trim(intoCutoff?: number): mzData;
         /**
          * 将响应强度的数据归一化到``[0, 100]``的区间范围内，然后返回当前的数据实例自身

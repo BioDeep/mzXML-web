@@ -191,9 +191,30 @@ var BioDeep;
         */
         function previews(divId, data, size) {
             if (size === void 0) { size = null; }
-            new MSMSViewer.d3Renderer(data, size).rendering(divId);
+            if (data instanceof BioDeep.IO.mgf) {
+                new MSMSViewer.d3Renderer(parseIon(data), size).rendering(divId);
+            }
+            else {
+                new MSMSViewer.d3Renderer(data, size).rendering(divId);
+            }
         }
         MSMSViewer.previews = previews;
+        function parseIon(ion) {
+            var mzRange = $ts.doubleRange(ion.Select(function (m) { return m.mz; }));
+            var mirror = [];
+            var uid = Strings.round(ion.precursor_mass, 2) + "@" + Math.round(ion.rt);
+            for (var _i = 0, _a = ion.ToArray(); _i < _a.length; _i++) {
+                var m = _a[_i];
+                mirror.push(m);
+                mirror.push({
+                    mz: m.mz,
+                    into: -m.into,
+                    id: m.id + "mirror"
+                });
+            }
+            return new MSMSViewer.Data.mzData(mzRange, mirror).info(uid, ion.title, uid);
+        }
+        MSMSViewer.parseIon = parseIon;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
 /// <reference path="../../../build/linq.d.ts" />
@@ -227,6 +248,15 @@ var BioDeep;
                     this.mzRange = [range.min, range.max];
                     this.mzMatrix = Array.isArray(align) ? align : align.ToArray();
                 }
+                /**
+                 * Set information
+                */
+                mzData.prototype.info = function (queryName, refName, xref) {
+                    this.queryName = queryName;
+                    this.refName = refName;
+                    this.xref = xref;
+                    return this;
+                };
                 mzData.prototype.trim = function (intoCutoff) {
                     if (intoCutoff === void 0) { intoCutoff = 5; }
                     var src = new IEnumerator(this.mzMatrix);

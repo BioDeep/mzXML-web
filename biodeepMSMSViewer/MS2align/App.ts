@@ -52,8 +52,29 @@ namespace BioDeep.MSMSViewer {
      *     可以将这个参数由id字符串变为实际的节点对象值
      * @param data 图表绘图数据，请注意，需要这个数据是一个镜像数据
     */
-    export function previews(divId: string | HTMLElement, data: Data.mzData, size: number[] = null): void {
-        new d3Renderer(data, size).rendering(divId);
+    export function previews(divId: string | HTMLElement, data: Data.mzData | BioDeep.IO.mgf, size: number[] = null): void {
+        if (data instanceof BioDeep.IO.mgf) {
+            new d3Renderer(parseIon(data), size).rendering(divId);
+        } else {
+            new d3Renderer(data, size).rendering(divId);
+        }
+    }
+
+    export function parseIon(ion: BioDeep.IO.mgf): Data.mzData {
+        var mzRange = $ts.doubleRange(ion.Select(m => m.mz));
+        var mirror: Models.mzInto[] = [];
+        var uid: string = `${Strings.round(ion.precursor_mass, 2)}@${Math.round(ion.rt)}`;
+
+        for (var m of ion.ToArray()) {
+            mirror.push(m);
+            mirror.push(<Models.mzInto>{
+                mz: m.mz,
+                into: -m.into,
+                id: m.id + "mirror"
+            });
+        }
+
+        return new Data.mzData(mzRange, mirror).info(uid, ion.title, uid);
     }
 }
 

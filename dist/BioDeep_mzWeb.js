@@ -83,7 +83,7 @@ var BioDeep;
         var mgfBeginIons = "BEGIN IONS";
         var mgfEndIons = "END IONS";
         /**
-         * mascot generic format files
+         * mascot generic format files.(一个二级碎片集合对象)
          *
          * > http://fiehnlab.ucdavis.edu/projects/LipidBlast/mgf-files
          *

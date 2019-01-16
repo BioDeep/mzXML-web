@@ -23,18 +23,39 @@ namespace BioDeep.MSMSViewer.Data {
 
     export class mzData {
 
+        /**
+         * X坐标轴范围
+        */
         public mzRange: number[];
+
+        /**
+         * 包含有query和reference的镜像数据
+        */
         public mzMatrix: BioDeep.Models.mzInto[];
         public queryName: string;
         public refName: string;
         public xref: string;
 
-        public constructor(mz: number[] | data.NumericRange, align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>) {
+        public constructor(
+            mz: number[] | data.NumericRange,
+            align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>) {
+
             var range: data.NumericRange = Array.isArray(mz) ?
                 data.NumericRange.Create(mz) : mz;
 
             this.mzRange = [range.min, range.max];
             this.mzMatrix = Array.isArray(align) ? align : align.ToArray();
+        }
+
+        /**
+         * Set information
+        */
+        public info(queryName: string, refName: string, xref: string): mzData {
+            this.queryName = queryName;
+            this.refName = refName;
+            this.xref = xref;
+
+            return this;
         }
 
         public trim(intoCutoff: number = 5): mzData {
