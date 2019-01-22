@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -50,6 +47,52 @@ var BioDeep;
             return new BioDeep.Models.mzInto(index.toString(), parseFloat(mz), parseFloat(into));
         }
     }
+    function ppm_primitive(x, y) {
+        return Math.abs(x - y) / x * 1000000;
+    }
+    BioDeep.ppm_primitive = ppm_primitive;
+    function ppm(x, y) {
+        var tx = TypeInfo.typeof(x);
+        var ty = TypeInfo.typeof(y);
+        if (tx.IsPrimitive && ty.IsPrimitive) {
+            return ppm_primitive(x, y);
+        }
+        if (tx.IsPrimitive) {
+            if (ty.IsArray) {
+                y = new IEnumerator(y);
+            }
+            return y
+                .Select(function (a) { return ppm_primitive(x, a); })
+                .ToArray();
+        }
+        if (ty.IsPrimitive) {
+            if (tx.IsArray) {
+                x = new IEnumerator(x);
+            }
+            return x
+                .Select(function (a) { return ppm_primitive(a, y); })
+                .ToArray();
+        }
+        // x, y都是基元类型
+        // 则二者必须等长
+        var sx = new IEnumerator(x);
+        var sy = new IEnumerator(y);
+        if (sx.Count != sy.Count) {
+            if (Internal.outputWarning()) {
+                console.warn("Sequence x(length=" + sx.Count + ") <> Sequence y(length=" + sy.Count + "), calculation will follow the shortest sequence.");
+            }
+            if (sx.Count > sy.Count) {
+                sx = sx.Take(sy.Count);
+            }
+            else {
+                sy = sy.Take(sx.Count);
+            }
+        }
+        return sx
+            .Select(function (xi, i) { return ppm_primitive(xi, sy.ElementAt(i)); })
+            .ToArray();
+    }
+    BioDeep.ppm = ppm;
 })(BioDeep || (BioDeep = {}));
 /// <reference path="../../../build/linq.d.ts" />
 var BioDeep;

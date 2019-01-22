@@ -18,6 +18,8 @@ declare namespace BioDeep {
      * 这个函数输入的文本内容是``base64``字符串
     */
     function GenericBase64MatrixParser(base64Stream: string): Models.mzInto[];
+    function ppm_primitive(x: number, y: number): number;
+    function ppm(x: number | IEnumerator<number> | number[], y: number | IEnumerator<number> | number[]): number | number[];
 }
 declare namespace BioDeep.Models {
     class IMs2Scan extends IEnumerator<BioDeep.Models.mzInto> {
