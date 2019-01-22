@@ -19,6 +19,10 @@ namespace BioDeep\IO {
             $this->rt     = doubleval($rt);
             $this->charge = $charge;
             $this->title  = $title;
+
+            if (empty($this->charge) || strlen($this->charge) == 0) {
+                $this->charge = 1;
+            }
         }
 
         public function ToString() {

@@ -14,7 +14,7 @@
      *            mz和into之间的空白可以是任意空白
     */
     export function GenericMatrixParser(text: string): Models.mzInto[] {
-        return (<IEnumerator<string>>$ts(Strings.lineTokens(text)))
+        return $ts(Strings.lineTokens(text))
             .Select((line, i) => mzIntoParser(line, i))
             .ToArray();
     }

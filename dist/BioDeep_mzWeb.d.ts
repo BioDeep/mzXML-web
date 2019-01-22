@@ -27,7 +27,7 @@ declare namespace BioDeep.Models {
 }
 declare namespace BioDeep.IO {
     /**
-     * mascot generic format files
+     * mascot generic format files.(一个二级碎片集合对象)
      *
      * > http://fiehnlab.ucdavis.edu/projects/LipidBlast/mgf-files
      *
@@ -38,6 +38,7 @@ declare namespace BioDeep.IO {
          * PEPMASS
         */
         precursor_mass: number;
+        intensity: number;
         /**
          * CHARGE
         */
@@ -50,6 +51,7 @@ declare namespace BioDeep.IO {
          * TITLE
         */
         title: string;
+        readonly ionPeak: Models.IonPeak;
         constructor(meta: object, matrix: BioDeep.Models.mzInto[]);
         static Parse(text: string): IEnumerator<mgf>;
         static readonly fieldMaps: Dictionary<string>;
@@ -60,6 +62,9 @@ declare namespace BioDeep.IO {
 declare namespace BioDeep.IO {
 }
 declare namespace BioDeep.Models {
+    /**
+     * ``[mz, into]``行，即一个质谱图碎片
+    */
     class mzInto {
         id: string;
         /**
@@ -77,6 +82,18 @@ declare namespace BioDeep.Models {
         into: number;
         constructor(id: string, mz: number, into: number);
         toString(): string;
+    }
+}
+declare namespace BioDeep.Models {
+    /**
+     * 一个一级母离子的峰
+    */
+    interface IonPeak {
+        id: string;
+        mz: number;
+        rt: number;
+        name: string;
+        intensity: number;
     }
 }
 /**

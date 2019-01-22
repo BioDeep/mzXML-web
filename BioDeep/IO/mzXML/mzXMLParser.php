@@ -27,6 +27,13 @@ namespace BioDeep\IO {
         */
         var $ms2Scans;
 
+        /**
+         * basename
+         * 
+         * @var string
+        */
+        var $fileName;
+
         #region "readers"
 
         /**
@@ -51,12 +58,22 @@ namespace BioDeep\IO {
             return new ScanReader($this->ms2Scans[$x]);
         }
 
+        /**
+         * @return \BioDeep\IO\ScanReader[]
+        */
+        public function yieldAllMs2() {
+            foreach($this->ms2Scans as $ms2) {
+                yield new \BioDeep\IO\ScanReader($ms2);
+            }
+        }
+
         #endregion
 
         public function __construct($path) {
             $this->ms1Scans = [];
             $this->ms2Scans = [];
             $this->loadScans(\XmlParser::LoadFromURL($path));
+            $this->fileName = basename($path);
         }
 
         /**
@@ -106,6 +123,8 @@ namespace BioDeep\IO {
 
         /**
          * 从base64存储的数据之中解析出质谱的二级碎片数据
+         * 
+         * @return MzInto[]
         */
         public static function mzInto($base64) {
             $base64 = trim($base64);
@@ -121,6 +140,9 @@ namespace BioDeep\IO {
             }        
         }
 
+        /**
+         * @return MzInto[]
+        */
         private static function mzIntoImpl($bytes) {
             $floats = self::networkByteOrderNumbers($bytes);
             $mzInt  = [];
@@ -136,10 +158,7 @@ namespace BioDeep\IO {
                 }
             
                 $into = $floats["#" . ($i + 1)];
-                $mz   = [
-                    "mz"   => $mz, 
-                    "into" => $into
-                ];
+                $mz   = new MzInto($mz, $into);
                 $mzInt[$index] = $mz;
                 $i = $i + 2;
                 $j++;

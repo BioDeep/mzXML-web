@@ -2,6 +2,8 @@
 
 namespace BioDeep\IO {
 
+    Imports("System.Text.RegularExpressions.Regex");
+
     # XML file models
 
     class scan {
@@ -14,6 +16,9 @@ namespace BioDeep\IO {
         public $msLevel;
         public $peaksCount;
         public $polarity;
+        /**
+         * @var string
+        */
         public $retentionTime;
         public $collisionEnergy;
         public $lowMz;
@@ -24,6 +29,17 @@ namespace BioDeep\IO {
         public $msInstrumentID;
 
         #endregion
+
+        /**
+         * Get retention time value in seconds. 
+         * 
+         * @return double
+        */
+        public function rt() {
+            $time = $this->retentionTime;
+            $time = \Regex::Match($time, "\\d+(\\.\\d+)?");
+            return floatval($time);
+        }
 
         public function __construct($scan) {
             foreach($scan as $name => $val) {
@@ -45,6 +61,11 @@ namespace BioDeep\IO {
         public $precursorCharge;
         public $activationMethod;
         public $windowWideness;
+        /** 
+         * 这个属性就是前体母离子的m/z
+         * 
+         * @var double
+        */
         public $data;
 
         #endregion
@@ -65,9 +86,28 @@ namespace BioDeep\IO {
         public $precision;
         public $byteOrder;
         public $contentType;
+
+        /**
+         * mz-into的键值对矩阵
+         * 
+         * @var MzInto[]
+        */
         public $data;
 
         #endregion
+
+        /**
+         * 获取得到碎片峰的数量
+         * 
+         * @return integer
+        */
+        public function PeaksLength() {
+            if (empty($this->data)) {
+                return 0;
+            } else {
+                return count($this->data);
+            }            
+        }
 
         public function __construct($peaks) {
             foreach($peaks as $name => $val) {

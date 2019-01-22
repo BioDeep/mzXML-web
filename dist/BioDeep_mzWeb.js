@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -80,7 +83,7 @@ var BioDeep;
         var mgfBeginIons = "BEGIN IONS";
         var mgfEndIons = "END IONS";
         /**
-         * mascot generic format files
+         * mascot generic format files.(一个二级碎片集合对象)
          *
          * > http://fiehnlab.ucdavis.edu/projects/LipidBlast/mgf-files
          *
@@ -94,8 +97,33 @@ var BioDeep;
                 _this.rt = parseFloat(meta["rt"]);
                 _this.title = meta["title"];
                 _this.precursor_mass = parseFloat(meta["precursor_mass"]);
+                if ("intensity" in meta) {
+                    _this.intensity = parseFloat(meta["intensity"]);
+                }
+                else {
+                    var mass = meta["precursor_mass"].split(/\s+/g);
+                    if (mass.length > 1) {
+                        _this.intensity = parseFloat(mass[1]);
+                    }
+                    else {
+                        _this.intensity = 0;
+                    }
+                }
                 return _this;
             }
+            Object.defineProperty(mgf.prototype, "ionPeak", {
+                get: function () {
+                    return {
+                        id: Math.round(this.precursor_mass) + "@" + Math.round(this.rt),
+                        mz: this.precursor_mass,
+                        rt: this.rt,
+                        name: this.title,
+                        intensity: this.intensity
+                    };
+                },
+                enumerable: true,
+                configurable: true
+            });
             mgf.Parse = function (text) {
                 return From(Strings.lineTokens(text))
                     .ChunkWith(function (line) {
@@ -152,6 +180,9 @@ var BioDeep;
 (function (BioDeep) {
     var Models;
     (function (Models) {
+        /**
+         * ``[mz, into]``行，即一个质谱图碎片
+        */
         var mzInto = /** @class */ (function () {
             function mzInto(id, mz, into) {
                 this.id = id;

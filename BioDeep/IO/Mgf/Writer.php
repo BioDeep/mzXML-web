@@ -15,7 +15,7 @@ namespace BioDeep\IO {
          * 
          * @param array|PrecursorIon $meta 在这个字典数组之中应该至少要包括有字段：``mz``，``rt``，
          *                                 可选字段有``title``，``charge``。
-         * @param array $ms2 二级质谱数据矩阵，格式为``[mz => xxx, into => xxx]``的数组
+         * @param array|MzInto[] $ms2 二级质谱数据矩阵，格式为``[mz => xxx, into => xxx]``的数组
          * 
          * @return string
         */
@@ -33,7 +33,8 @@ namespace BioDeep\IO {
                 ->AppendLine("PEPMASS=$mz $into")
                 ->AppendLine("CHARGE=$charge");
             $mgf->AppendLine(rtrim(self::SpectraMs2($ms2), "\r\n"));
-            $mgf->AppendLine(self::$EndIons);
+            // 在这里不使用AppendLine，否则会多出来一个换行符的
+            $mgf->Append(self::$EndIons);
 
             return $mgf->ToString();
         }
@@ -46,8 +47,8 @@ namespace BioDeep\IO {
             }
         }
 
-        private static function FragmentArrayMatrix($ms2) {
-            if (is_array($ms2[0])) {
+        private static function FragmentArrayMatrix($ms2) {            
+            if (is_array(\Utils::First($ms2))) {
                 $spectra = new \StringBuilder();
 
                 foreach($ms2 as $mzinto) {

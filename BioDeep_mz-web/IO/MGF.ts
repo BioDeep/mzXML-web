@@ -7,7 +7,7 @@ namespace BioDeep.IO {
     const mgfEndIons: string = "END IONS";
 
     /**
-     * mascot generic format files
+     * mascot generic format files.(一个二级碎片集合对象)
      * 
      * > http://fiehnlab.ucdavis.edu/projects/LipidBlast/mgf-files
      * 
@@ -19,6 +19,7 @@ namespace BioDeep.IO {
          * PEPMASS
         */
         public precursor_mass: number;
+        public intensity: number;
         /**
          * CHARGE
         */
@@ -32,6 +33,16 @@ namespace BioDeep.IO {
         */
         public title: string;
 
+        public get ionPeak(): Models.IonPeak {
+            return <Models.IonPeak>{
+                id: `${Math.round(this.precursor_mass)}@${Math.round(this.rt)}`,
+                mz: this.precursor_mass,
+                rt: this.rt,
+                name: this.title,
+                intensity: this.intensity
+            };
+        }
+
         public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
             super(matrix);
 
@@ -39,6 +50,18 @@ namespace BioDeep.IO {
             this.rt = parseFloat(meta["rt"]);
             this.title = meta["title"];
             this.precursor_mass = parseFloat(meta["precursor_mass"]);
+
+            if ("intensity" in meta) {
+                this.intensity = parseFloat(meta["intensity"]);
+            } else {
+                var mass = (<string>meta["precursor_mass"]).split(/\s+/g);
+
+                if (mass.length > 1) {
+                    this.intensity = parseFloat(mass[1]);
+                } else {
+                    this.intensity = 0;
+                }
+            }
         }
 
         public static Parse(text: string): IEnumerator<mgf> {

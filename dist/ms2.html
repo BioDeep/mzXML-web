@@ -1,0 +1,37 @@
+<script type="text/javascript" src="http://msms.biodeep.cn/modules/build/linq.js"></script>
+<script type="text/javascript" src="./BioDeep_mzWeb.js"></script>
+<script type="text/javascript" src="http://msms.biodeep.cn/modules/build/svg.js"></script>
+<script type="text/javascript" src="./biodeepMSMS.Viewer.js"></script>
+<script type="text/javascript" src="http://cdn.biodeep.cn/vendor/d3.js"></script>
+<script type="text/javascript" src="http://cdn.biodeep.cn/vendor/d3.tip.v0.6.3.js"></script>
+
+<script>
+	$ts(() => {
+		var text = $ts.loadText("#mgf-data");
+		var ms2 = BioDeep.IO.mgf.Parse(text).First;
+
+		console.log(ms2);
+
+		BioDeep.MSMSViewer.loadStyles();
+		BioDeep.MSMSViewer.previews("#viewer", ms2);
+	});
+</script>
+
+<body>
+	<div id="viewer"></div>
+</body>
+
+<script id="mgf-data" type="plain/text">
+BEGIN IONS
+TITLE=003_Ex2_Orbitrap_CID.9.9.1#9
+RTINSECONDS=2.051
+PEPMASS=482.402404785156 11513.2705078125
+CHARGE=1+
+148.4682617 3.7358036041
+345.2749329 5.6690850258
+396.8612976 10.6281452179
+471.0531921 15.3498001099
+472.2330017 4.3872823715
+494.0964661 3.153635025
+END IONS
+</script>

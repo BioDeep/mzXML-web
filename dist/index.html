@@ -72,13 +72,13 @@ Z	1	482.4038
 	var mgf = BioDeep.IO.mgf.Parse(data).ToArray();
 
 	console.log(mgf);
-	
+
 	data = LoadText("ms2-data");
 	var ms2 = BioDeep.IO.Ms2Reader.Ms2.Parse(data);
-	
+
 	console.log(ms2);
-	
+
 	var matrix = BioDeep.GenericMatrixParser(LoadText("ms2-general-matrix"));
-	
+
 	console.log(matrix);
 </script>
