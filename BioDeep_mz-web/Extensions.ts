@@ -78,7 +78,7 @@
         var sy = new IEnumerator<number>(<any>y);
 
         if (sx.Count != sy.Count) {
-            if (Internal.outputWarning()) {
+            if (TypeScript.logging.outputWarning) {
                 console.warn(`Sequence x(length=${sx.Count}) <> Sequence y(length=${sy.Count}), calculation will follow the shortest sequence.`);
             }
 
