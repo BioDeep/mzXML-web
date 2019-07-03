@@ -4,6 +4,9 @@
 /// <reference types="d3-tip" />
 /// <reference types="d3" />
 declare namespace BioDeep.MSMSViewer.PeakScatter {
+    /**
+     * 一级母离子的``[mz, rt]``散点图
+    */
     class PlotRenderer {
         margin: Canvas.Margin;
         size: Canvas.Size;
@@ -14,6 +17,13 @@ declare namespace BioDeep.MSMSViewer.PeakScatter {
         private yAxis;
         static indexRange: data.NumericRange;
         render(data: Models.IonPeak[], peakClick?: (d: Models.IonPeak) => void): void;
+    }
+}
+declare namespace BioDeep.MSMSViewer {
+    /**
+     * 一级母离子的``[rt, intensity]``峰面积图
+    */
+    class TICplot {
     }
 }
 /**

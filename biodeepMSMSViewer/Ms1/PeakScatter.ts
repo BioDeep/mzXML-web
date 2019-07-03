@@ -2,6 +2,9 @@
 
 namespace BioDeep.MSMSViewer.PeakScatter {
 
+    /**
+     * 一级母离子的``[mz, rt]``散点图
+    */
     export class PlotRenderer {
 
         public margin: Canvas.Margin;

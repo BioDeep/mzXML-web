@@ -5,6 +5,9 @@ var BioDeep;
     (function (MSMSViewer) {
         var PeakScatter;
         (function (PeakScatter) {
+            /**
+             * 一级母离子的``[mz, rt]``散点图
+            */
             var PlotRenderer = /** @class */ (function () {
                 function PlotRenderer(size, margin) {
                     if (size === void 0) { size = [960, 600]; }
@@ -134,6 +137,21 @@ var BioDeep;
             }());
             PeakScatter.PlotRenderer = PlotRenderer;
         })(PeakScatter = MSMSViewer.PeakScatter || (MSMSViewer.PeakScatter = {}));
+    })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var MSMSViewer;
+    (function (MSMSViewer) {
+        /**
+         * 一级母离子的``[rt, intensity]``峰面积图
+        */
+        var TICplot = /** @class */ (function () {
+            function TICplot() {
+            }
+            return TICplot;
+        }());
+        MSMSViewer.TICplot = TICplot;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
 /**
