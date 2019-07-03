@@ -5,13 +5,13 @@ VisualStudioVersion = 15.0.27906.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "BioDeep_mz-web", "BioDeep_mz-web\BioDeep_mz-web.njsproj", "{293B88F8-D6F0-4FE7-906D-7F62747A4046}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Linq.ts", "..\Linq\Linq.ts\Linq.ts.njsproj", "{E0AEC189-6D05-47E4-9F69-DAFE43AC8398}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Linq.ts", "..\Linq.js\Linq.ts\Linq.ts.njsproj", "{E0AEC189-6D05-47E4-9F69-DAFE43AC8398}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runtime", "runtime", "{2A5DE212-A966-4D6A-ABFD-093B03BFE5A7}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{2A5DE212-A966-4D6A-ABFD-093B03BFE5A7}"
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "BioDeepMSMSViewer", "biodeepMSMSViewer\BioDeepMSMSViewer.njsproj", "{345C4454-3B07-48A4-91E7-424342E56A67}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "svg", "..\Linq\svg\SVG\svg.njsproj", "{8C2DAE18-8B11-4B37-A4EC-0234D7FCCF2A}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "svg", "..\Linq.js\svg\SVG\svg.njsproj", "{8C2DAE18-8B11-4B37-A4EC-0234D7FCCF2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
