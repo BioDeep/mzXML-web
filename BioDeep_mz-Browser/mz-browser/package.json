@@ -1,0 +1,12 @@
+{
+  "name": "mz-browser",
+  "version": "0.0.0",
+  "description": "mz-browser",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.14"
+  }
+}
