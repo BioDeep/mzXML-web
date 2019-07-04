@@ -64,6 +64,13 @@ declare namespace BioDeep.IO {
 declare namespace BioDeep.IO {
 }
 declare namespace BioDeep.Models {
+    interface ChromatogramTick {
+        rt: number;
+        intensity: number;
+    }
+    function TIC(ions: IEnumerator<BioDeep.IO.mgf>): IEnumerator<ChromatogramTick>;
+}
+declare namespace BioDeep.Models {
     /**
      * ``[mz, into]``行，即一个质谱图碎片
     */

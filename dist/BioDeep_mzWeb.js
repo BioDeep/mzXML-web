@@ -223,6 +223,21 @@ var BioDeep;
 (function (BioDeep) {
     var Models;
     (function (Models) {
+        function TIC(ions) {
+            return ions
+                .OrderBy(function (i) { return i.rt; })
+                .Select(function (i) { return ({
+                rt: i.rt,
+                intensity: i.intensity
+            }); });
+        }
+        Models.TIC = TIC;
+    })(Models = BioDeep.Models || (BioDeep.Models = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var Models;
+    (function (Models) {
         /**
          * ``[mz, into]``行，即一个质谱图碎片
         */

@@ -5,5 +5,8 @@
     */
     export class TICplot extends SvgChart  {
 
+        plot(id: string, ticks: IEnumerator<BioDeep.Models>) {
+
+        }
     } 
 }

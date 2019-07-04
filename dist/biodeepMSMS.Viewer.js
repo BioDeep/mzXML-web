@@ -161,6 +161,8 @@ var BioDeep;
             function TICplot() {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
+            TICplot.prototype.plot = function (id, ticks) {
+            };
             return TICplot;
         }(SvgChart));
         MSMSViewer.TICplot = TICplot;
