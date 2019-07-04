@@ -1,7 +1,4 @@
-﻿/// <reference path="../../../build/linq.d.ts" />
-/// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
-
-// Demo test data
+﻿// Demo test data
 
 /**
  var data = {

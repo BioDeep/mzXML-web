@@ -8,7 +8,8 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-/// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
+/// <reference path="../../build/linq.d.ts" />
+/// <reference path="../dist/BioDeep_mzWeb.d.ts" />
 var BioDeep;
 (function (BioDeep) {
     var MSMSViewer;
@@ -249,8 +250,6 @@ var BioDeep;
         MSMSViewer.parseIon = parseIon;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
-/// <reference path="../../../build/linq.d.ts" />
-/// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
 // Demo test data
 /**
  var data = {

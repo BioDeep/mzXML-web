@@ -1,5 +1,5 @@
-/// <reference path="BioDeep_mzWeb.d.ts" />
 /// <reference path="../../build/linq.d.ts" />
+/// <reference path="BioDeep_mzWeb.d.ts" />
 /// <reference path="../../build/svg.d.ts" />
 /// <reference types="d3-tip" />
 /// <reference types="d3" />
@@ -24,7 +24,7 @@ declare namespace BioDeep.MSMSViewer {
      * 一级母离子的``[rt, intensity]``峰面积图
     */
     class TICplot extends SvgChart {
-        plot(id: string, ticks: IEnumerator<BioDeep.Models>): void;
+        plot(id: string, ticks: IEnumerator<BioDeep.Model.>): void;
     }
 }
 /**

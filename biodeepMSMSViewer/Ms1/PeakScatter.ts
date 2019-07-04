@@ -1,6 +1,4 @@
-﻿/// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
-
-namespace BioDeep.MSMSViewer.PeakScatter {
+﻿namespace BioDeep.MSMSViewer.PeakScatter {
 
     /**
      * 一级母离子的``[mz, rt]``散点图
