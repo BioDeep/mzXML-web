@@ -66,7 +66,7 @@ namespace BioDeep.MSMSViewer {
 
             BioDeep.MSMSViewer.clear(div);
 
-            this.tip = renderingWork.tooltip(this.current);
+            this.tip = BioDeep.MSMSViewer.tooltip(this.current);
             this.svg = renderingWork.svg(this, div);
 
             // 因为在下面的chartting函数调用之中需要使用tip对象来绑定鼠标事件，

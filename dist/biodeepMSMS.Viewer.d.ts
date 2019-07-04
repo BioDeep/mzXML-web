@@ -1,8 +1,8 @@
 /// <reference path="../../build/linq.d.ts" />
 /// <reference path="BioDeep_mzWeb.d.ts" />
 /// <reference path="../../build/svg.d.ts" />
-/// <reference types="d3" />
 /// <reference types="d3-tip" />
+/// <reference types="d3" />
 declare namespace BioDeep.MSMSViewer {
     /**
      * Clear all of the svg elements in target html element
@@ -10,6 +10,10 @@ declare namespace BioDeep.MSMSViewer {
      * @param canvas id, class, or a html element object instance
     */
     function clear(canvas: string | HTMLElement): void;
+}
+declare namespace BioDeep.MSMSViewer {
+    function tooltip(mz: Data.mzData): d3.Tooltip;
+    function mzrtTip(): d3.Tooltip;
 }
 declare namespace BioDeep.MSMSViewer.PeakScatter {
     /**
@@ -33,6 +37,7 @@ declare namespace BioDeep.MSMSViewer {
     */
     class TICplot extends SvgChart {
         data: BioDeep.Models.ChromatogramTick[];
+        tip: d3.Tooltip;
         readonly area: d3.svg.Area<[number, number]>;
         readonly x: d3.scale.Linear<number, number>;
         readonly y: d3.scale.Linear<number, number>;
@@ -160,7 +165,6 @@ declare namespace BioDeep.MSMSViewer {
     }
 }
 declare namespace BioDeep.MSMSViewer.renderingWork {
-    function tooltip(mz: Data.mzData): d3.Tooltip;
     /**
      * 初始化d3.js可视化引擎
      *

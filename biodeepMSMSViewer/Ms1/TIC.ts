@@ -6,6 +6,7 @@
     export class TICplot extends SvgChart {
 
         public data: BioDeep.Models.ChromatogramTick[];
+        public tip: d3.Tooltip;
 
         public get area() {
             let x = this.x;
@@ -55,8 +56,10 @@
 
             BioDeep.MSMSViewer.clear(canvas);
 
+            this.tip = BioDeep.MSMSViewer.mzrtTip();
             this.data = (<IEnumerator<BioDeep.Models.ChromatogramTick>>ticks).ToArray();
             this.chart(canvas);
+            this.tip.hide();
         }
 
         private chart(canvas: string | HTMLElement) {
@@ -67,7 +70,8 @@
                 .attr("height", this.height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                .attr("viewBox", `0 0 ${this.width} ${this.height}`);
+                .attr("viewBox", `0 0 ${this.width} ${this.height}`)
+                .call(<any>this.tip);
 
             svg.append("path")
                 .datum(this.data)

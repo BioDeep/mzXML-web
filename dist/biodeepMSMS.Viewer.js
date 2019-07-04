@@ -47,6 +47,32 @@ var BioDeep;
 (function (BioDeep) {
     var MSMSViewer;
     (function (MSMSViewer) {
+        function tooltip(mz) {
+            var tip = d3.tip()
+                .attr("class", "d3-tip")
+                .offset([-10, 0])
+                .html(function (d) {
+                return mz.tooltip(d);
+            });
+            return tip;
+        }
+        MSMSViewer.tooltip = tooltip;
+        function mzrtTip() {
+            var tip = d3.tip()
+                .attr("class", "d3-tip")
+                .offset([-10, 0])
+                .html(function (d) {
+                return d.precursor_mass + "@" + d.rt;
+            });
+            return tip;
+        }
+        MSMSViewer.mzrtTip = mzrtTip;
+    })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var MSMSViewer;
+    (function (MSMSViewer) {
         var PeakScatter;
         (function (PeakScatter) {
             /**
@@ -251,8 +277,10 @@ var BioDeep;
                     ticks = BioDeep.Models.TIC(ticks);
                 }
                 BioDeep.MSMSViewer.clear(canvas);
+                this.tip = BioDeep.MSMSViewer.mzrtTip();
                 this.data = ticks.ToArray();
                 this.chart(canvas);
+                this.tip.hide();
             };
             TICplot.prototype.chart = function (canvas) {
                 var margin = this.margin;
@@ -262,7 +290,8 @@ var BioDeep;
                     .attr("height", this.height + margin.top + margin.bottom)
                     .append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .attr("viewBox", "0 0 " + this.width + " " + this.height);
+                    .attr("viewBox", "0 0 " + this.width + " " + this.height)
+                    .call(this.tip);
                 svg.append("path")
                     .datum(this.data)
                     .attr("class", "area")
@@ -615,16 +644,6 @@ var BioDeep;
     (function (MSMSViewer) {
         var renderingWork;
         (function (renderingWork) {
-            function tooltip(mz) {
-                var tip = d3.tip()
-                    .attr("class", "d3-tip")
-                    .offset([-10, 0])
-                    .html(function (d) {
-                    return mz.tooltip(d);
-                });
-                return tip;
-            }
-            renderingWork.tooltip = tooltip;
             /**
              * 初始化d3.js可视化引擎
              *
@@ -841,7 +860,7 @@ var BioDeep;
                     div = Internal.Handlers.EnsureNodeId(div);
                 }
                 BioDeep.MSMSViewer.clear(div);
-                this.tip = MSMSViewer.renderingWork.tooltip(this.current);
+                this.tip = BioDeep.MSMSViewer.tooltip(this.current);
                 this.svg = MSMSViewer.renderingWork.svg(this, div);
                 // 因为在下面的chartting函数调用之中需要使用tip对象来绑定鼠标事件，
                 // 所以在这里需要先于chartting函数将tip对象初始化完毕  
