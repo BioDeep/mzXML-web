@@ -60,16 +60,17 @@
 
             svg.append("path")
                 .datum(this.data)
+                .attr("class", "area")
                 .attr("fill", "steelblue")
                 .attr("d", <any>this.area);
 
             svg.append("g")
                 .attr("class", "x axis")
-                .call(xAxis);
+                .call(this.xAxis);
 
             svg.append("g")
                 .attr("class", "y axis")
-                .call(yAxis);
+                .call(this.yAxis);
 
             return svg.node();
         }
