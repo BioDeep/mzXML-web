@@ -5,17 +5,48 @@
     */
     export class TICplot extends SvgChart {
 
+        public data: BioDeep.Models.ChromatogramTick[];
+
         public get area() {
-            return d3.area()
-                .x(d => x(d.date))
+            let x = this.x;
+            let y = this.y;
+
+            return d3.svg.area()
+                .x(d => x(d["rt"]))
                 .y0(y(0))
-                .y1(d => y(d.value));
+                .y1(d => y(d["intensity"]));
+        }
+
+        public get x() {
+            return d3.scale.linear()
+                .domain([0, d3.max(this.data, t => t.rt)])
+                .range([0, this.width]);
+        }
+
+        public get y() {
+            return d3.scale.linear()
+                .domain([0, d3.max(this.data, t => t.intensity)])
+                .range([this.height, 0]);
+        }
+
+        public get xAxis() {
+            return d3.svg.axis()
+                .scale(this.x)
+                .orient("bottom");
+        }
+
+        public get yAxis() {
+            return d3.svg.axis()
+                .scale(this.y)
+                .orient("left");
         }
 
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.Models.ChromatogramTick> | IEnumerator<BioDeep.IO.mgf>) {
             if (ticks.ElementType.class == "mgf") {
                 ticks = BioDeep.Models.TIC(<IEnumerator<BioDeep.IO.mgf>>ticks);
             }
+
+            this.data = (<IEnumerator<BioDeep.Models.ChromatogramTick>>ticks).ToArray();
 
             BioDeep.MSMSViewer.clear(canvas);
 
@@ -28,14 +59,16 @@
                 .attr("viewBox", `0 0 ${this.width} ${this.height}`);
 
             svg.append("path")
-                .datum(data)
+                .datum(this.data)
                 .attr("fill", "steelblue")
-                .attr("d", area);
+                .attr("d", <any>this.area);
 
             svg.append("g")
+                .attr("class", "x axis")
                 .call(xAxis);
 
             svg.append("g")
+                .attr("class", "y axis")
                 .call(yAxis);
 
             return svg.node();

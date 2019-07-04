@@ -195,10 +195,35 @@ var BioDeep;
             function TICplot() {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
-            TICplot.prototype.plot = function (id, ticks) {
+            Object.defineProperty(TICplot.prototype, "area", {
+                get: function () {
+                    return d3.area()
+                        .x(function (d) { return x(d.date); })
+                        .y0(y(0))
+                        .y1(function (d) { return y(d.value); });
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TICplot.prototype.plot = function (canvas, ticks) {
                 if (ticks.ElementType.class == "mgf") {
                     ticks = BioDeep.Models.TIC(ticks);
                 }
+                BioDeep.MSMSViewer.clear(canvas);
+            };
+            TICplot.prototype.chart = function (canvas) {
+                var svg = d3.select(canvas)
+                    .append("svg")
+                    .attr("viewBox", "0 0 " + this.width + " " + this.height);
+                svg.append("path")
+                    .datum(data)
+                    .attr("fill", "steelblue")
+                    .attr("d", area);
+                svg.append("g")
+                    .call(xAxis);
+                svg.append("g")
+                    .call(yAxis);
+                return svg.node();
             };
             return TICplot;
         }(SvgChart));
