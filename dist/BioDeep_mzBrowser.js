@@ -11,7 +11,7 @@ var BioDeep;
 (function (BioDeep) {
     var TICviewer = /** @class */ (function () {
         function TICviewer() {
-            this.chart = new BioDeep.MSMSViewer.TICplot(function (ion) { return BioDeep.MSMSViewer.previews("#plot", ion); });
+            this.chart = new BioDeep.MSMSViewer.TICplot(function (ion) { return BioDeep.MSMSViewer.previews("#plot", ion, [800, 500]); });
         }
         TICviewer.prototype.draw = function (id) {
             var vm = this;
