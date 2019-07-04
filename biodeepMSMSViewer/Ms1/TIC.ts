@@ -57,8 +57,13 @@
         }
 
         private chart(canvas: string | HTMLElement) {
+            const margin = this.margin;
             const svg = d3.select(<any>canvas)
                 .append("svg")
+                .attr("width", this.width + margin.left + margin.right)
+                .attr("height", this.height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .attr("viewBox", `0 0 ${this.width} ${this.height}`);
 
             svg.append("path")
@@ -69,6 +74,7 @@
 
             svg.append("g")
                 .attr("class", "x axis")
+                .attr("transform", "translate(0," + this.height + ")")
                 .call(this.xAxis);
 
             svg.append("g")

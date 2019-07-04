@@ -252,8 +252,13 @@ var BioDeep;
                 this.chart(canvas);
             };
             TICplot.prototype.chart = function (canvas) {
+                var margin = this.margin;
                 var svg = d3.select(canvas)
                     .append("svg")
+                    .attr("width", this.width + margin.left + margin.right)
+                    .attr("height", this.height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                     .attr("viewBox", "0 0 " + this.width + " " + this.height);
                 svg.append("path")
                     .datum(this.data)
@@ -262,6 +267,7 @@ var BioDeep;
                     .attr("d", this.area);
                 svg.append("g")
                     .attr("class", "x axis")
+                    .attr("transform", "translate(0," + this.height + ")")
                     .call(this.xAxis);
                 svg.append("g")
                     .attr("class", "y axis")

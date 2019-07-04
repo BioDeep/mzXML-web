@@ -4,5 +4,5 @@
 /// <reference path="../../dist/biodeepMSMS.Viewer.d.ts" />
 
 $ts(function () {
-    new BioDeep.TICviewer().draw("TIC");
+    new BioDeep.TICviewer().draw("#TIC");
 })
