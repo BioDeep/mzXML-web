@@ -193,7 +193,7 @@ var BioDeep;
         var TICplot = /** @class */ (function (_super) {
             __extends(TICplot, _super);
             function TICplot() {
-                return _super.call(this) || this;
+                return _super.call(this, [800, 500], new Canvas.Margin(20, 20, 30, 100)) || this;
             }
             Object.defineProperty(TICplot.prototype, "area", {
                 get: function () {
@@ -238,7 +238,10 @@ var BioDeep;
                 get: function () {
                     return d3.svg.axis()
                         .scale(this.y)
-                        .orient("left");
+                        .orient("left")
+                        // 因为intensity是可以非常大的值
+                        // 所以在这里必须要用科学计数法
+                        .tickFormat(d3.format(".1e"));
                 },
                 enumerable: true,
                 configurable: true
