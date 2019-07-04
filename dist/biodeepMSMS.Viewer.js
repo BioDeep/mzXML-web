@@ -275,6 +275,17 @@ var BioDeep;
                 svg.append("g")
                     .attr("class", "y axis")
                     .call(this.yAxis);
+                var x = this.x;
+                var y = this.y;
+                svg.selectAll("myCircles")
+                    .data(this.data)
+                    .enter()
+                    .append("circle")
+                    .attr("fill", "red")
+                    .attr("stroke", "none")
+                    .attr("cx", function (d) { return x(d.rt); })
+                    .attr("cy", function (d) { return y(d.intensity); })
+                    .attr("r", 3);
                 return svg.node();
             };
             return TICplot;

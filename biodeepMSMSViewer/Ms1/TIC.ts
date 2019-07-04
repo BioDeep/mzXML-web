@@ -84,6 +84,19 @@
                 .attr("class", "y axis")
                 .call(this.yAxis);
 
+            let x = this.x;
+            let y = this.y;
+
+            svg.selectAll("myCircles")
+                .data(this.data)
+                .enter()
+                .append("circle")
+                .attr("fill", "red")
+                .attr("stroke", "none")
+                .attr("cx", d => x(d.rt))
+                .attr("cy", d => y(d.intensity))
+                .attr("r", 3)
+
             return svg.node();
         }
     }
