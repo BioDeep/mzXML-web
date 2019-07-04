@@ -7,6 +7,11 @@
     "name": ""
   },
   "devDependencies": {
-    "@types/node": "^8.0.14"
+    "@types/d3": "3.5.41",
+    "@types/jquery": "3.2.11",
+    "@types/node": "^8.10.39"
+  },
+  "dependencies": {
+    "@types/d3-tip": "^3.5.5"
   }
 }
