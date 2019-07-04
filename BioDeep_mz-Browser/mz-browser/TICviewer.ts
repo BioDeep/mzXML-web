@@ -9,6 +9,9 @@
 
             $ts.getText("@mgf", function (text) {
                 let mgf = BioDeep.IO.mgf.Parse(text);
+                let maxInto = mgf.Max(m => m.intensity).intensity;
+
+                mgf = mgf.Where(m => (m.intensity / maxInto) >= 0.01);
 
                 vm.chart.plot(id, mgf);
                 vm.buildMzList(mgf, id);
