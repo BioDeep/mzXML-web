@@ -64,13 +64,7 @@ namespace BioDeep.MSMSViewer {
                 div = Internal.Handlers.EnsureNodeId(div);
             }
 
-            // 2018-10-18
-            // 会需要使用选择器来进行正确的选择svg元素
-            // 否则会出现意外的将其他的svg节点清除的bug
-
-            // 在进行新的图表绘制之前，需要清除所有的已经绘制的图表
-            // 否则二者会叠加在一起
-            d3.selectAll(`${div}>svg`).remove();
+            BioDeep.MSMSViewer.clear(div);
 
             this.tip = renderingWork.tooltip(this.current);
             this.svg = renderingWork.svg(this, div);

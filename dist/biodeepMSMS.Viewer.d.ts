@@ -3,6 +3,14 @@
 /// <reference path="../../build/svg.d.ts" />
 /// <reference types="d3-tip" />
 /// <reference types="d3" />
+declare namespace BioDeep.MSMSViewer {
+    /**
+     * Clear all of the svg elements in target html element
+     *
+     * @param canvas id, class, or a html element object instance
+    */
+    function clear(canvas: string | HTMLElement): void;
+}
 declare namespace BioDeep.MSMSViewer.PeakScatter {
     /**
      * 一级母离子的``[mz, rt]``散点图
