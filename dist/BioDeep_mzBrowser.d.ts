@@ -4,6 +4,9 @@
 /// <reference path="biodeepMSMS.Viewer.d.ts" />
 declare namespace BioDeep {
     class TICviewer {
+        private chart;
         draw(id: string): void;
+        private buildMzList;
+        private static mzTree;
     }
 }
