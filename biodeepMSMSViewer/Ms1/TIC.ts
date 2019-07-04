@@ -46,11 +46,10 @@
                 ticks = BioDeep.Models.TIC(<IEnumerator<BioDeep.IO.mgf>>ticks);
             }
 
-            this.data = (<IEnumerator<BioDeep.Models.ChromatogramTick>>ticks).ToArray();
-
             BioDeep.MSMSViewer.clear(canvas);
 
-
+            this.data = (<IEnumerator<BioDeep.Models.ChromatogramTick>>ticks).ToArray();
+            this.chart(canvas);
         }
 
         private chart(canvas: string | HTMLElement) {

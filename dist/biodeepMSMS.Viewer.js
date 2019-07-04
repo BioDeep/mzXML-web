@@ -247,8 +247,9 @@ var BioDeep;
                 if (ticks.ElementType.class == "mgf") {
                     ticks = BioDeep.Models.TIC(ticks);
                 }
-                this.data = ticks.ToArray();
                 BioDeep.MSMSViewer.clear(canvas);
+                this.data = ticks.ToArray();
+                this.chart(canvas);
             };
             TICplot.prototype.chart = function (canvas) {
                 var svg = d3.select(canvas)
