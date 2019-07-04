@@ -80,7 +80,10 @@ namespace BioDeep.IO {
         });
 
         public static IonParse(data: string[]): mgf {
-            var line: number = data[0] == mgfBeginIons ? 1 : 0;
+            // 因为php服务器通过echo传输过来的文本数据
+            // 最开始的位置都会存在一个bin头部标记
+            // 所以在这里不可以直接做比较
+            var line: number = data[0].indexOf(mgfBeginIons) > -1 ? 1 : 0;
             var mgfFields: object = {};
 
             for (var i: number = line; i < data.length; i++) {
