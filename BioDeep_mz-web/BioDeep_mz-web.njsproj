@@ -65,6 +65,9 @@
     <TypeScriptCompile Include="Models\Peaktable.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="Models\ChromatogramTick.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IO\" />
