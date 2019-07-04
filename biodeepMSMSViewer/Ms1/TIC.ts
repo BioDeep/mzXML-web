@@ -41,6 +41,10 @@
                 .orient("left");
         }
 
+        public constructor() {
+            super();
+        }
+
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.Models.ChromatogramTick> | IEnumerator<BioDeep.IO.mgf>) {
             if (ticks.ElementType.class == "mgf") {
                 ticks = BioDeep.Models.TIC(<IEnumerator<BioDeep.IO.mgf>>ticks);

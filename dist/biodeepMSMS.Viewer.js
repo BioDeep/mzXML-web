@@ -193,7 +193,7 @@ var BioDeep;
         var TICplot = /** @class */ (function (_super) {
             __extends(TICplot, _super);
             function TICplot() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.call(this) || this;
             }
             Object.defineProperty(TICplot.prototype, "area", {
                 get: function () {
