@@ -4,12 +4,14 @@
 /// <reference path="../../dist/biodeepMSMS.Viewer.d.ts" />
 $ts(function () {
     new BioDeep.TICviewer().draw("#TIC");
+    // initial spectrum viewer css style
+    BioDeep.MSMSViewer.loadStyles();
 });
 var BioDeep;
 (function (BioDeep) {
     var TICviewer = /** @class */ (function () {
         function TICviewer() {
-            this.chart = new BioDeep.MSMSViewer.TICplot();
+            this.chart = new BioDeep.MSMSViewer.TICplot(function (ion) { return BioDeep.MSMSViewer.previews("#plot", ion); });
         }
         TICviewer.prototype.draw = function (id) {
             var vm = this;

@@ -67,6 +67,10 @@ declare namespace BioDeep.Models {
     interface ChromatogramTick {
         rt: number;
         intensity: number;
+        /**
+         * The source data object of current tick point
+        */
+        raw: any;
     }
     function TIC(ions: IEnumerator<BioDeep.IO.mgf>): IEnumerator<ChromatogramTick>;
 }

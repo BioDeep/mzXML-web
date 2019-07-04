@@ -218,8 +218,10 @@ var BioDeep;
         */
         var TICplot = /** @class */ (function (_super) {
             __extends(TICplot, _super);
-            function TICplot() {
-                return _super.call(this, [800, 500], new Canvas.Margin(20, 20, 30, 100)) || this;
+            function TICplot(onClick) {
+                var _this = _super.call(this, [800, 500], new Canvas.Margin(20, 20, 30, 100)) || this;
+                _this.onClick = onClick;
+                return _this;
             }
             Object.defineProperty(TICplot.prototype, "area", {
                 get: function () {
@@ -273,14 +275,14 @@ var BioDeep;
                 configurable: true
             });
             TICplot.prototype.plot = function (canvas, ticks) {
-                if (ticks.ElementType.class == "mgf") {
-                    ticks = BioDeep.Models.TIC(ticks);
-                }
                 BioDeep.MSMSViewer.clear(canvas);
                 this.tip = BioDeep.MSMSViewer.mzrtTip();
-                this.data = ticks.ToArray();
+                this.data = BioDeep.Models.TIC(ticks).ToArray();
                 this.chart(canvas);
                 this.tip.hide();
+            };
+            TICplot.prototype.bindEvents = function (ticks) {
+                var mzrt = $ts.select(".mzrt");
             };
             TICplot.prototype.chart = function (canvas) {
                 var margin = this.margin;
@@ -310,6 +312,7 @@ var BioDeep;
                     .data(this.data)
                     .enter()
                     .append("circle")
+                    .attr("class", "mzrt")
                     .attr("fill", "red")
                     .attr("stroke", "none")
                     .attr("cx", function (d) { return x(d.rt); })

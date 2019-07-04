@@ -5,4 +5,7 @@
 
 $ts(function () {
     new BioDeep.TICviewer().draw("#TIC");
+
+    // initial spectrum viewer css style
+    BioDeep.MSMSViewer.loadStyles();
 })

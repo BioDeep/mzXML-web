@@ -45,21 +45,22 @@
                 .tickFormat(d3.format(".1e"));
         }
 
-        public constructor() {
+        public constructor(public onClick: (ion: IO.mgf) => void) {
             super([800, 500], new Canvas.Margin(20, 20, 30, 100));
         }
 
-        plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.Models.ChromatogramTick> | IEnumerator<BioDeep.IO.mgf>) {
-            if (ticks.ElementType.class == "mgf") {
-                ticks = BioDeep.Models.TIC(<IEnumerator<BioDeep.IO.mgf>>ticks);
-            }
-
+        plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>) {
             BioDeep.MSMSViewer.clear(canvas);
 
             this.tip = BioDeep.MSMSViewer.mzrtTip();
-            this.data = (<IEnumerator<BioDeep.Models.ChromatogramTick>>ticks).ToArray();
+            this.data = BioDeep.Models.TIC(<IEnumerator<BioDeep.IO.mgf>>ticks).ToArray();
             this.chart(canvas);
             this.tip.hide();
+        }
+
+        private bindEvents(ticks: IEnumerator<BioDeep.IO.mgf>) {
+            let mzrt = $ts.select(".mzrt");
+
         }
 
         private chart(canvas: string | HTMLElement) {
@@ -95,6 +96,7 @@
                 .data(this.data)
                 .enter()
                 .append("circle")
+                .attr("class", "mzrt")
                 .attr("fill", "red")
                 .attr("stroke", "none")
                 .attr("cx", d => x(d.rt))

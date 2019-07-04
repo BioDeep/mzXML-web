@@ -232,7 +232,8 @@ var BioDeep;
                 .OrderBy(function (i) { return i.rt; })
                 .Select(function (i) { return ({
                 rt: i.rt,
-                intensity: i.intensity
+                intensity: i.intensity,
+                raw: i
             }); });
         }
         Models.TIC = TIC;

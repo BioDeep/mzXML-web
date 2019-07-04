@@ -36,6 +36,7 @@ declare namespace BioDeep.MSMSViewer {
      * 一级母离子的``[rt, intensity]``峰面积图
     */
     class TICplot extends SvgChart {
+        onClick: (ion: IO.mgf) => void;
         data: BioDeep.Models.ChromatogramTick[];
         tip: d3.Tooltip;
         readonly area: d3.svg.Area<[number, number]>;
@@ -43,8 +44,9 @@ declare namespace BioDeep.MSMSViewer {
         readonly y: d3.scale.Linear<number, number>;
         readonly xAxis: d3.svg.Axis;
         readonly yAxis: d3.svg.Axis;
-        constructor();
-        plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.Models.ChromatogramTick> | IEnumerator<BioDeep.IO.mgf>): void;
+        constructor(onClick: (ion: IO.mgf) => void);
+        plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>): void;
+        private bindEvents;
         private chart;
     }
 }
