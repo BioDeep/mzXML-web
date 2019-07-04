@@ -49,12 +49,12 @@ namespace BioDeep.IO.Ms2Reader {
         };
         //#endregion
 
-        private readonly meta: TsLinq.MetaReader;
+        private readonly meta: TypeScript.Data.MetaReader;
 
         public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
             super(matrix);
             // read meta object value by call name
-            this.meta = new TsLinq.MetaReader(meta);
+            this.meta = new TypeScript.Data.MetaReader(meta);
         }
     }
 }

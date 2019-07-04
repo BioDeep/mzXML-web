@@ -8,6 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+/// <reference path="../../build/linq.d.ts" />
 var BioDeep;
 (function (BioDeep) {
     /**
@@ -346,7 +347,6 @@ var BioDeep;
         })(Ms2Reader = IO.Ms2Reader || (IO.Ms2Reader = {}));
     })(IO = BioDeep.IO || (BioDeep.IO = {}));
 })(BioDeep || (BioDeep = {}));
-/// <reference path="../../../../build/linq.d.ts" />
 /// <reference path="../../Models/Abstract.ts" />
 /**
  * The ``*.ms2`` file format reader
@@ -465,7 +465,7 @@ var BioDeep;
                 function Scan(meta, matrix) {
                     var _this = _super.call(this, matrix) || this;
                     // read meta object value by call name
-                    _this.meta = new TsLinq.MetaReader(meta);
+                    _this.meta = new TypeScript.Data.MetaReader(meta);
                     return _this;
                 }
                 Object.defineProperty(Scan.prototype, "firstScan", {

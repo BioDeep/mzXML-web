@@ -163,6 +163,9 @@ var BioDeep;
                 return _super !== null && _super.apply(this, arguments) || this;
             }
             TICplot.prototype.plot = function (id, ticks) {
+                if (ticks.ElementType.class == "mgf") {
+                    ticks = BioDeep.Models.TIC(ticks);
+                }
             };
             return TICplot;
         }(SvgChart));

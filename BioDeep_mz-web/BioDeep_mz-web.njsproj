@@ -68,6 +68,9 @@
     <TypeScriptCompile Include="Models\ChromatogramTick.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="app.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IO\" />

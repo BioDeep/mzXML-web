@@ -1,5 +1,4 @@
-﻿/// <reference path="../../../../build/linq.d.ts" />
-/// <reference path="../../Models/Abstract.ts" />
+﻿/// <reference path="../../Models/Abstract.ts" />
 
 /**
  * The ``*.ms2`` file format reader
@@ -48,7 +47,7 @@ namespace BioDeep.IO.Ms2Reader {
             "SourceFile": "Source file"
         };
 
-        private readonly meta: TsLinq.MetaReader;
+        private readonly meta: TypeScript.Data.MetaReader;
 
         public constructor(data: string[]) {
             var tags = From(data)
