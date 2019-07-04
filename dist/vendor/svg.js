@@ -399,6 +399,19 @@ var Graphics = /** @class */ (function () {
     };
     return Graphics;
 }());
+var SvgChart = /** @class */ (function () {
+    function SvgChart(size, margin) {
+        if (size === void 0) { size = [960, 600]; }
+        if (margin === void 0) { margin = {
+            top: 20, right: 20, bottom: 30, left: 40
+        }; }
+        if (!Array.isArray(size)) {
+            this.size = [size.width, size.height];
+        }
+        this.margin = margin;
+    }
+    return SvgChart;
+}());
 var Canvas;
 (function (Canvas) {
     /**

@@ -204,6 +204,11 @@ declare class Graphics {
     */
     drawPath(path: Canvas.Path, border?: Canvas.Pen, fill?: Canvas.Color, id?: string, className?: string): Graphics;
 }
+declare abstract class SvgChart {
+    size: [number, number];
+    margin: Canvas.Margin;
+    constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
+}
 declare namespace Canvas {
     /**
      * RGB color data model

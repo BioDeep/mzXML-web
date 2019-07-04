@@ -23,7 +23,7 @@ declare namespace BioDeep.MSMSViewer {
     /**
      * 一级母离子的``[rt, intensity]``峰面积图
     */
-    class TICplot {
+    class TICplot extends SvgChart {
     }
 }
 /**

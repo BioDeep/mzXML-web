@@ -1,3 +1,13 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 /// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
 var BioDeep;
 (function (BioDeep) {
@@ -146,11 +156,13 @@ var BioDeep;
         /**
          * 一级母离子的``[rt, intensity]``峰面积图
         */
-        var TICplot = /** @class */ (function () {
+        var TICplot = /** @class */ (function (_super) {
+            __extends(TICplot, _super);
             function TICplot() {
+                return _super !== null && _super.apply(this, arguments) || this;
             }
             return TICplot;
-        }());
+        }(SvgChart));
         MSMSViewer.TICplot = TICplot;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
