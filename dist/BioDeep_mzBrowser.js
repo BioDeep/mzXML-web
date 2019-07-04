@@ -25,7 +25,10 @@ var BioDeep;
                 .ToDictionary(function (x) { return x.Key.toString(); }, function (x) { return x; });
             var selects = $ts("#mzlist");
             var vm = this;
-            mzGroup.ForEach(function (mz) {
+            // display all ions
+            selects.appendChild($ts("<option>", { value: "rawfile" }).display("Raw File"));
+            mzGroup.OrderBy(function (mz) { return parseFloat(mz.key); })
+                .ForEach(function (mz) {
                 var opt = $ts("<option>", {
                     value: mz.key
                 }).display(mz.key);
@@ -33,7 +36,13 @@ var BioDeep;
             });
             selects.onchange = function () {
                 var mz = selects.value;
-                var part = mzGroup.Item(mz);
+                var part;
+                if (mz == "rawfile" || !mzGroup.ContainsKey(mz)) {
+                    part = mgf;
+                }
+                else {
+                    part = mzGroup.Item(mz);
+                }
                 vm.chart.plot(id, part);
             };
         };

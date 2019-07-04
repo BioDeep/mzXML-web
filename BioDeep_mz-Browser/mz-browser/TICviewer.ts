@@ -23,17 +23,27 @@
             let selects = $ts("#mzlist");
             let vm = this;
 
-            mzGroup.ForEach(mz => {
-                var opt = $ts("<option>", {
-                    value: mz.key
-                }).display(mz.key);
+            // display all ions
+            selects.appendChild($ts("<option>", { value: "rawfile" }).display("Raw File"));
 
-                selects.appendChild(opt)
-            });
+            mzGroup.OrderBy(mz => parseFloat(mz.key))
+                .ForEach(mz => {
+                    var opt = $ts("<option>", {
+                        value: mz.key
+                    }).display(mz.key);
+
+                    selects.appendChild(opt)
+                });
 
             selects.onchange = function () {
                 let mz = (<HTMLSelectElement><any>selects).value;
-                let part = mzGroup.Item(mz);
+                let part: IEnumerator<IO.mgf>;
+
+                if (mz == "rawfile" || !mzGroup.ContainsKey(mz)) {
+                    part = mgf;
+                } else {
+                    part = mzGroup.Item(mz);
+                }
 
                 vm.chart.plot(id, part);
             }
