@@ -219,7 +219,7 @@ var BioDeep;
         var TICplot = /** @class */ (function (_super) {
             __extends(TICplot, _super);
             function TICplot(onClick) {
-                var _this = _super.call(this, [800, 500], new Canvas.Margin(20, 20, 30, 100)) || this;
+                var _this = _super.call(this, [600, 400], new Canvas.Margin(20, 20, 30, 100)) || this;
                 _this.onClick = onClick;
                 return _this;
             }
@@ -280,9 +280,20 @@ var BioDeep;
                 this.data = BioDeep.Models.TIC(ticks).ToArray();
                 this.chart(canvas);
                 this.tip.hide();
+                this.bindEvents($ts(this.data));
             };
             TICplot.prototype.bindEvents = function (ticks) {
                 var mzrt = $ts.select(".mzrt");
+                var ions = ticks.ToDictionary(function (x) { return TICplot.uniqueId(x); }, function (x) { return x.raw; });
+                var vm = this;
+                mzrt.onClick(function (x) {
+                    var ref = x.getAttribute("unique");
+                    var ion = ions.Item(ref);
+                    vm.onClick(ion);
+                });
+            };
+            TICplot.uniqueId = function (tick) {
+                return tick.rt + " (" + tick.intensity + ")";
             };
             TICplot.prototype.chart = function (canvas) {
                 var margin = this.margin;
@@ -315,6 +326,7 @@ var BioDeep;
                     .attr("class", "mzrt")
                     .attr("fill", "red")
                     .attr("stroke", "none")
+                    .attr("unique", function (d) { return TICplot.uniqueId(d); })
                     .attr("cx", function (d) { return x(d.rt); })
                     .attr("cy", function (d) { return y(d.intensity); })
                     .attr("r", 3);

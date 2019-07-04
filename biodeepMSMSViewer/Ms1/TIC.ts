@@ -46,7 +46,7 @@
         }
 
         public constructor(public onClick: (ion: IO.mgf) => void) {
-            super([800, 500], new Canvas.Margin(20, 20, 30, 100));
+            super([600, 400], new Canvas.Margin(20, 20, 30, 100));
         }
 
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>) {
@@ -56,11 +56,24 @@
             this.data = BioDeep.Models.TIC(<IEnumerator<BioDeep.IO.mgf>>ticks).ToArray();
             this.chart(canvas);
             this.tip.hide();
+            this.bindEvents($ts(this.data));
         }
 
-        private bindEvents(ticks: IEnumerator<BioDeep.IO.mgf>) {
+        private bindEvents(ticks: IEnumerator<BioDeep.Models.ChromatogramTick>) {
             let mzrt = $ts.select(".mzrt");
+            let ions: Dictionary<IO.mgf> = ticks.ToDictionary(x => TICplot.uniqueId(x), x => <IO.mgf>x.raw);
+            let vm = this;
 
+            mzrt.onClick(x => {
+                let ref = x.getAttribute("unique");
+                let ion: IO.mgf = ions.Item(ref);
+
+                vm.onClick(ion);
+            });
+        }
+
+        private static uniqueId(tick: Models.ChromatogramTick): string {
+            return `${tick.rt} (${tick.intensity})`;
         }
 
         private chart(canvas: string | HTMLElement) {
@@ -99,6 +112,7 @@
                 .attr("class", "mzrt")
                 .attr("fill", "red")
                 .attr("stroke", "none")
+                .attr("unique", d => TICplot.uniqueId(d))
                 .attr("cx", d => x(d.rt))
                 .attr("cy", d => y(d.intensity))
                 .attr("r", 3)

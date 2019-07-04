@@ -47,6 +47,7 @@ declare namespace BioDeep.MSMSViewer {
         constructor(onClick: (ion: IO.mgf) => void);
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>): void;
         private bindEvents;
+        private static uniqueId;
         private chart;
     }
 }
