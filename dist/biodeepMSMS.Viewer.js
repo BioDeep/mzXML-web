@@ -210,7 +210,7 @@ var BioDeep;
             Object.defineProperty(TICplot.prototype, "x", {
                 get: function () {
                     return d3.scale.linear()
-                        .domain([0, d3.max(this.data, function (t) { return t.rt; })])
+                        .domain([d3.min(this.data, function (t) { return t.rt; }), d3.max(this.data, function (t) { return t.rt; })])
                         .range([0, this.width]);
                 },
                 enumerable: true,

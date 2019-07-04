@@ -16,7 +16,7 @@ var BioDeep;
             $ts.getText("@mgf", function (text) {
                 var mgf = BioDeep.IO.mgf.Parse(text);
                 var maxInto = mgf.Max(function (m) { return m.intensity; }).intensity;
-                mgf = mgf.Where(function (m) { return (m.intensity / maxInto) >= 0.01; });
+                // mgf = mgf.Where(m => (m.intensity / maxInto) >= 0.01);
                 vm.chart.plot(id, mgf);
                 vm.buildMzList(mgf, id);
             });

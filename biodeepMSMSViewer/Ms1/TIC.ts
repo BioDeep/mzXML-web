@@ -19,7 +19,7 @@
 
         public get x() {
             return d3.scale.linear()
-                .domain([0, d3.max(this.data, t => t.rt)])
+                .domain([d3.min(this.data, t => t.rt), d3.max(this.data, t => t.rt)])
                 .range([0, this.width]);
         }
 
