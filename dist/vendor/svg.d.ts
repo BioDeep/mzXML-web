@@ -207,6 +207,8 @@ declare class Graphics {
 declare abstract class SvgChart {
     size: [number, number];
     margin: Canvas.Margin;
+    readonly width: number;
+    readonly height: number;
     constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
 }
 declare namespace Canvas {

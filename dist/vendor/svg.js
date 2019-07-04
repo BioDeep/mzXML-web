@@ -410,6 +410,20 @@ var SvgChart = /** @class */ (function () {
         }
         this.margin = margin;
     }
+    Object.defineProperty(SvgChart.prototype, "width", {
+        get: function () {
+            return this.size["0"];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SvgChart.prototype, "height", {
+        get: function () {
+            return this.size["1"];
+        },
+        enumerable: true,
+        configurable: true
+    });
     return SvgChart;
 }());
 var Canvas;
