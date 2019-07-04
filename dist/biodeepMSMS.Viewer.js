@@ -197,10 +197,48 @@ var BioDeep;
             }
             Object.defineProperty(TICplot.prototype, "area", {
                 get: function () {
-                    return d3.area()
-                        .x(function (d) { return x(d.date); })
+                    var x = this.x;
+                    var y = this.y;
+                    return d3.svg.area()
+                        .x(function (d) { return x(d["rt"]); })
                         .y0(y(0))
-                        .y1(function (d) { return y(d.value); });
+                        .y1(function (d) { return y(d["intensity"]); });
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TICplot.prototype, "x", {
+                get: function () {
+                    return d3.scale.linear()
+                        .domain([0, d3.max(this.data, function (t) { return t.rt; })])
+                        .range([0, this.width]);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TICplot.prototype, "y", {
+                get: function () {
+                    return d3.scale.linear()
+                        .domain([0, d3.max(this.data, function (t) { return t.intensity; })])
+                        .range([this.height, 0]);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TICplot.prototype, "xAxis", {
+                get: function () {
+                    return d3.svg.axis()
+                        .scale(this.x)
+                        .orient("bottom");
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TICplot.prototype, "yAxis", {
+                get: function () {
+                    return d3.svg.axis()
+                        .scale(this.y)
+                        .orient("left");
                 },
                 enumerable: true,
                 configurable: true
@@ -209,6 +247,7 @@ var BioDeep;
                 if (ticks.ElementType.class == "mgf") {
                     ticks = BioDeep.Models.TIC(ticks);
                 }
+                this.data = ticks.ToArray();
                 BioDeep.MSMSViewer.clear(canvas);
             };
             TICplot.prototype.chart = function (canvas) {
@@ -216,13 +255,16 @@ var BioDeep;
                     .append("svg")
                     .attr("viewBox", "0 0 " + this.width + " " + this.height);
                 svg.append("path")
-                    .datum(data)
+                    .datum(this.data)
+                    .attr("class", "area")
                     .attr("fill", "steelblue")
-                    .attr("d", area);
+                    .attr("d", this.area);
                 svg.append("g")
-                    .call(xAxis);
+                    .attr("class", "x axis")
+                    .call(this.xAxis);
                 svg.append("g")
-                    .call(yAxis);
+                    .attr("class", "y axis")
+                    .call(this.yAxis);
                 return svg.node();
             };
             return TICplot;

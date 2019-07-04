@@ -1,8 +1,8 @@
 /// <reference path="../../build/linq.d.ts" />
 /// <reference path="BioDeep_mzWeb.d.ts" />
 /// <reference path="../../build/svg.d.ts" />
-/// <reference types="d3-tip" />
 /// <reference types="d3" />
+/// <reference types="d3-tip" />
 declare namespace BioDeep.MSMSViewer {
     /**
      * Clear all of the svg elements in target html element
@@ -32,7 +32,12 @@ declare namespace BioDeep.MSMSViewer {
      * 一级母离子的``[rt, intensity]``峰面积图
     */
     class TICplot extends SvgChart {
-        readonly area: any;
+        data: BioDeep.Models.ChromatogramTick[];
+        readonly area: d3.svg.Area<[number, number]>;
+        readonly x: d3.scale.Linear<number, number>;
+        readonly y: d3.scale.Linear<number, number>;
+        readonly xAxis: d3.svg.Axis;
+        readonly yAxis: d3.svg.Axis;
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.Models.ChromatogramTick> | IEnumerator<BioDeep.IO.mgf>): void;
         private chart;
     }
