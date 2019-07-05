@@ -221,6 +221,7 @@ var BioDeep;
             function TICplot(onClick) {
                 var _this = _super.call(this, [600, 400], new Canvas.Margin(20, 20, 30, 100)) || this;
                 _this.onClick = onClick;
+                _this.tip = BioDeep.MSMSViewer.mzrtTip();
                 return _this;
             }
             Object.defineProperty(TICplot.prototype, "area", {
@@ -276,7 +277,6 @@ var BioDeep;
             });
             TICplot.prototype.plot = function (canvas, ticks) {
                 BioDeep.MSMSViewer.clear(canvas);
-                this.tip = BioDeep.MSMSViewer.mzrtTip();
                 this.data = BioDeep.Models.TIC(ticks).ToArray();
                 this.chart(canvas);
                 this.tip.hide();
@@ -319,7 +319,7 @@ var BioDeep;
                     .call(this.yAxis);
                 var x = this.x;
                 var y = this.y;
-                svg.selectAll("myCircles")
+                svg.selectAll("mzrt-dot")
                     .data(this.data)
                     .enter()
                     .append("circle")
@@ -329,7 +329,9 @@ var BioDeep;
                     .attr("unique", function (d) { return TICplot.uniqueId(d); })
                     .attr("cx", function (d) { return x(d.rt); })
                     .attr("cy", function (d) { return y(d.intensity); })
-                    .attr("r", 3);
+                    .attr("r", 3)
+                    .on('mouseover', this.tip.show)
+                    .on('mouseout', this.tip.hide);
                 return svg.node();
             };
             return TICplot;

@@ -47,12 +47,13 @@
 
         public constructor(public onClick: (ion: IO.mgf) => void) {
             super([600, 400], new Canvas.Margin(20, 20, 30, 100));
+
+            this.tip = BioDeep.MSMSViewer.mzrtTip();
         }
 
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>) {
             BioDeep.MSMSViewer.clear(canvas);
 
-            this.tip = BioDeep.MSMSViewer.mzrtTip();
             this.data = BioDeep.Models.TIC(<IEnumerator<BioDeep.IO.mgf>>ticks).ToArray();
             this.chart(canvas);
             this.tip.hide();
@@ -105,7 +106,7 @@
             let x = this.x;
             let y = this.y;
 
-            svg.selectAll("myCircles")
+            svg.selectAll("mzrt-dot")
                 .data(this.data)
                 .enter()
                 .append("circle")
@@ -116,6 +117,8 @@
                 .attr("cx", d => x(d.rt))
                 .attr("cy", d => y(d.intensity))
                 .attr("r", 3)
+                .on('mouseover', this.tip.show)
+                .on('mouseout', this.tip.hide);
 
             return svg.node();
         }
