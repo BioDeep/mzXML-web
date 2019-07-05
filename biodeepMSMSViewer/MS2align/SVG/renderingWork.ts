@@ -2,27 +2,6 @@
 namespace BioDeep.MSMSViewer.renderingWork {
 
     /**
-     * 初始化d3.js可视化引擎
-     * 
-     * @param id 需要显示svg可视化结果的div的id属性值
-    */
-    export function svg(data: d3Renderer,
-        id: string | HTMLElement = null,
-        svgId: string = "viewer-svg"): d3.Selection<any> {
-
-        var margin: Canvas.Margin = data.margin;
-        var svg = d3.select(<any>id)
-            .append("svg")
-            .attr("id", svgId)
-            .attr("width", data.width + margin.left + margin.right)
-            .attr("height", data.height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-        return svg;
-    }
-
-    /**
      * 在这里进行具体的图表绘制操作
     */
     export function chartting(engine: d3Renderer): d3Renderer {
@@ -36,7 +15,7 @@ namespace BioDeep.MSMSViewer.renderingWork {
             .range([height, 0])
             .nice();
         var x = d3.scale.linear()
-            .domain(engine.current.mzRange)
+            .domain(engine.mzRange)
             .range([0, width])
             .nice();
         var yAxis = d3.svg.axis()
@@ -63,7 +42,7 @@ namespace BioDeep.MSMSViewer.renderingWork {
             });
 
         engine.svg.selectAll(".bar")
-            .data(engine.current.mzMatrix)
+            .data(engine.input.mzMatrix)
             .enter()
             .append("rect")
             .attr("class", (d: BioDeep.Models.mzInto) => {
@@ -76,7 +55,7 @@ namespace BioDeep.MSMSViewer.renderingWork {
             .attr("cursor", "pointer")
             .on('mouseover', engine.tip.show)
             .on('mouseout', engine.tip.hide);
-    
+
         engine.svg.append("g")
             .attr("class", "x axis")
             .call(yAxis);
@@ -137,8 +116,8 @@ namespace BioDeep.MSMSViewer.renderingWork {
             .style("fill", "white");
 
         // 两个代谢物的legend和label
-        var d1 = Utils.stripHTML(engine.current.queryName);
-        var d2 = Utils.stripHTML(engine.current.refName);
+        var d1 = Utils.stripHTML(engine.input.queryName);
+        var d2 = Utils.stripHTML(engine.input.refName);
 
         left += 15;
         top += 23;

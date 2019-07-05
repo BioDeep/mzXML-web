@@ -3,9 +3,9 @@
 
 namespace BioDeep.MSMSViewer {
 
-    export class d3Renderer {
+    export class d3Renderer extends SvgChart {
 
-        public current: Data.mzData;
+        protected current: Data.mzData;
 
         public strokeWidth: number = 6;
         public radius: number = 6;
@@ -20,20 +20,32 @@ namespace BioDeep.MSMSViewer {
         public svg: d3.Selection<any>;
         public tip: d3.Tooltip;
 
+        public get mzRange(): number[] {
+            let range = this.current.mzRange;
+            let length = range[1] - range[0];
+
+            // 20190705 在这里需要将范围放宽一些
+            // 这样子可以让图尽量居中
+            let minMz = range[0] - length * 0.2;
+            let maxMz = range[1] + length * 0.2;
+
+            return [minMz < 0 ? 0 : minMz, maxMz];
+        }
+
+        public get input(): Data.mzData {
+            return this.current;
+        }
+
         public constructor(
             mz: Data.mzData,
             size: number[] | Canvas.Size = [960, 600],
             margin: Canvas.Margin = renderingWork.defaultMargin(),
             csvLink: string = "matrix-csv") {
 
-            if (!Array.isArray(size)) {
-                size = [size.width, size.height];
-            }
+            super(size, margin);
 
             this.current = mz.trim().normalize();
             this.margin = margin;
-            this.width = size[0] - margin.left - margin.right;
-            this.height = size[1] - margin.top - margin.bottom;
             this.registerDownloader(csvLink);
         }
 
@@ -67,7 +79,7 @@ namespace BioDeep.MSMSViewer {
             BioDeep.MSMSViewer.clear(div);
 
             this.tip = BioDeep.MSMSViewer.tooltip(this.current);
-            this.svg = renderingWork.svg(this, div);
+            this.svg = BioDeep.MSMSViewer.svg(this, div);
 
             // 因为在下面的chartting函数调用之中需要使用tip对象来绑定鼠标事件，
             // 所以在这里需要先于chartting函数将tip对象初始化完毕  

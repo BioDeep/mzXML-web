@@ -41,6 +41,25 @@ var BioDeep;
             d3.selectAll(canvas + ">svg").remove();
         }
         MSMSViewer.clear = clear;
+        /**
+         * 初始化d3.js可视化引擎
+         *
+         * @param id 需要显示svg可视化结果的div的id属性值
+        */
+        function svg(engine, id, svgId) {
+            if (id === void 0) { id = null; }
+            if (svgId === void 0) { svgId = "viewer-svg"; }
+            var margin = engine.margin;
+            var svg = d3.select(id)
+                .append("svg")
+                .attr("id", svgId)
+                .attr("width", engine.width + margin.left + margin.right)
+                .attr("height", engine.height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+            return svg;
+        }
+        MSMSViewer.svg = svg;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
 var BioDeep;
@@ -683,25 +702,6 @@ var BioDeep;
         var renderingWork;
         (function (renderingWork) {
             /**
-             * 初始化d3.js可视化引擎
-             *
-             * @param id 需要显示svg可视化结果的div的id属性值
-            */
-            function svg(data, id, svgId) {
-                if (id === void 0) { id = null; }
-                if (svgId === void 0) { svgId = "viewer-svg"; }
-                var margin = data.margin;
-                var svg = d3.select(id)
-                    .append("svg")
-                    .attr("id", svgId)
-                    .attr("width", data.width + margin.left + margin.right)
-                    .attr("height", data.height + margin.top + margin.bottom)
-                    .append("g")
-                    .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
-                return svg;
-            }
-            renderingWork.svg = svg;
-            /**
              * 在这里进行具体的图表绘制操作
             */
             function chartting(engine) {
@@ -714,7 +714,7 @@ var BioDeep;
                     .range([height, 0])
                     .nice();
                 var x = d3.scale.linear()
-                    .domain(engine.current.mzRange)
+                    .domain(engine.mzRange)
                     .range([0, width])
                     .nice();
                 var yAxis = d3.svg.axis()
@@ -739,7 +739,7 @@ var BioDeep;
                     "stroke-width": "1px"
                 });
                 engine.svg.selectAll(".bar")
-                    .data(engine.current.mzMatrix)
+                    .data(engine.input.mzMatrix)
                     .enter()
                     .append("rect")
                     .attr("class", function (d) {
@@ -805,8 +805,8 @@ var BioDeep;
                     .style("border-radius", "2px")
                     .style("fill", "white");
                 // 两个代谢物的legend和label
-                var d1 = BioDeep.Utils.stripHTML(engine.current.queryName);
-                var d2 = BioDeep.Utils.stripHTML(engine.current.refName);
+                var d1 = BioDeep.Utils.stripHTML(engine.input.queryName);
+                var d2 = BioDeep.Utils.stripHTML(engine.input.refName);
                 left += 15;
                 top += 23;
                 legend.append("rect")
@@ -858,22 +858,40 @@ var BioDeep;
 (function (BioDeep) {
     var MSMSViewer;
     (function (MSMSViewer) {
-        var d3Renderer = /** @class */ (function () {
+        var d3Renderer = /** @class */ (function (_super) {
+            __extends(d3Renderer, _super);
             function d3Renderer(mz, size, margin, csvLink) {
                 if (size === void 0) { size = [960, 600]; }
                 if (margin === void 0) { margin = MSMSViewer.renderingWork.defaultMargin(); }
                 if (csvLink === void 0) { csvLink = "matrix-csv"; }
-                this.strokeWidth = 6;
-                this.radius = 6;
-                if (!Array.isArray(size)) {
-                    size = [size.width, size.height];
-                }
-                this.current = mz.trim().normalize();
-                this.margin = margin;
-                this.width = size[0] - margin.left - margin.right;
-                this.height = size[1] - margin.top - margin.bottom;
-                this.registerDownloader(csvLink);
+                var _this = _super.call(this, size, margin) || this;
+                _this.strokeWidth = 6;
+                _this.radius = 6;
+                _this.current = mz.trim().normalize();
+                _this.margin = margin;
+                _this.registerDownloader(csvLink);
+                return _this;
             }
+            Object.defineProperty(d3Renderer.prototype, "mzRange", {
+                get: function () {
+                    var range = this.current.mzRange;
+                    var length = range[1] - range[0];
+                    // 20190705 在这里需要将范围放宽一些
+                    // 这样子可以让图尽量居中
+                    var minMz = range[0] - length * 0.2;
+                    var maxMz = range[1] + length * 0.2;
+                    return [minMz < 0 ? 0 : minMz, maxMz];
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(d3Renderer.prototype, "input", {
+                get: function () {
+                    return this.current;
+                },
+                enumerable: true,
+                configurable: true
+            });
             d3Renderer.prototype.registerDownloader = function (id) {
                 var a = $ts(Internal.Handlers.EnsureNodeId(id));
                 var csv = this.current.csv();
@@ -899,7 +917,7 @@ var BioDeep;
                 }
                 BioDeep.MSMSViewer.clear(div);
                 this.tip = BioDeep.MSMSViewer.tooltip(this.current);
-                this.svg = MSMSViewer.renderingWork.svg(this, div);
+                this.svg = BioDeep.MSMSViewer.svg(this, div);
                 // 因为在下面的chartting函数调用之中需要使用tip对象来绑定鼠标事件，
                 // 所以在这里需要先于chartting函数将tip对象初始化完毕  
                 this.svg.call(this.tip);
@@ -908,7 +926,7 @@ var BioDeep;
                 this.tip.hide();
             };
             return d3Renderer;
-        }());
+        }(SvgChart));
         MSMSViewer.d3Renderer = d3Renderer;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));

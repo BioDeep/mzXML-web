@@ -1,8 +1,8 @@
 /// <reference path="../../build/linq.d.ts" />
 /// <reference path="BioDeep_mzWeb.d.ts" />
 /// <reference path="../../build/svg.d.ts" />
-/// <reference types="d3-tip" />
 /// <reference types="d3" />
+/// <reference types="d3-tip" />
 declare namespace BioDeep.MSMSViewer {
     /**
      * Clear all of the svg elements in target html element
@@ -10,6 +10,12 @@ declare namespace BioDeep.MSMSViewer {
      * @param canvas id, class, or a html element object instance
     */
     function clear(canvas: string | HTMLElement): void;
+    /**
+     * 初始化d3.js可视化引擎
+     *
+     * @param id 需要显示svg可视化结果的div的id属性值
+    */
+    function svg(engine: SvgChart, id?: string | HTMLElement, svgId?: string): d3.Selection<any>;
 }
 declare namespace BioDeep.MSMSViewer {
     function tooltip(mz: Data.mzData): d3.Tooltip;
@@ -177,20 +183,14 @@ declare namespace BioDeep.MSMSViewer.Data {
 }
 declare namespace BioDeep.MSMSViewer.renderingWork {
     /**
-     * 初始化d3.js可视化引擎
-     *
-     * @param id 需要显示svg可视化结果的div的id属性值
-    */
-    function svg(data: d3Renderer, id?: string | HTMLElement, svgId?: string): d3.Selection<any>;
-    /**
      * 在这里进行具体的图表绘制操作
     */
     function chartting(engine: d3Renderer): d3Renderer;
     function Legend(engine: d3Renderer): d3Renderer;
 }
 declare namespace BioDeep.MSMSViewer {
-    class d3Renderer {
-        current: Data.mzData;
+    class d3Renderer extends SvgChart {
+        protected current: Data.mzData;
         strokeWidth: number;
         radius: number;
         margin: Canvas.Margin;
@@ -201,6 +201,8 @@ declare namespace BioDeep.MSMSViewer {
         */
         svg: d3.Selection<any>;
         tip: d3.Tooltip;
+        readonly mzRange: number[];
+        readonly input: Data.mzData;
         constructor(mz: Data.mzData, size?: number[] | Canvas.Size, margin?: Canvas.Margin, csvLink?: string);
         private registerDownloader;
         /**
