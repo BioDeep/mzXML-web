@@ -7,6 +7,8 @@
         public draw(id: string) {
             var vm = this;
 
+            layer.load(5);
+
             $ts.getText("@mgf", function (text) {
                 let mgf = BioDeep.IO.mgf.Parse(text);
                 let maxInto = mgf.Max(m => m.intensity).intensity;
@@ -15,6 +17,8 @@
 
                 vm.chart.plot(id, mgf);
                 vm.buildMzList(mgf, id);
+
+                layer.closeAll();
             });
         }
 

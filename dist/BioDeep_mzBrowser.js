@@ -2,6 +2,7 @@
 /// <reference path="../../../build/svg.d.ts" />
 /// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
 /// <reference path="../../dist/biodeepMSMS.Viewer.d.ts" />
+/// <reference path="../../../layer.d.ts" />
 $ts(function () {
     new BioDeep.TICviewer().draw("#TIC");
     // initial spectrum viewer css style
@@ -15,12 +16,14 @@ var BioDeep;
         }
         TICviewer.prototype.draw = function (id) {
             var vm = this;
+            layer.load(5);
             $ts.getText("@mgf", function (text) {
                 var mgf = BioDeep.IO.mgf.Parse(text);
                 var maxInto = mgf.Max(function (m) { return m.intensity; }).intensity;
                 // mgf = mgf.Where(m => (m.intensity / maxInto) >= 0.01);
                 vm.chart.plot(id, mgf);
                 vm.buildMzList(mgf, id);
+                layer.closeAll();
             });
         };
         TICviewer.prototype.buildMzList = function (mgf, id) {

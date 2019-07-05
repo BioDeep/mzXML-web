@@ -2,6 +2,7 @@
 /// <reference path="../../build/svg.d.ts" />
 /// <reference path="BioDeep_mzWeb.d.ts" />
 /// <reference path="biodeepMSMS.Viewer.d.ts" />
+/// <reference path="../../layer.d.ts" />
 declare namespace BioDeep {
     class TICviewer {
         private chart;
