@@ -260,6 +260,20 @@ var BioDeep;
         Models.mzInto = mzInto;
     })(Models = BioDeep.Models || (BioDeep.Models = {}));
 })(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var Views;
+    (function (Views) {
+        function CreateTableFromMgfIon(ion) {
+            return CreateTableFromMatrix(ion);
+        }
+        Views.CreateTableFromMgfIon = CreateTableFromMgfIon;
+        function CreateTableFromMatrix(matrix) {
+            return $ts.evalHTML.table(matrix);
+        }
+        Views.CreateTableFromMatrix = CreateTableFromMatrix;
+    })(Views = BioDeep.Views || (BioDeep.Views = {}));
+})(BioDeep || (BioDeep = {}));
 /// <reference path="../../../../build/linq.d.ts" />
 /// <reference path="../../Models/Abstract.ts" />
 /**

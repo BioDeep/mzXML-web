@@ -2,7 +2,10 @@
 
     export class TICviewer {
 
-        private chart = new BioDeep.MSMSViewer.TICplot(ion => BioDeep.MSMSViewer.previews("#plot", ion, [800, 500]));
+        private chart = new BioDeep.MSMSViewer.TICplot(ion => {
+            BioDeep.MSMSViewer.previews("#plot", ion, [800, 500]);
+            $ts("#peaks").display(BioDeep.Views.CreateTableFromMgfIon(ion));
+        });
 
         public draw(id: string) {
             var vm = this;

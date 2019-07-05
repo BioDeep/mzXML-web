@@ -109,6 +109,10 @@ declare namespace BioDeep.Models {
         intensity: number;
     }
 }
+declare namespace BioDeep.Views {
+    function CreateTableFromMgfIon(ion: IO.mgf): HTMLElement;
+    function CreateTableFromMatrix(matrix: IEnumerator<Models.mzInto>): HTMLElement;
+}
 /**
  * The ``*.ms2`` file format reader
 */
