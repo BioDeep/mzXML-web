@@ -81,64 +81,6 @@ declare namespace BioDeep.MSMSViewer {
     function previews(divId: string | HTMLElement, data: Data.mzData | BioDeep.IO.mgf, size?: number[]): void;
     function parseIon(ion: BioDeep.IO.mgf): Data.mzData;
 }
-/**
- var data = {
-     query: "CH<sub>3</sub>H<sub>2</sub>O",
-     reference: "CO<sub>2</sub>NH<sub>4</sub>",
-     align : [
-         {mz: 10, int1:15,  int2: 20},
-         {mz:125, int1:20,  int2: 30},
-         {mz:200, int1:0,   int2:100},
-         {mz:273, int1:0,   int2:100},
-         {mz:300, int1:22,  int2:100},
-         {mz:400, int1:100, int2: 18},
-         {mz:600, int1:2,   int2:  6},
-         {mz:800, int1:26,  int2: 18}
-     ]};
- */
-declare namespace BioDeep.MSMSViewer.Data {
-    class mzData {
-        /**
-         * X坐标轴范围
-        */
-        mzRange: number[];
-        /**
-         * 包含有query和reference的镜像数据
-        */
-        mzMatrix: BioDeep.Models.mzInto[];
-        queryName: string;
-        refName: string;
-        xref: string;
-        constructor(mz: number[] | data.NumericRange, align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>);
-        /**
-         * Set information
-        */
-        info(queryName: string, refName: string, xref: string): mzData;
-        trim(intoCutoff?: number): mzData;
-        /**
-         * 将响应强度的数据归一化到``[0, 100]``的区间范围内，然后返回当前的数据实例自身
-        */
-        normalize(): mzData;
-        tooltip(mz: BioDeep.Models.mzInto): string;
-        csv(): string;
-    }
-    function JSONParser(data: JSONrespon, decoder?: ((string: any) => Models.mzInto[])): mzData;
-    /**
-     * @param matrix 在这个函数之中会将这个二级碎片矩阵转换为一个镜像矩阵
-    */
-    function PreviewData(mz: number, rt: number, matrix: BioDeep.Models.mzInto[], title?: string): mzData;
-    class JSONrespon {
-        query: string;
-        reference: string;
-        align: align[] | string;
-        xref: string;
-    }
-    class align {
-        mz: number;
-        into1: number;
-        into2: number;
-    }
-}
 declare namespace BioDeep.Utils {
     /**
      * 因为D3里面的text不支持html标签，所以需要使用这个函数将名称
@@ -165,6 +107,72 @@ declare namespace BioDeep.MSMSViewer {
         refColor: string;
         highlightColor: string;
         static defaultStyle(): Styles;
+    }
+}
+declare namespace BioDeep.MSMSViewer.Data {
+    function JSONParser(data: JSONrespon, decoder?: ((string: any) => Models.mzInto[])): mzData;
+    /**
+     * @param matrix 在这个函数之中会将这个二级碎片矩阵转换为一个镜像矩阵
+    */
+    function PreviewData(mz: number, rt: number, matrix: BioDeep.Models.mzInto[], title?: string): mzData;
+}
+declare namespace BioDeep.MSMSViewer.Data {
+    /**
+     * Demo test data
+     *
+     * ```js
+     * var data = {
+     *    query: "CH<sub>3</sub>H<sub>2</sub>O",
+     *    reference: "CO<sub>2</sub>NH<sub>4</sub>",
+     *    align : [
+     *        {mz: 10, int1:15,  int2: 20},
+     *        {mz:125, int1:20,  int2: 30},
+     *        {mz:200, int1:0,   int2:100},
+     *        {mz:273, int1:0,   int2:100},
+     *        {mz:300, int1:22,  int2:100},
+     *        {mz:400, int1:100, int2: 18},
+     *        {mz:600, int1:2,   int2:  6},
+     *        {mz:800, int1:26,  int2: 18}
+     *    ]};
+     * ```
+    */
+    class JSONrespon {
+        query: string;
+        reference: string;
+        align: align[] | string;
+        xref: string;
+    }
+    class align {
+        mz: number;
+        into1: number;
+        into2: number;
+    }
+}
+declare namespace BioDeep.MSMSViewer.Data {
+    class mzData {
+        /**
+         * X坐标轴范围
+        */
+        mzRange: number[];
+        /**
+         * 包含有query和reference的镜像数据
+        */
+        mzMatrix: BioDeep.Models.mzInto[];
+        queryName: string;
+        refName: string;
+        xref: string;
+        constructor(mz: number[] | data.NumericRange, align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>);
+        /**
+         * Set information
+        */
+        info(queryName: string, refName: string, xref: string): mzData;
+        trim(intoCutoff?: number): mzData;
+        /**
+         * 将响应强度的数据归一化到``[0, 100]``的区间范围内，然后返回当前的数据实例自身
+        */
+        normalize(): mzData;
+        tooltip(mz: BioDeep.Models.mzInto): string;
+        csv(): string;
     }
 }
 declare namespace BioDeep.MSMSViewer.renderingWork {

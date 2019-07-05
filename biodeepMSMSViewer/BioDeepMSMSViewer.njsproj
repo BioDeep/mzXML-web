@@ -16,7 +16,7 @@
     <ProjectGuid>345c4454-3b07-48a4-91e7-424342e56a67</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>MS2align\data.ts</StartupFile>
+    <StartupFile>MS2align\Data\data.ts</StartupFile>
     <StartWebBrowser>True</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -44,11 +44,14 @@
     <TypeScriptCompile Include="Ms1\TIC.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="MS2align\data.ts" />
+    <TypeScriptCompile Include="MS2align\Data\data.ts" />
     <Content Include="MS2align\CSS\style.css" />
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <TypeScriptCompile Include="MS2align\Data\JSON.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="MS2align\SVG\D3Renderer.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -64,6 +67,9 @@
     <TypeScriptCompile Include="MS2align\CSS\Styles.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="MS2align\Data\mzData.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="MS2align\Utils.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -77,6 +83,7 @@
   <ItemGroup>
     <Folder Include="MS2align\" />
     <Folder Include="MS2align\CSS\" />
+    <Folder Include="MS2align\Data\" />
     <Folder Include="MS2align\SVG\" />
     <Folder Include="Ms1\" />
   </ItemGroup>

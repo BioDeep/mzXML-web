@@ -420,168 +420,6 @@ var BioDeep;
         MSMSViewer.parseIon = parseIon;
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
-// Demo test data
-/**
- var data = {
-     query: "CH<sub>3</sub>H<sub>2</sub>O",
-     reference: "CO<sub>2</sub>NH<sub>4</sub>",
-     align : [
-         {mz: 10, int1:15,  int2: 20},
-         {mz:125, int1:20,  int2: 30},
-         {mz:200, int1:0,   int2:100},
-         {mz:273, int1:0,   int2:100},
-         {mz:300, int1:22,  int2:100},
-         {mz:400, int1:100, int2: 18},
-         {mz:600, int1:2,   int2:  6},
-         {mz:800, int1:26,  int2: 18}
-     ]};
- */
-var BioDeep;
-(function (BioDeep) {
-    var MSMSViewer;
-    (function (MSMSViewer) {
-        var Data;
-        (function (Data) {
-            var mzData = /** @class */ (function () {
-                function mzData(mz, align) {
-                    var range = Array.isArray(mz) ?
-                        data.NumericRange.Create(mz) : mz;
-                    this.mzRange = [range.min, range.max];
-                    this.mzMatrix = Array.isArray(align) ? align : align.ToArray();
-                }
-                /**
-                 * Set information
-                */
-                mzData.prototype.info = function (queryName, refName, xref) {
-                    this.queryName = queryName;
-                    this.refName = refName;
-                    this.xref = xref;
-                    return this;
-                };
-                mzData.prototype.trim = function (intoCutoff) {
-                    if (intoCutoff === void 0) { intoCutoff = 5; }
-                    var src = new IEnumerator(this.mzMatrix);
-                    var max = Math.abs(src.Max(function (m) { return m.into; }).into);
-                    var trimmedData = From(this.mzMatrix).Where(function (m) { return Math.abs(m.into / max * 100) >= intoCutoff; });
-                    var newRange = data.NumericRange.Create(trimmedData.Select(function (m) { return m.mz; }));
-                    var newMatrix = new mzData(newRange, trimmedData);
-                    newMatrix.queryName = this.queryName;
-                    newMatrix.refName = this.refName;
-                    newMatrix.xref = this.xref;
-                    return newMatrix;
-                };
-                /**
-                 * 将响应强度的数据归一化到``[0, 100]``的区间范围内，然后返回当前的数据实例自身
-                */
-                mzData.prototype.normalize = function () {
-                    var src = new IEnumerator(this.mzMatrix);
-                    var max = Math.abs(src.Max(function (m) { return m.into; }).into);
-                    this.mzMatrix.forEach(function (m) { return m.into = m.into / max * 100; });
-                    return this;
-                };
-                mzData.prototype.tooltip = function (mz) {
-                    var name = mz.into >= 0 ? this.queryName : this.refName;
-                    var tipText = "m/z: " + mz.mz.toFixed(4) + " (\n                <strong>\n                    <span style=\"color:red;\">\n                        " + Math.floor(Math.abs(mz.into)) + "%\n                    </span>\n                </strong>)";
-                    var html = "\n                <p>\n                    " + name + "<br />\n                           <br />\n                    " + tipText + "\n                </p>";
-                    return html;
-                };
-                mzData.prototype.csv = function () {
-                    var meta = "#name=" + this.refName + ";xref=" + this.xref;
-                    var header = "id,mz,into";
-                    var table = "";
-                    var i = 0;
-                    this.mzMatrix.forEach(function (mz) {
-                        if (mz.into > 0) {
-                            table = table + (++i + "," + mz.mz + "," + mz.into + "\n");
-                        }
-                    });
-                    return meta + "\n" + header + "\n" + table;
-                };
-                return mzData;
-            }());
-            Data.mzData = mzData;
-            function JSONParser(data, decoder) {
-                if (decoder === void 0) { decoder = null; }
-                var mzInt = [];
-                if (typeof data.align == "string") {
-                    if (isNullOrUndefined(decoder)) {
-                        throw "No SVG decoder was provided!";
-                    }
-                    else {
-                        mzInt = decoder(data.align);
-                    }
-                }
-                else {
-                    mzInt = parseMirror(data.align);
-                }
-                var mzRange = From(mzInt).Select(function (x) { return x.mz; }).ToArray();
-                var align = new mzData(mzRange, mzInt);
-                align.queryName = data.query;
-                align.refName = data.reference;
-                align.xref = data.xref;
-                return align;
-            }
-            Data.JSONParser = JSONParser;
-            function parseMirror(aligns) {
-                return From(aligns)
-                    .Select(function (x, i) {
-                    var a;
-                    var b;
-                    if (x.into1) {
-                        var mzX = parseFloat(new Number(x.mz).toFixed(4));
-                        var into = parseFloat(new Number(x.into1 * 100).toFixed(0));
-                        a = new BioDeep.Models.mzInto(i.toString(), mzX, into);
-                    }
-                    if (x.into2) {
-                        // 参考是位于图表的下半部分，倒过来的
-                        // 所以在这里会需要乘以-1来完成颠倒
-                        var mzX = parseFloat(new Number(x.mz).toFixed(4));
-                        var into = -1 * parseFloat(new Number(x.into2 * 100).toFixed(0));
-                        b = new BioDeep.Models.mzInto(i.toString(), mzX, into);
-                    }
-                    return [a, b];
-                })
-                    .Unlist(function (x) { return x; })
-                    .ToArray();
-            }
-            /**
-             * @param matrix 在这个函数之中会将这个二级碎片矩阵转换为一个镜像矩阵
-            */
-            function PreviewData(mz, rt, matrix, title) {
-                if (title === void 0) { title = "Unknown"; }
-                var mzSrc = From(matrix);
-                var mzRange = data.NumericRange.Create(mzSrc.Select(function (mz) { return mz.mz; }));
-                var intoMax = mzSrc.Select(function (mz) { return mz.into; }).Max();
-                var mirror = mzSrc
-                    .Select(function (mz) {
-                    var into = mz.into / intoMax * 100;
-                    var mir = new BioDeep.Models.mzInto(mz.id, mz.mz, -into);
-                    mz.into = into;
-                    return [mz, mir];
-                })
-                    .Unlist();
-                var align = new mzData(mzRange, mirror);
-                align.queryName = mz + "@" + rt;
-                align.refName = title;
-                align.xref = "0";
-                return align;
-            }
-            Data.PreviewData = PreviewData;
-            var JSONrespon = /** @class */ (function () {
-                function JSONrespon() {
-                }
-                return JSONrespon;
-            }());
-            Data.JSONrespon = JSONrespon;
-            var align = /** @class */ (function () {
-                function align() {
-                }
-                return align;
-            }());
-            Data.align = align;
-        })(Data = MSMSViewer.Data || (MSMSViewer.Data = {}));
-    })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
-})(BioDeep || (BioDeep = {}));
 var BioDeep;
 (function (BioDeep) {
     var Utils;
@@ -653,6 +491,189 @@ var BioDeep;
             return Styles;
         }());
         MSMSViewer.Styles = Styles;
+    })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var MSMSViewer;
+    (function (MSMSViewer) {
+        var Data;
+        (function (Data) {
+            function JSONParser(data, decoder) {
+                if (decoder === void 0) { decoder = null; }
+                var mzInt = [];
+                if (typeof data.align == "string") {
+                    if (isNullOrUndefined(decoder)) {
+                        throw "No SVG decoder was provided!";
+                    }
+                    else {
+                        mzInt = decoder(data.align);
+                    }
+                }
+                else {
+                    mzInt = parseMirror(data.align);
+                }
+                var mzRange = From(mzInt).Select(function (x) { return x.mz; }).ToArray();
+                var align = new Data.mzData(mzRange, mzInt);
+                align.queryName = data.query;
+                align.refName = data.reference;
+                align.xref = data.xref;
+                return align;
+            }
+            Data.JSONParser = JSONParser;
+            function parseMirror(aligns) {
+                return From(aligns)
+                    .Select(function (x, i) {
+                    var a;
+                    var b;
+                    if (x.into1) {
+                        var mzX = parseFloat(new Number(x.mz).toFixed(4));
+                        var into = parseFloat(new Number(x.into1 * 100).toFixed(0));
+                        a = new BioDeep.Models.mzInto(i.toString(), mzX, into);
+                    }
+                    if (x.into2) {
+                        // 参考是位于图表的下半部分，倒过来的
+                        // 所以在这里会需要乘以-1来完成颠倒
+                        var mzX = parseFloat(new Number(x.mz).toFixed(4));
+                        var into = -1 * parseFloat(new Number(x.into2 * 100).toFixed(0));
+                        b = new BioDeep.Models.mzInto(i.toString(), mzX, into);
+                    }
+                    return [a, b];
+                })
+                    .Unlist(function (x) { return x; })
+                    .ToArray();
+            }
+            /**
+             * @param matrix 在这个函数之中会将这个二级碎片矩阵转换为一个镜像矩阵
+            */
+            function PreviewData(mz, rt, matrix, title) {
+                if (title === void 0) { title = "Unknown"; }
+                var mzSrc = From(matrix);
+                var mzRange = data.NumericRange.Create(mzSrc.Select(function (mz) { return mz.mz; }));
+                var intoMax = mzSrc.Select(function (mz) { return mz.into; }).Max();
+                var mirror = mzSrc
+                    .Select(function (mz) {
+                    var into = mz.into / intoMax * 100;
+                    var mir = new BioDeep.Models.mzInto(mz.id, mz.mz, -into);
+                    mz.into = into;
+                    return [mz, mir];
+                })
+                    .Unlist();
+                var align = new Data.mzData(mzRange, mirror);
+                align.queryName = mz + "@" + rt;
+                align.refName = title;
+                align.xref = "0";
+                return align;
+            }
+            Data.PreviewData = PreviewData;
+        })(Data = MSMSViewer.Data || (MSMSViewer.Data = {}));
+    })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var MSMSViewer;
+    (function (MSMSViewer) {
+        var Data;
+        (function (Data) {
+            /**
+             * Demo test data
+             *
+             * ```js
+             * var data = {
+             *    query: "CH<sub>3</sub>H<sub>2</sub>O",
+             *    reference: "CO<sub>2</sub>NH<sub>4</sub>",
+             *    align : [
+             *        {mz: 10, int1:15,  int2: 20},
+             *        {mz:125, int1:20,  int2: 30},
+             *        {mz:200, int1:0,   int2:100},
+             *        {mz:273, int1:0,   int2:100},
+             *        {mz:300, int1:22,  int2:100},
+             *        {mz:400, int1:100, int2: 18},
+             *        {mz:600, int1:2,   int2:  6},
+             *        {mz:800, int1:26,  int2: 18}
+             *    ]};
+             * ```
+            */
+            var JSONrespon = /** @class */ (function () {
+                function JSONrespon() {
+                }
+                return JSONrespon;
+            }());
+            Data.JSONrespon = JSONrespon;
+            var align = /** @class */ (function () {
+                function align() {
+                }
+                return align;
+            }());
+            Data.align = align;
+        })(Data = MSMSViewer.Data || (MSMSViewer.Data = {}));
+    })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var MSMSViewer;
+    (function (MSMSViewer) {
+        var Data;
+        (function (Data) {
+            var mzData = /** @class */ (function () {
+                function mzData(mz, align) {
+                    var range = Array.isArray(mz) ?
+                        data.NumericRange.Create(mz) : mz;
+                    this.mzRange = [range.min, range.max];
+                    this.mzMatrix = Array.isArray(align) ? align : align.ToArray();
+                }
+                /**
+                 * Set information
+                */
+                mzData.prototype.info = function (queryName, refName, xref) {
+                    this.queryName = queryName;
+                    this.refName = refName;
+                    this.xref = xref;
+                    return this;
+                };
+                mzData.prototype.trim = function (intoCutoff) {
+                    if (intoCutoff === void 0) { intoCutoff = 5; }
+                    var src = new IEnumerator(this.mzMatrix);
+                    var max = Math.abs(src.Max(function (m) { return m.into; }).into);
+                    var trimmedData = From(this.mzMatrix).Where(function (m) { return Math.abs(m.into / max * 100) >= intoCutoff; });
+                    var newRange = data.NumericRange.Create(trimmedData.Select(function (m) { return m.mz; }));
+                    var newMatrix = new mzData(newRange, trimmedData);
+                    newMatrix.queryName = this.queryName;
+                    newMatrix.refName = this.refName;
+                    newMatrix.xref = this.xref;
+                    return newMatrix;
+                };
+                /**
+                 * 将响应强度的数据归一化到``[0, 100]``的区间范围内，然后返回当前的数据实例自身
+                */
+                mzData.prototype.normalize = function () {
+                    var src = new IEnumerator(this.mzMatrix);
+                    var max = Math.abs(src.Max(function (m) { return m.into; }).into);
+                    this.mzMatrix.forEach(function (m) { return m.into = m.into / max * 100; });
+                    return this;
+                };
+                mzData.prototype.tooltip = function (mz) {
+                    var name = mz.into >= 0 ? this.queryName : this.refName;
+                    var tipText = "m/z: " + mz.mz.toFixed(4) + " (\n                <strong>\n                    <span style=\"color:red;\">\n                        " + Math.floor(Math.abs(mz.into)) + "%\n                    </span>\n                </strong>)";
+                    var html = "\n                <p>\n                    " + name + "<br />\n                           <br />\n                    " + tipText + "\n                </p>";
+                    return html;
+                };
+                mzData.prototype.csv = function () {
+                    var meta = "#name=" + this.refName + ";xref=" + this.xref;
+                    var header = "id,mz,into";
+                    var table = "";
+                    var i = 0;
+                    this.mzMatrix.forEach(function (mz) {
+                        if (mz.into > 0) {
+                            table = table + (++i + "," + mz.mz + "," + mz.into + "\n");
+                        }
+                    });
+                    return meta + "\n" + header + "\n" + table;
+                };
+                return mzData;
+            }());
+            Data.mzData = mzData;
+        })(Data = MSMSViewer.Data || (MSMSViewer.Data = {}));
     })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
 })(BioDeep || (BioDeep = {}));
 var BioDeep;
