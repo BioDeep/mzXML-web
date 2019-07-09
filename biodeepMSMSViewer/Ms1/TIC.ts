@@ -6,7 +6,7 @@
     export class TICplot extends SvgChart {
 
         public data: BioDeep.Models.ChromatogramTick[];
-        public tip: d3.Tooltip;
+        // public tip: d3.Tooltip;
 
         public get area() {
             let x = this.x;
@@ -48,7 +48,7 @@
         public constructor(public onClick: (ion: IO.mgf) => void) {
             super([600, 400], new Canvas.Margin(20, 20, 30, 100));
 
-            this.tip = BioDeep.MSMSViewer.mzrtTip();
+            // this.tip = BioDeep.MSMSViewer.mzrtTip();
         }
 
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>) {
@@ -56,7 +56,7 @@
 
             this.data = BioDeep.Models.TIC(<IEnumerator<BioDeep.IO.mgf>>ticks).ToArray();
             this.chart(canvas);
-            this.tip.hide();
+            // this.tip.hide();
             this.bindEvents($ts(this.data));
         }
 
@@ -86,7 +86,7 @@
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .attr("viewBox", `0 0 ${this.width} ${this.height}`)
-                .call(<any>this.tip);
+                // .call(<any>this.tip);
 
             svg.append("path")
                 .datum(this.data)
@@ -117,8 +117,8 @@
                 .attr("cx", d => x(d.rt))
                 .attr("cy", d => y(d.intensity))
                 .attr("r", 3)
-                .on('mouseover', this.tip.show)
-                .on('mouseout', this.tip.hide);
+                // .on('mouseover', this.tip.show)
+                // .on('mouseout', this.tip.hide);
 
             return svg.node();
         }

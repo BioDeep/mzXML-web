@@ -240,10 +240,11 @@ var BioDeep;
             function TICplot(onClick) {
                 var _this = _super.call(this, [600, 400], new Canvas.Margin(20, 20, 30, 100)) || this;
                 _this.onClick = onClick;
-                _this.tip = BioDeep.MSMSViewer.mzrtTip();
                 return _this;
+                // this.tip = BioDeep.MSMSViewer.mzrtTip();
             }
             Object.defineProperty(TICplot.prototype, "area", {
+                // public tip: d3.Tooltip;
                 get: function () {
                     var x = this.x;
                     var y = this.y;
@@ -298,7 +299,7 @@ var BioDeep;
                 BioDeep.MSMSViewer.clear(canvas);
                 this.data = BioDeep.Models.TIC(ticks).ToArray();
                 this.chart(canvas);
-                this.tip.hide();
+                // this.tip.hide();
                 this.bindEvents($ts(this.data));
             };
             TICplot.prototype.bindEvents = function (ticks) {
@@ -322,8 +323,8 @@ var BioDeep;
                     .attr("height", this.height + margin.top + margin.bottom)
                     .append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .attr("viewBox", "0 0 " + this.width + " " + this.height)
-                    .call(this.tip);
+                    .attr("viewBox", "0 0 " + this.width + " " + this.height);
+                // .call(<any>this.tip);
                 svg.append("path")
                     .datum(this.data)
                     .attr("class", "area")
@@ -348,9 +349,9 @@ var BioDeep;
                     .attr("unique", function (d) { return TICplot.uniqueId(d); })
                     .attr("cx", function (d) { return x(d.rt); })
                     .attr("cy", function (d) { return y(d.intensity); })
-                    .attr("r", 3)
-                    .on('mouseover', this.tip.show)
-                    .on('mouseout', this.tip.hide);
+                    .attr("r", 3);
+                // .on('mouseover', this.tip.show)
+                // .on('mouseout', this.tip.hide);
                 return svg.node();
             };
             return TICplot;

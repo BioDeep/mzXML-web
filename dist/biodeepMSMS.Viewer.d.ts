@@ -44,7 +44,6 @@ declare namespace BioDeep.MSMSViewer {
     class TICplot extends SvgChart {
         onClick: (ion: IO.mgf) => void;
         data: BioDeep.Models.ChromatogramTick[];
-        tip: d3.Tooltip;
         readonly area: d3.svg.Area<[number, number]>;
         readonly x: d3.scale.Linear<number, number>;
         readonly y: d3.scale.Linear<number, number>;
