@@ -46,7 +46,7 @@
         }
 
         public constructor(public onClick: (ion: IO.mgf) => void) {
-            super([550, 400], new Canvas.Margin(20, 20, 30, 100));
+            super([850, 600], new Canvas.Margin(20, 20, 30, 100));
 
             // this.tip = BioDeep.MSMSViewer.mzrtTip();
         }
