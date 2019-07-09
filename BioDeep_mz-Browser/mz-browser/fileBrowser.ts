@@ -12,10 +12,10 @@
             }
         });
         $(display).on('changed.jstree', function (e, data) {
-            var path = data.instance.get_path(data.node, '/');
+            var path: string = data.instance.get_path(data.node, '/');
 
             console.log('Selected: ' + path);
-            viewer.draw("#TIC", path);
+            viewer.draw("#TIC", path.replace("//", "/"));
         });
 
         console.log(indexTree);

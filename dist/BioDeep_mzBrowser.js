@@ -27,7 +27,7 @@ var fileBrowser;
         $(display).on('changed.jstree', function (e, data) {
             var path = data.instance.get_path(data.node, '/');
             console.log('Selected: ' + path);
-            viewer.draw("#TIC", path);
+            viewer.draw("#TIC", path.replace("//", "/"));
         });
         console.log(indexTree);
         console.log(jsTree);
@@ -75,11 +75,15 @@ var BioDeep;
             var vm = this;
             layer.load(5);
             $ts.getText(src, function (text) {
-                var mgf = BioDeep.IO.mgf.Parse(text);
-                var maxInto = mgf.Max(function (m) { return m.intensity; }).intensity;
-                // mgf = mgf.Where(m => (m.intensity / maxInto) >= 0.01);
-                vm.chart.plot(id, mgf);
-                vm.buildMzList(mgf, id);
+                try {
+                    var mgf = BioDeep.IO.mgf.Parse(text);
+                    var maxInto = mgf.Max(function (m) { return m.intensity; }).intensity;
+                    // mgf = mgf.Where(m => (m.intensity / maxInto) >= 0.01);
+                    vm.chart.plot(id, mgf);
+                    vm.buildMzList(mgf, id);
+                }
+                catch (_a) {
+                }
                 layer.closeAll();
             });
             fileBrowser.createTree("#fileTree", vm.fileTree, vm);
