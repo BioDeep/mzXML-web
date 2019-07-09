@@ -4,23 +4,77 @@
 /// <reference path="../../dist/biodeepMSMS.Viewer.d.ts" />
 /// <reference path="../../../layer.d.ts" />
 $ts(function () {
-    new BioDeep.TICviewer().draw("#TIC");
     // initial spectrum viewer css style
     BioDeep.MSMSViewer.loadStyles();
+    $ts.getText("index.json", function (text) {
+        var indexTree = JSON.parse(text);
+        var viewer = new BioDeep.TICviewer(indexTree);
+        viewer.draw("#TIC");
+    });
 });
+var fileBrowser;
+(function (fileBrowser) {
+    function createTree(display, indexTree, viewer) {
+        var jsTree = buildjsTree(indexTree, new uid());
+        $(display).jstree({
+            "core": {
+                "animation": 0,
+                "check_callback": true,
+                "themes": { "stripes": true },
+                'data': jsTree
+            }
+        });
+        $(display).on('changed.jstree', function (e, data) {
+            var path = data.instance.get_path(data.node, '/');
+            console.log('Selected: ' + path);
+            viewer.draw("#TIC", path);
+        });
+        console.log(indexTree);
+        console.log(jsTree);
+    }
+    fileBrowser.createTree = createTree;
+    function buildjsTree(fileIndex, uid) {
+        var root = {
+            id: uid.nextGuid,
+            text: fileIndex.Label,
+            children: []
+        };
+        for (var name in fileIndex.Childs) {
+            var childIndex = fileIndex.Childs[name];
+            var childTree = buildjsTree(childIndex, uid);
+            root.children.push(childTree);
+        }
+        return root;
+    }
+    var uid = /** @class */ (function () {
+        function uid() {
+            this.guid = 0;
+        }
+        Object.defineProperty(uid.prototype, "nextGuid", {
+            get: function () {
+                return ++this.guid;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return uid;
+    }());
+})(fileBrowser || (fileBrowser = {}));
 var BioDeep;
 (function (BioDeep) {
     var TICviewer = /** @class */ (function () {
-        function TICviewer() {
+        function TICviewer(fileTree) {
             this.chart = new BioDeep.MSMSViewer.TICplot(function (ion) {
                 BioDeep.MSMSViewer.previews("#plot", ion, [800, 500]);
                 $ts("#peaks").display(BioDeep.Views.CreateTableFromMgfIon(ion));
             });
+            this.fileTree = fileTree;
         }
-        TICviewer.prototype.draw = function (id) {
+        TICviewer.prototype.draw = function (id, src) {
+            if (src === void 0) { src = "@mgf"; }
             var vm = this;
             layer.load(5);
-            $ts.getText("@mgf", function (text) {
+            $ts.getText(src, function (text) {
                 var mgf = BioDeep.IO.mgf.Parse(text);
                 var maxInto = mgf.Max(function (m) { return m.intensity; }).intensity;
                 // mgf = mgf.Where(m => (m.intensity / maxInto) >= 0.01);
@@ -28,6 +82,7 @@ var BioDeep;
                 vm.buildMzList(mgf, id);
                 layer.closeAll();
             });
+            fileBrowser.createTree("#fileTree", vm.fileTree, vm);
         };
         TICviewer.prototype.buildMzList = function (mgf, id) {
             var mzGroup = mgf

@@ -2,17 +2,22 @@
 
     export class TICviewer {
 
+        private fileTree: fileBrowser.fileIndexTree;
         private chart = new BioDeep.MSMSViewer.TICplot(ion => {
             BioDeep.MSMSViewer.previews("#plot", ion, [800, 500]);
             $ts("#peaks").display(BioDeep.Views.CreateTableFromMgfIon(ion));
         });
 
-        public draw(id: string) {
+        public constructor(fileTree: fileBrowser.fileIndexTree) {
+            this.fileTree = fileTree;
+        }
+
+        public draw(id: string, src: string = "@mgf") {
             var vm = this;
 
             layer.load(5);
 
-            $ts.getText("@mgf", function (text) {
+            $ts.getText(src, function (text) {
                 let mgf = BioDeep.IO.mgf.Parse(text);
                 let maxInto = mgf.Max(m => m.intensity).intensity;
 
@@ -23,6 +28,8 @@
 
                 layer.closeAll();
             });
+
+            fileBrowser.createTree("#fileTree", vm.fileTree, vm);
         }
 
         private buildMzList(mgf: IEnumerator<IO.mgf>, id: string) {
