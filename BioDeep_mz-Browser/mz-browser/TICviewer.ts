@@ -4,7 +4,7 @@
 
         private fileTree: fileBrowser.fileIndexTree;
         private chart = new BioDeep.MSMSViewer.TICplot(ion => {
-            BioDeep.MSMSViewer.previews("#plot", ion, [800, 500]);
+            BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
             $ts("#peaks").display(BioDeep.Views.CreateTableFromMgfIon(ion));
         });
 

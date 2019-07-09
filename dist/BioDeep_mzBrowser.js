@@ -65,7 +65,7 @@ var BioDeep;
     var TICviewer = /** @class */ (function () {
         function TICviewer(fileTree) {
             this.chart = new BioDeep.MSMSViewer.TICplot(function (ion) {
-                BioDeep.MSMSViewer.previews("#plot", ion, [800, 500]);
+                BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
                 $ts("#peaks").display(BioDeep.Views.CreateTableFromMgfIon(ion));
             });
             this.fileTree = fileTree;
