@@ -84,7 +84,7 @@ var BioDeep;
                 }
                 catch (_a) {
                 }
-                layer.closeAll();
+                setTimeout(layer.closeAll, 2000);
             });
             fileBrowser.createTree("#fileTree", vm.fileTree, vm);
         };
@@ -94,7 +94,9 @@ var BioDeep;
                 .ToDictionary(function (x) { return x.Key.toString(); }, function (x) { return x; });
             var selects = $ts("#mzlist");
             var vm = this;
-            // display all ions
+            // clear all of its previous data
+            // then display all ions
+            selects.clear();
             selects.appendChild($ts("<option>", { value: "rawfile" }).display("Raw File"));
             mzGroup.OrderBy(function (mz) { return parseFloat(mz.key); })
                 .ForEach(function (mz) {

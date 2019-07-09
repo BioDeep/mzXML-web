@@ -30,7 +30,7 @@
 
                 }
 
-                layer.closeAll();
+                setTimeout(layer.closeAll, 2000);
             });
 
             fileBrowser.createTree("#fileTree", vm.fileTree, vm);
@@ -44,7 +44,9 @@
             let selects = $ts("#mzlist");
             let vm = this;
 
-            // display all ions
+            // clear all of its previous data
+            // then display all ions
+            selects.clear();
             selects.appendChild($ts("<option>", { value: "rawfile" }).display("Raw File"));
 
             mzGroup.OrderBy(mz => parseFloat(mz.key))
