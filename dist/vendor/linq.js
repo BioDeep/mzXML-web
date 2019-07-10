@@ -3156,7 +3156,7 @@ var DOM;
         else {
             rows.ForEach(function (r) { return tbody.appendChild(rowHTML(r)); });
         }
-        fields.forEach(function (r) { return thead.appendChild($ts("<th>").display(r.value)); });
+        fields.forEach(function (r) { return thead.appendChild($ts("<th>", { id: r.value }).display(r.value)); });
         return $ts("<table>", attrs)
             .asExtends
             .append(thead)
@@ -3754,7 +3754,11 @@ var Internal;
         // ERROR - "eval" cannot be redeclared in strict mode
         //
         var queryEval = typeOf in handle ? handle[typeOf]() : null;
-        if (type.IsArray) {
+        var isHtmlCollection = (typeOf == "object") && (type.class == "HTMLCollection" || type.class == "NodeListOf");
+        if (isHtmlCollection) {
+            return Internal.Handlers.Shared.HTMLCollection().doEval(any, type, args);
+        }
+        else if (type.IsArray) {
             // 转化为序列集合对象，相当于from函数                
             return queryEval.doEval(any, type, args);
         }

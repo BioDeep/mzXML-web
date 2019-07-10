@@ -63,10 +63,11 @@ var fileBrowser;
 var BioDeep;
 (function (BioDeep) {
     function reorderHandler() {
-        var matrixTable = $ts("#peakMs2-matrix");
-        var tbody = matrixTable.getElementsByTagName("tbody")[0];
+        var tbody = $ts("tbody").ElementAt(0);
+        console.log(tbody);
         var bodyRows = $ts(tbody.getElementsByTagName("tr"));
         var preOrders = { field: "mz", order: 1 };
+        console.log(bodyRows);
         $ts("#mz").display($ts("<a>", {
             href: executeJavaScript,
             onclick: function () {
@@ -82,10 +83,10 @@ var BioDeep;
                     isAsc = false;
                 }
                 if (isAsc) {
-                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td")[0].innerText); });
+                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td").item(0).innerText); });
                 }
                 else {
-                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td")[0].innerText); });
+                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td").item(0).innerText); });
                 }
                 tbody.innerHTML = "";
                 orderRows.ForEach(function (r) { return tbody.appendChild(r); });
@@ -106,10 +107,10 @@ var BioDeep;
                     isAsc = false;
                 }
                 if (isAsc) {
-                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td")[1].innerText); });
+                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td").item(1).innerText); });
                 }
                 else {
-                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td")[1].innerText); });
+                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td").item(1).innerText); });
                 }
                 tbody.innerHTML = "";
                 orderRows.ForEach(function (r) { return tbody.appendChild(r); });

@@ -1,10 +1,11 @@
 ﻿namespace BioDeep {
 
     function reorderHandler() {
-        let matrixTable = $ts("#peakMs2-matrix");
-        let tbody = matrixTable.getElementsByTagName("tbody")[0];
+        let tbody = (<IEnumerator<HTMLElement>><any>$ts("tbody")).ElementAt(0);
+        console.log(tbody);
         let bodyRows = $ts(tbody.getElementsByTagName("tr"));
         let preOrders = { field: "mz", order: 1 };
+        console.log(bodyRows);
 
         $ts("#mz").display($ts("<a>", {
             href: executeJavaScript,
@@ -22,9 +23,9 @@
                 }
 
                 if (isAsc) {
-                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td")[0].innerText));
+                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td").item(0).innerText));
                 } else {
-                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td")[0].innerText));
+                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td").item(0).innerText));
                 }
 
                 tbody.innerHTML = "";
@@ -48,9 +49,9 @@
                 }
 
                 if (isAsc) {
-                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td")[1].innerText));
+                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td").item(1).innerText));
                 } else {
-                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td")[1].innerText));
+                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td").item(1).innerText));
                 }
 
                 tbody.innerHTML = "";
