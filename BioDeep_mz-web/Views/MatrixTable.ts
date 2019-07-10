@@ -7,7 +7,14 @@
     export function CreateTableFromMatrix(matrix: IEnumerator<Models.mzInto>, relative: boolean = true, attrs: Internal.TypeScriptArgument = null): HTMLElement {
         if (relative) {
             let max = matrix.Select(m => m.into).Max(x => x);
-            matrix = matrix.Select(m => new Models.mzInto(m.id, <number>Strings.round(m.mz, 4), <number>Strings.round(m.into / max * 100, 2)));
+            let normalize = function (m: Models.mzInto) {
+                let mz: number = <number>Strings.round(m.mz, 4);
+                let into: number = <number>Strings.round(m.into / max * 100, 2);
+
+                return new Models.mzInto(m.id, mz, into);
+            }
+
+            matrix = matrix.Select(m => normalize(m));
         }
 
         return $ts.evalHTML.table(matrix, null, attrs);

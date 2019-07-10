@@ -275,7 +275,12 @@ var BioDeep;
             if (attrs === void 0) { attrs = null; }
             if (relative) {
                 var max_1 = matrix.Select(function (m) { return m.into; }).Max(function (x) { return x; });
-                matrix = matrix.Select(function (m) { return new BioDeep.Models.mzInto(m.id, Strings.round(m.mz, 4), Strings.round(m.into / max_1 * 100, 2)); });
+                var normalize_1 = function (m) {
+                    var mz = Strings.round(m.mz, 4);
+                    var into = Strings.round(m.into / max_1 * 100, 2);
+                    return new BioDeep.Models.mzInto(m.id, mz, into);
+                };
+                matrix = matrix.Select(function (m) { return normalize_1(m); });
             }
             return $ts.evalHTML.table(matrix, null, attrs);
         }
