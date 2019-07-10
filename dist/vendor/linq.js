@@ -4306,6 +4306,93 @@ var SlideWindow = /** @class */ (function (_super) {
     };
     return SlideWindow;
 }(IEnumerator));
+/**
+ * 序列之中的元素下标的操作方法集合
+*/
+var Which;
+(function (Which) {
+    /**
+     * 查找出所给定的逻辑值集合之中的所有true的下标值
+    */
+    function Is(booleans) {
+        if (Array.isArray(booleans)) {
+            booleans = new IEnumerator(booleans);
+        }
+        return booleans
+            .Select(function (flag, i) {
+            return {
+                flag: flag, index: i
+            };
+        })
+            .Where(function (t) { return t.flag; })
+            .Select(function (t) { return t.index; });
+    }
+    Which.Is = Is;
+    /**
+     * 默认的通用类型的比较器对象
+    */
+    var DefaultCompares = /** @class */ (function () {
+        function DefaultCompares() {
+            /**
+             * 一个用于比较通用类型的数值转换器对象
+            */
+            this.as_numeric = null;
+        }
+        DefaultCompares.prototype.compares = function (a, b) {
+            if (!this.as_numeric) {
+                this.as_numeric = DataExtensions.AsNumeric(a);
+                if (!this.as_numeric) {
+                    this.as_numeric = DataExtensions.AsNumeric(b);
+                }
+            }
+            if (!this.as_numeric) {
+                // a 和 b 都是null或者undefined
+                // 认为这两个空值是相等的
+                // 则this.as_numeric会在下一个循环之中被赋值
+                return 0;
+            }
+            else {
+                return this.as_numeric(a) - this.as_numeric(b);
+            }
+        };
+        DefaultCompares.default = function () {
+            return new DefaultCompares().compares;
+        };
+        return DefaultCompares;
+    }());
+    Which.DefaultCompares = DefaultCompares;
+    /**
+     * 查找出序列之中最大的元素的序列下标编号
+     *
+     * @param x 所给定的数据序列
+     * @param compare 默认是将x序列之中的元素转换为数值进行大小的比较的
+    */
+    function Max(x, compare) {
+        if (compare === void 0) { compare = DefaultCompares.default(); }
+        var xMax = null;
+        var iMax = 0;
+        for (var i = 0; i < x.Count; i++) {
+            if (compare(x.ElementAt(i), xMax) > 0) {
+                // x > xMax
+                xMax = x.ElementAt(i);
+                iMax = i;
+            }
+        }
+        return iMax;
+    }
+    Which.Max = Max;
+    /**
+     * 查找出序列之中最小的元素的序列下标编号
+     *
+     * @param x 所给定的数据序列
+     * @param compare 默认是将x序列之中的元素转换为数值进行大小的比较的
+    */
+    function Min(x, compare) {
+        if (compare === void 0) { compare = DefaultCompares.default(); }
+        return Max(x, function (a, b) { return -compare(a, b); });
+    }
+    Which.Min = Min;
+})(Which || (Which = {}));
 /// <reference path="../Collections/Abstract/Enumerator.ts" />
 /**
  * http://www.rfc-editor.org/rfc/rfc4180.txt
@@ -5351,6 +5438,116 @@ var Framework;
 })(Framework || (Framework = {}));
 var TypeScript;
 (function (TypeScript) {
+    function gc() {
+        return TypeScript.garbageCollect.handler();
+    }
+    TypeScript.gc = gc;
+})(TypeScript || (TypeScript = {}));
+var TypeScript;
+(function (TypeScript) {
+    /**
+     * https://github.com/natewatson999/js-gc
+    */
+    var garbageCollect;
+    (function (garbageCollect) {
+        /**
+         * try to do garbageCollect by invoke this function
+        */
+        garbageCollect.handler = getHandler();
+        function getHandler() {
+            if (typeof require === "function") {
+                try {
+                    require("v8").setFlagsFromString('--expose_gc');
+                    if (global != null) {
+                        if (typeof global.gc == "function") {
+                            return global.gc;
+                        }
+                    }
+                    var vm = require("vm");
+                    if (vm != null) {
+                        if (typeof vm.runInNewContext == "function") {
+                            var k = vm.runInNewContext("gc");
+                            return function () {
+                                k();
+                                return;
+                            };
+                        }
+                    }
+                }
+                catch (e) { }
+            }
+            if (typeof window !== 'undefined') {
+                if (window.CollectGarbage) {
+                    return window.CollectGarbage;
+                }
+                if (window.gc) {
+                    return window.gc;
+                }
+                if (window.opera) {
+                    if (window.opera.collect) {
+                        return window.opera.collect;
+                    }
+                }
+                //if ((<any>window).QueryInterface) {
+                //    return (<any>window).QueryInterface((<any>Components).interfaces.nsIInterfaceRequestor).getInterface((<any>Components).interfaces.nsIDOMWindowUtils).garbageCollect;
+                //}
+            }
+            //if (typeof ProfilerAgent !== 'undefined') {
+            //    if (ProfilerAgent.collectGarbage) {
+            //        return ProfilerAgent.collectGarbage;
+            //    }
+            //}
+            if (typeof global !== 'undefined') {
+                if (global.gc) {
+                    return global.gc;
+                }
+            }
+            //if (typeof Duktape == 'object') {
+            //    if (typeof Duktape.gc) {
+            //        return Duktape.gc;
+            //    }
+            //}
+            //if (typeof Packages !== 'undefined') {
+            //    if (typeof Packages.java !== 'undefined') {
+            //        if (Packages.java.lang) {
+            //            if (Packages.java.lang) {
+            //                if (Packages.java.lang.System) {
+            //                    return Packages.java.lang.System.gc;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //if (typeof java !== 'undefined') {
+            //    if (java.lang) {
+            //        if (java.lang) {
+            //            if (java.lang.System) {
+            //                return java.lang.System.gc;
+            //            }
+            //        }
+            //    }
+            //}
+            //if (typeof Java !== 'undefined') {
+            //    if (java.type) {
+            //        return Java.type('java.lang.System').gc;
+            //    }
+            //}
+            //if (typeof CollectGarbage == "function") {
+            //    return CollectGarbage;
+            //}
+            //if (typeof jerry_gc == "function") {
+            //    return jerry_gc;
+            //}
+            return function () {
+                if (TypeScript.logging.outputEverything) {
+                    console.log("There is no gc handler could be found currently....");
+                }
+            };
+        }
+    })(garbageCollect = TypeScript.garbageCollect || (TypeScript.garbageCollect = {}));
+})(TypeScript || (TypeScript = {}));
+var TypeScript;
+(function (TypeScript) {
     var warningLevel = Modes.development;
     var anyoutputLevel = Modes.debug;
     var errorOnly = Modes.production;
@@ -5613,93 +5810,6 @@ var Router;
     }
     Router.goto = goto;
 })(Router || (Router = {}));
-/**
- * 序列之中的元素下标的操作方法集合
-*/
-var Which;
-(function (Which) {
-    /**
-     * 查找出所给定的逻辑值集合之中的所有true的下标值
-    */
-    function Is(booleans) {
-        if (Array.isArray(booleans)) {
-            booleans = new IEnumerator(booleans);
-        }
-        return booleans
-            .Select(function (flag, i) {
-            return {
-                flag: flag, index: i
-            };
-        })
-            .Where(function (t) { return t.flag; })
-            .Select(function (t) { return t.index; });
-    }
-    Which.Is = Is;
-    /**
-     * 默认的通用类型的比较器对象
-    */
-    var DefaultCompares = /** @class */ (function () {
-        function DefaultCompares() {
-            /**
-             * 一个用于比较通用类型的数值转换器对象
-            */
-            this.as_numeric = null;
-        }
-        DefaultCompares.prototype.compares = function (a, b) {
-            if (!this.as_numeric) {
-                this.as_numeric = DataExtensions.AsNumeric(a);
-                if (!this.as_numeric) {
-                    this.as_numeric = DataExtensions.AsNumeric(b);
-                }
-            }
-            if (!this.as_numeric) {
-                // a 和 b 都是null或者undefined
-                // 认为这两个空值是相等的
-                // 则this.as_numeric会在下一个循环之中被赋值
-                return 0;
-            }
-            else {
-                return this.as_numeric(a) - this.as_numeric(b);
-            }
-        };
-        DefaultCompares.default = function () {
-            return new DefaultCompares().compares;
-        };
-        return DefaultCompares;
-    }());
-    Which.DefaultCompares = DefaultCompares;
-    /**
-     * 查找出序列之中最大的元素的序列下标编号
-     *
-     * @param x 所给定的数据序列
-     * @param compare 默认是将x序列之中的元素转换为数值进行大小的比较的
-    */
-    function Max(x, compare) {
-        if (compare === void 0) { compare = DefaultCompares.default(); }
-        var xMax = null;
-        var iMax = 0;
-        for (var i = 0; i < x.Count; i++) {
-            if (compare(x.ElementAt(i), xMax) > 0) {
-                // x > xMax
-                xMax = x.ElementAt(i);
-                iMax = i;
-            }
-        }
-        return iMax;
-    }
-    Which.Max = Max;
-    /**
-     * 查找出序列之中最小的元素的序列下标编号
-     *
-     * @param x 所给定的数据序列
-     * @param compare 默认是将x序列之中的元素转换为数值进行大小的比较的
-    */
-    function Min(x, compare) {
-        if (compare === void 0) { compare = DefaultCompares.default(); }
-        return Max(x, function (a, b) { return -compare(a, b); });
-    }
-    Which.Min = Min;
-})(Which || (Which = {}));
 var TypeScript;
 (function (TypeScript) {
     /**

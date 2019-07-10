@@ -34,6 +34,8 @@
             var vm = this;
 
             layer.load(5);
+            // https://github.com/natewatson999/js-gc
+            TypeScript.gc();
 
             $ts.getText(src, function (text) {
                 try {

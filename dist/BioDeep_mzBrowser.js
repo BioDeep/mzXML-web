@@ -143,6 +143,8 @@ var BioDeep;
             if (src === void 0) { src = "@mgf"; }
             var vm = this;
             layer.load(5);
+            // https://github.com/natewatson999/js-gc
+            TypeScript.gc();
             $ts.getText(src, function (text) {
                 try {
                     RawFileViewer.doDraw(vm, id, text);

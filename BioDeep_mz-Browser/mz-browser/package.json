@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@types/d3-tip": "^3.5.5",
-    "@types/jstree": "^3.3.37"
+    "@types/jstree": "^3.3.37",
+    "js-gc": "^1.0.1"
   }
 }

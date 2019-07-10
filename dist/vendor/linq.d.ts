@@ -1589,6 +1589,40 @@ declare class SlideWindow<T> extends IEnumerator<T> {
     static Split<T>(src: T[] | IEnumerator<T>, winSize: number, step?: number): IEnumerator<SlideWindow<T>>;
 }
 /**
+ * 序列之中的元素下标的操作方法集合
+*/
+declare namespace Which {
+    /**
+     * 查找出所给定的逻辑值集合之中的所有true的下标值
+    */
+    function Is(booleans: boolean[] | IEnumerator<boolean>): IEnumerator<number>;
+    /**
+     * 默认的通用类型的比较器对象
+    */
+    class DefaultCompares<T> {
+        /**
+         * 一个用于比较通用类型的数值转换器对象
+        */
+        private as_numeric;
+        compares(a: T, b: T): number;
+        static default<T>(): (a: T, b: T) => number;
+    }
+    /**
+     * 查找出序列之中最大的元素的序列下标编号
+     *
+     * @param x 所给定的数据序列
+     * @param compare 默认是将x序列之中的元素转换为数值进行大小的比较的
+    */
+    function Max<T>(x: IEnumerator<T>, compare?: (a: T, b: T) => number): number;
+    /**
+     * 查找出序列之中最小的元素的序列下标编号
+     *
+     * @param x 所给定的数据序列
+     * @param compare 默认是将x序列之中的元素转换为数值进行大小的比较的
+    */
+    function Min<T>(x: IEnumerator<T>, compare?: (a: T, b: T) => number): number;
+}
+/**
  * http://www.rfc-editor.org/rfc/rfc4180.txt
 */
 declare namespace csv {
@@ -2041,6 +2075,20 @@ declare namespace Framework.Extensions {
     function extend<V>(from: V, to?: V): V;
 }
 declare namespace TypeScript {
+    function gc(): {};
+}
+declare namespace TypeScript {
+    /**
+     * https://github.com/natewatson999/js-gc
+    */
+    module garbageCollect {
+        /**
+         * try to do garbageCollect by invoke this function
+        */
+        const handler: Delegate.Func<any>;
+    }
+}
+declare namespace TypeScript {
     /**
      * Console logging helper
     */
@@ -2099,40 +2147,6 @@ declare module Router {
      * 因为link之中可能存在查询参数，所以必须要在web服务器上面测试
     */
     function goto(link: string, appId: string, hashKey: (link: string) => string, stack?: Window): void;
-}
-/**
- * 序列之中的元素下标的操作方法集合
-*/
-declare namespace Which {
-    /**
-     * 查找出所给定的逻辑值集合之中的所有true的下标值
-    */
-    function Is(booleans: boolean[] | IEnumerator<boolean>): IEnumerator<number>;
-    /**
-     * 默认的通用类型的比较器对象
-    */
-    class DefaultCompares<T> {
-        /**
-         * 一个用于比较通用类型的数值转换器对象
-        */
-        private as_numeric;
-        compares(a: T, b: T): number;
-        static default<T>(): (a: T, b: T) => number;
-    }
-    /**
-     * 查找出序列之中最大的元素的序列下标编号
-     *
-     * @param x 所给定的数据序列
-     * @param compare 默认是将x序列之中的元素转换为数值进行大小的比较的
-    */
-    function Max<T>(x: IEnumerator<T>, compare?: (a: T, b: T) => number): number;
-    /**
-     * 查找出序列之中最小的元素的序列下标编号
-     *
-     * @param x 所给定的数据序列
-     * @param compare 默认是将x序列之中的元素转换为数值进行大小的比较的
-    */
-    function Min<T>(x: IEnumerator<T>, compare?: (a: T, b: T) => number): number;
 }
 declare namespace TypeScript {
     /**
