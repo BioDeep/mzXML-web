@@ -237,8 +237,9 @@ var BioDeep;
         */
         var TICplot = /** @class */ (function (_super) {
             __extends(TICplot, _super);
-            function TICplot(onClick) {
-                var _this = _super.call(this, [750, 500], new Canvas.Margin(20, 20, 30, 100)) || this;
+            function TICplot(size, onClick) {
+                if (size === void 0) { size = [750, 500]; }
+                var _this = _super.call(this, size, new Canvas.Margin(20, 20, 30, 100)) || this;
                 _this.onClick = onClick;
                 return _this;
                 // this.tip = BioDeep.MSMSViewer.mzrtTip();

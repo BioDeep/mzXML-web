@@ -68,6 +68,20 @@ var BioDeep;
         var bodyRows = $ts(tbody.getElementsByTagName("tr"));
         var preOrders = { field: "mz", order: 1 };
         console.log(bodyRows);
+        var table = $ts("#peakMs2-matrix");
+        var headers = $ts(table.getElementsByTagName("thead").item(0).getElementsByTagName("th"));
+        var mzIndex;
+        var intoIndex;
+        headers.ForEach(function (r, i) {
+            if (r.innerText == "mz") {
+                mzIndex = i;
+            }
+        });
+        headers.ForEach(function (r, i) {
+            if (r.innerText == "into") {
+                intoIndex = i;
+            }
+        });
         $ts("#mz").display($ts("<a>", {
             href: executeJavaScript,
             onclick: function () {
@@ -83,10 +97,10 @@ var BioDeep;
                     isAsc = false;
                 }
                 if (isAsc) {
-                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td").item(0).innerText); });
+                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td").item(mzIndex).innerText); });
                 }
                 else {
-                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td").item(0).innerText); });
+                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td").item(mzIndex).innerText); });
                 }
                 tbody.innerHTML = "";
                 orderRows.ForEach(function (r) { return tbody.appendChild(r); });
@@ -107,20 +121,20 @@ var BioDeep;
                     isAsc = false;
                 }
                 if (isAsc) {
-                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td").item(1).innerText); });
+                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td").item(intoIndex).innerText); });
                 }
                 else {
-                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td").item(1).innerText); });
+                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td").item(intoIndex).innerText); });
                 }
                 tbody.innerHTML = "";
                 orderRows.ForEach(function (r) { return tbody.appendChild(r); });
             }
-        }).display("mz"));
+        }).display("into"));
     }
     var TICviewer = /** @class */ (function () {
         function TICviewer(fileTree) {
-            this.chart = new BioDeep.MSMSViewer.TICplot(function (ion) {
-                var matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, {
+            this.chart = new BioDeep.MSMSViewer.TICplot([800, 350], function (ion) {
+                var matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
                     id: "peakMs2-matrix"
                 });
                 BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
@@ -135,11 +149,17 @@ var BioDeep;
             layer.load(5);
             $ts.getText(src, function (text) {
                 try {
-                    var mgf = BioDeep.IO.mgf.Parse(text);
-                    var maxInto = mgf.Max(function (m) { return m.intensity; }).intensity;
-                    // mgf = mgf.Where(m => (m.intensity / maxInto) >= 0.01);
-                    vm.chart.plot(id, mgf);
-                    vm.buildMzList(mgf, id);
+                    var mgf_1 = BioDeep.IO.mgf.Parse(text);
+                    var maxInto = mgf_1.Max(function (m) { return m.intensity; }).intensity;
+                    var doSIM = $ts("#do_SIM");
+                    doSIM.onclick = function () {
+                        var min = parseFloat($ts("#sim-min").CType().value);
+                        var max = parseFloat($ts("#sim-max").CType().value);
+                        var SIM = mgf_1.Where(function (ion) { return ion.precursor_mass >= min && ion.precursor_mass <= max; });
+                        vm.chart.plot("#sim-TIC", SIM);
+                    };
+                    vm.chart.plot(id, mgf_1);
+                    vm.buildMzList(mgf_1, id);
                 }
                 catch (_a) {
                 }

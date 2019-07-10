@@ -49,7 +49,7 @@ declare namespace BioDeep.MSMSViewer {
         readonly y: d3.scale.Linear<number, number>;
         readonly xAxis: d3.svg.Axis;
         readonly yAxis: d3.svg.Axis;
-        constructor(onClick: (ion: IO.mgf) => void);
+        constructor(size: number[], onClick: (ion: IO.mgf) => void);
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>): void;
         private bindEvents;
         private static uniqueId;

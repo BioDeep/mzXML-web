@@ -7,6 +7,23 @@
         let preOrders = { field: "mz", order: 1 };
         console.log(bodyRows);
 
+        let table = $ts("#peakMs2-matrix");
+        let headers = $ts(table.getElementsByTagName("thead").item(0).getElementsByTagName("th"));
+
+        let mzIndex: number;
+        let intoIndex: number;
+
+        headers.ForEach(function (r, i) {
+            if (r.innerText == "mz") {
+                mzIndex = i;
+            }
+        });
+        headers.ForEach(function (r, i) {
+            if (r.innerText == "into") {
+                intoIndex = i;
+            }
+        })
+
         $ts("#mz").display($ts("<a>", {
             href: executeJavaScript,
             onclick: function () {
@@ -23,9 +40,9 @@
                 }
 
                 if (isAsc) {
-                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td").item(0).innerText));
+                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td").item(mzIndex).innerText));
                 } else {
-                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td").item(0).innerText));
+                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td").item(mzIndex).innerText));
                 }
 
                 tbody.innerHTML = "";
@@ -49,22 +66,22 @@
                 }
 
                 if (isAsc) {
-                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td").item(1).innerText));
+                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td").item(intoIndex).innerText));
                 } else {
-                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td").item(1).innerText));
+                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td").item(intoIndex).innerText));
                 }
 
                 tbody.innerHTML = "";
                 orderRows.ForEach(r => tbody.appendChild(r));
             }
-        }).display("mz"));
+        }).display("into"));
     }
 
     export class TICviewer {
 
         private fileTree: fileBrowser.fileIndexTree;
-        private chart = new BioDeep.MSMSViewer.TICplot(ion => {
-            let matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, {
+        private chart = new BioDeep.MSMSViewer.TICplot([800, 350], ion => {
+            let matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
                 id: "peakMs2-matrix"
             });
 
@@ -87,8 +104,15 @@
                 try {
                     let mgf = BioDeep.IO.mgf.Parse(text);
                     let maxInto = mgf.Max(m => m.intensity).intensity;
+                    let doSIM = $ts("#do_SIM");
 
-                    // mgf = mgf.Where(m => (m.intensity / maxInto) >= 0.01);
+                    doSIM.onclick = function () {
+                        var min = parseFloat($ts("#sim-min").CType<HTMLInputElement>().value);
+                        var max = parseFloat($ts("#sim-max").CType<HTMLInputElement>().value);
+                        var SIM = mgf.Where(ion => ion.precursor_mass >= min && ion.precursor_mass <= max);
+
+                        vm.chart.plot("#sim-TIC", SIM);
+                    }
 
                     vm.chart.plot(id, mgf);
                     vm.buildMzList(mgf, id);

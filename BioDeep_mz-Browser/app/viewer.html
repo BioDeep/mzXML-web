@@ -33,7 +33,7 @@
 
 <div style="float: left;margin-left: 20">
 
-<div id="TIC" style="float: left;">
+<div style="float: left;">
     <h2>TIC plot</h2>
 
     <div>Select a precursor m/z: </div>
@@ -51,12 +51,25 @@
 	<li>3. TIC plot is show for your entire <strong>Raw File</strong> by default.</li>
 	<li>4. Select precursor m/z for view TIC plot of the ions under specific m/z</li>
 	<li>5. A <strong>red dot</strong> on TIC plot is a <code>[mz,rt]</code> ion, click on it to view corresponding ms2 spectrum.</li>
+	<li>6. Set m/z min and max to draw selective ions TIC plot.</li>
 	</ul>
 	</p>
 	</div>
+	
+	<div id="TIC"></div>
+	
+	<hr />
+	
+	<div>
+	Show TIC by selective m/z range: 
+	<input type="text" id="sim-min"></input> -
+	<input type="text" id="sim-max"></input> <a href="javascript:void(0);" id="do_SIM">Show SIM TIC</a>
+	
+	<div id="sim-TIC"></div>
+	</div>
 </div>
 
-<div style="float: right; width: 1024">
+<div style="float: right; width: 1024px; margin-left: 20px;">
 
 <h2>Ms2 Spectrum Plot</h2>
 

@@ -264,13 +264,19 @@ var BioDeep;
 (function (BioDeep) {
     var Views;
     (function (Views) {
-        function CreateTableFromMgfIon(ion, attrs) {
+        function CreateTableFromMgfIon(ion, relative, attrs) {
+            if (relative === void 0) { relative = true; }
             if (attrs === void 0) { attrs = null; }
-            return CreateTableFromMatrix(ion, attrs);
+            return CreateTableFromMatrix(ion, relative, attrs);
         }
         Views.CreateTableFromMgfIon = CreateTableFromMgfIon;
-        function CreateTableFromMatrix(matrix, attrs) {
+        function CreateTableFromMatrix(matrix, relative, attrs) {
+            if (relative === void 0) { relative = true; }
             if (attrs === void 0) { attrs = null; }
+            if (relative) {
+                var max_1 = matrix.Select(function (m) { return m.into; }).Max(function (x) { return x; });
+                matrix = matrix.Select(function (m) { return new BioDeep.Models.mzInto(m.id, Strings.round(m.mz, 4), Strings.round(m.into / max_1 * 100, 2)); });
+            }
             return $ts.evalHTML.table(matrix, null, attrs);
         }
         Views.CreateTableFromMatrix = CreateTableFromMatrix;

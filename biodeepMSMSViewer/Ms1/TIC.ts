@@ -45,8 +45,8 @@
                 .tickFormat(d3.format(".1e"));
         }
 
-        public constructor(public onClick: (ion: IO.mgf) => void) {
-            super([750, 500], new Canvas.Margin(20, 20, 30, 100));
+        public constructor(size: number[] = [750, 500], public onClick: (ion: IO.mgf) => void) {
+            super(size, new Canvas.Margin(20, 20, 30, 100));
 
             // this.tip = BioDeep.MSMSViewer.mzrtTip();
         }
@@ -86,7 +86,7 @@
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .attr("viewBox", `0 0 ${this.width} ${this.height}`)
-                // .call(<any>this.tip);
+            // .call(<any>this.tip);
 
             svg.append("path")
                 .datum(this.data)
@@ -117,8 +117,8 @@
                 .attr("cx", d => x(d.rt))
                 .attr("cy", d => y(d.intensity))
                 .attr("r", 3)
-                // .on('mouseover', this.tip.show)
-                // .on('mouseout', this.tip.hide);
+            // .on('mouseover', this.tip.show)
+            // .on('mouseout', this.tip.hide);
 
             return svg.node();
         }
