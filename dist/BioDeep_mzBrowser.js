@@ -128,6 +128,7 @@ var BioDeep;
                 $ts("#peaks").display(matrixTable);
                 BioDeep.reorderHandler();
             });
+            this.spectrums = new BioDeep.MSMSViewer.Spectrum([800, 350]);
             this.fileTree = fileTree;
         }
         TICviewer.prototype.draw = function (id, src) {
@@ -153,6 +154,7 @@ var BioDeep;
                 var max = parseFloat($ts("#sim-max").CType().value);
                 var SIM = mgf.Where(function (ion) { return ion.precursor_mass >= min && ion.precursor_mass <= max; });
                 vm.chart.plot("#sim-TIC", SIM);
+                vm.spectrums.renderChartFromMgf("#sim-spectrum", SIM, 1 + 2);
             };
             vm.chart.plot(id, mgf);
             vm.buildMzList(mgf, id);

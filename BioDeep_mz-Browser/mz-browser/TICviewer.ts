@@ -13,6 +13,7 @@
             $ts("#peaks").display(matrixTable);
             reorderHandler();
         });
+        private spectrums = new BioDeep.MSMSViewer.Spectrum([800, 350]);
 
         public constructor(fileTree: fileBrowser.fileIndexTree) {
             this.fileTree = fileTree;
@@ -47,6 +48,7 @@
                 var SIM = mgf.Where(ion => ion.precursor_mass >= min && ion.precursor_mass <= max);
 
                 vm.chart.plot("#sim-TIC", SIM);
+                vm.spectrums.renderChartFromMgf("#sim-spectrum", SIM, 1 + 2);
             }
 
             vm.chart.plot(id, mgf);

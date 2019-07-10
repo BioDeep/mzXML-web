@@ -18,6 +18,7 @@ declare namespace BioDeep {
     class TICviewer {
         private fileTree;
         private chart;
+        private spectrums;
         constructor(fileTree: fileBrowser.fileIndexTree);
         draw(id: string, src?: string): void;
         private static doDraw;
