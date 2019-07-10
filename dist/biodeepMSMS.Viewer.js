@@ -300,9 +300,18 @@ var BioDeep;
                     .attr('y', function (d) { return y(d.into); })
                     .attr('width', 1)
                     .attr('height', function (d, i) {
-                    return height - padding.top - padding.bottom - y(d.into);
+                    return height - y(d.into);
                 })
                     .attr('fill', "black");
+                svg.selectAll(".text")
+                    .data(ions.ToArray(false))
+                    .enter()
+                    .append('text')
+                    .attr('class', 'text')
+                    .attr('x', function (d) { return x(d.mz); })
+                    .attr('y', function (d) { return y(d.into); })
+                    .attr('fill', "black")
+                    .text(function (d) { return Strings.round(d.mz, 4).toString(); });
             };
             return Spectrum;
         }(SvgChart));

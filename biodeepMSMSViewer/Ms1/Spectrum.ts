@@ -83,9 +83,19 @@
                 .attr('y', d => y(d.into))
                 .attr('width', 1)
                 .attr('height', function (d, i) {
-                    return height - padding.top - padding.bottom - y(d.into);
+                    return height - y(d.into);
                 })
                 .attr('fill', "black");
+
+            svg.selectAll(".text")
+                .data(ions.ToArray(false))
+                .enter()
+                .append('text')
+                .attr('class', 'text')
+                .attr('x', d => x(d.mz))
+                .attr('y', d => y(d.into))
+                .attr('fill', "black")
+                .text(d => Strings.round(d.mz, 4).toString());
         }
     }
 }
