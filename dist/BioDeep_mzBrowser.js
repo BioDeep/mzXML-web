@@ -130,9 +130,12 @@ var BioDeep;
         }
         RawFileViewer.doSpectrumRender = function (ion) {
             var matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
-                id: "peakMs2-matrix"
+                id: "peakMs2-matrix",
+                style: "width: 100%;"
             });
             BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
+            matrixTable.style.width = "50%";
+            matrixTable.style.textAlign = "left";
             $ts("#peaks").display(matrixTable);
             BioDeep.reorderHandler();
         };

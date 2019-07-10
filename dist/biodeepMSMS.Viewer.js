@@ -295,9 +295,9 @@ var BioDeep;
                 // 为了减少内存占用
                 // 在这里只会绘制出into大于5%的碎片
                 // 请注意，低丰度碎片的删除应该在计算坐标轴缩放之后
-                ions = ions.Where(function (i) { return (i.into / maxInto) >= 0.01; });
+                var simpleIons = ions.Where(function (i) { return (i.into / maxInto) >= 0.01; });
                 svg.selectAll('.bar')
-                    .data(ions.ToArray(false))
+                    .data(simpleIons.ToArray(false))
                     .enter()
                     .append('rect')
                     .attr('class', 'bar')
@@ -309,7 +309,7 @@ var BioDeep;
                 })
                     .attr('fill', "black");
                 svg.selectAll(".text")
-                    .data(ions.ToArray(false))
+                    .data(simpleIons.ToArray(false))
                     .enter()
                     .append('text')
                     .attr('class', 'text')
@@ -317,7 +317,7 @@ var BioDeep;
                     .attr('y', function (d) { return y(d.into); })
                     .attr('fill', "black")
                     .text(function (d) {
-                    if (d.into / maxInto >= 0.1) {
+                    if (d.into / maxInto >= 0.9) {
                         return Strings.round(d.mz, 4).toString();
                     }
                     else {
