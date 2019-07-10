@@ -137,20 +137,22 @@ var BioDeep;
             __extends(mgf, _super);
             function mgf(meta, matrix) {
                 var _this = _super.call(this, matrix) || this;
-                _this.charge = parseFloat(meta["charge"]);
-                _this.rt = parseFloat(meta["rt"]);
-                _this.title = meta["title"];
-                _this.precursor_mass = parseFloat(meta["precursor_mass"]);
-                if ("intensity" in meta) {
-                    _this.intensity = parseFloat(meta["intensity"]);
-                }
-                else {
-                    var mass = meta["precursor_mass"].split(/\s+/g);
-                    if (mass.length > 1) {
-                        _this.intensity = parseFloat(mass[1]);
+                if (!isNullOrUndefined(meta)) {
+                    _this.charge = parseFloat(meta["charge"]);
+                    _this.rt = parseFloat(meta["rt"]);
+                    _this.title = meta["title"];
+                    _this.precursor_mass = parseFloat(meta["precursor_mass"]);
+                    if ("intensity" in meta) {
+                        _this.intensity = parseFloat(meta["intensity"]);
                     }
                     else {
-                        _this.intensity = 0;
+                        var mass = meta["precursor_mass"].split(/\s+/g);
+                        if (mass.length > 1) {
+                            _this.intensity = parseFloat(mass[1]);
+                        }
+                        else {
+                            _this.intensity = 0;
+                        }
                     }
                 }
                 return _this;
@@ -168,6 +170,15 @@ var BioDeep;
                 enumerable: true,
                 configurable: true
             });
+            mgf.Clone = function (ion) {
+                var copy = new mgf(null, ion.ToArray(true));
+                copy.precursor_mass = ion.precursor_mass;
+                copy.intensity = ion.intensity;
+                copy.charge = ion.charge;
+                copy.rt = ion.rt;
+                copy.title = ion.title;
+                return copy;
+            };
             mgf.Parse = function (text) {
                 return From(Strings.lineTokens(text))
                     .ChunkWith(function (line) {

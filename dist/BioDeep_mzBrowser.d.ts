@@ -4,7 +4,7 @@
 /// <reference path="biodeepMSMS.Viewer.d.ts" />
 /// <reference path="../../layer.d.ts" />
 declare module fileBrowser {
-    function createTree(display: string, indexTree: fileIndexTree, viewer: BioDeep.TICviewer): void;
+    function createTree(display: string, indexTree: fileIndexTree, viewer: BioDeep.RawFileViewer): void;
     interface fileIndexTree {
         ID: number;
         Label: string;
@@ -15,11 +15,12 @@ declare namespace BioDeep {
     function reorderHandler(): void;
 }
 declare namespace BioDeep {
-    class TICviewer {
+    class RawFileViewer {
         private fileTree;
         private chart;
         private spectrums;
         constructor(fileTree: fileBrowser.fileIndexTree);
+        private doSpectrumRender;
         draw(id: string, src?: string): void;
         private static doDraw;
         private buildMzList;

@@ -55,6 +55,7 @@ declare namespace BioDeep.IO {
         title: string;
         readonly ionPeak: Models.IonPeak;
         constructor(meta: object, matrix: BioDeep.Models.mzInto[]);
+        static Clone(ion: mgf): mgf;
         static Parse(text: string): IEnumerator<mgf>;
         static readonly fieldMaps: Dictionary<string>;
         static IonParse(data: string[]): mgf;

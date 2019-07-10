@@ -1,6 +1,6 @@
 ﻿module fileBrowser {
 
-    export function createTree(display: string, indexTree: fileIndexTree, viewer: BioDeep.TICviewer) {
+    export function createTree(display: string, indexTree: fileIndexTree, viewer: BioDeep.RawFileViewer) {
         let jsTree = buildjsTree(indexTree, new uid());
 
         $(display).jstree({

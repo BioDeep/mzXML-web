@@ -10,7 +10,7 @@ $ts(function () {
 
     $ts.getText("index.json", function (text) {
         let indexTree = JSON.parse(text);
-        let viewer = new BioDeep.TICviewer(indexTree); 
+        let viewer = new BioDeep.RawFileViewer(indexTree); 
 
         viewer.draw("#TIC");          
     });    

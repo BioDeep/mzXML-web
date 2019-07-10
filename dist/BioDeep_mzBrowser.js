@@ -8,7 +8,7 @@ $ts(function () {
     BioDeep.MSMSViewer.loadStyles();
     $ts.getText("index.json", function (text) {
         var indexTree = JSON.parse(text);
-        var viewer = new BioDeep.TICviewer(indexTree);
+        var viewer = new BioDeep.RawFileViewer(indexTree);
         viewer.draw("#TIC");
     });
 });
@@ -118,26 +118,28 @@ var BioDeep;
 })(BioDeep || (BioDeep = {}));
 var BioDeep;
 (function (BioDeep) {
-    var TICviewer = /** @class */ (function () {
-        function TICviewer(fileTree) {
+    var RawFileViewer = /** @class */ (function () {
+        function RawFileViewer(fileTree) {
             this.chart = new BioDeep.MSMSViewer.TICplot([800, 350], function (ion) {
-                var matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
-                    id: "peakMs2-matrix"
-                });
-                BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
-                $ts("#peaks").display(matrixTable);
-                BioDeep.reorderHandler();
             });
             this.spectrums = new BioDeep.MSMSViewer.Spectrum([800, 350]);
             this.fileTree = fileTree;
         }
-        TICviewer.prototype.draw = function (id, src) {
+        RawFileViewer.prototype.doSpectrumRender = function (ion) {
+            var matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
+                id: "peakMs2-matrix"
+            });
+            BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
+            $ts("#peaks").display(matrixTable);
+            BioDeep.reorderHandler();
+        };
+        RawFileViewer.prototype.draw = function (id, src) {
             if (src === void 0) { src = "@mgf"; }
             var vm = this;
             layer.load(5);
             $ts.getText(src, function (text) {
                 try {
-                    TICviewer.doDraw(vm, id, text);
+                    RawFileViewer.doDraw(vm, id, text);
                 }
                 catch (_a) {
                 }
@@ -145,7 +147,7 @@ var BioDeep;
             });
             fileBrowser.createTree("#fileTree", vm.fileTree, vm);
         };
-        TICviewer.doDraw = function (vm, id, text) {
+        RawFileViewer.doDraw = function (vm, id, text) {
             var mgf = BioDeep.IO.mgf.Parse(text);
             var maxInto = mgf.Max(function (m) { return m.intensity; }).intensity;
             var doSIM = $ts("#do_SIM");
@@ -159,9 +161,9 @@ var BioDeep;
             vm.chart.plot(id, mgf);
             vm.buildMzList(mgf, id);
         };
-        TICviewer.prototype.buildMzList = function (mgf, id) {
+        RawFileViewer.prototype.buildMzList = function (mgf, id) {
             var mzGroup = mgf
-                .GroupBy(function (i) { return i.precursor_mass; }, TICviewer.mzTree)
+                .GroupBy(function (i) { return i.precursor_mass; }, RawFileViewer.mzTree)
                 .ToDictionary(function (x) { return x.Key.toString(); }, function (x) { return x; });
             var selects = $ts("#mzlist");
             var vm = this;
@@ -188,7 +190,7 @@ var BioDeep;
                 vm.chart.plot(id, part);
             };
         };
-        TICviewer.mzTree = function (m1, m2) {
+        RawFileViewer.mzTree = function (m1, m2) {
             if (Math.abs(m1 - m2) <= 0.1) {
                 return 0;
             }
@@ -196,8 +198,8 @@ var BioDeep;
                 return m1 > m2 ? 1 : -1;
             }
         };
-        return TICviewer;
+        return RawFileViewer;
     }());
-    BioDeep.TICviewer = TICviewer;
+    BioDeep.RawFileViewer = RawFileViewer;
 })(BioDeep || (BioDeep = {}));
 //# sourceMappingURL=BioDeep_mzBrowser.js.map

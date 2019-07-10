@@ -1,9 +1,18 @@
 ﻿namespace BioDeep {
 
-    export class TICviewer {
+    export class RawFileViewer {
 
         private fileTree: fileBrowser.fileIndexTree;
         private chart = new BioDeep.MSMSViewer.TICplot([800, 350], ion => {
+            
+        });
+        private spectrums = new BioDeep.MSMSViewer.Spectrum([800, 350]);
+
+        public constructor(fileTree: fileBrowser.fileIndexTree) {
+            this.fileTree = fileTree;
+        }
+
+        private doSpectrumRender(ion: IO.mgf) {
             let matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
                 id: "peakMs2-matrix"
             });
@@ -12,11 +21,6 @@
 
             $ts("#peaks").display(matrixTable);
             reorderHandler();
-        });
-        private spectrums = new BioDeep.MSMSViewer.Spectrum([800, 350]);
-
-        public constructor(fileTree: fileBrowser.fileIndexTree) {
-            this.fileTree = fileTree;
         }
 
         public draw(id: string, src: string = "@mgf") {
@@ -26,7 +30,7 @@
 
             $ts.getText(src, function (text) {
                 try {
-                    TICviewer.doDraw(vm, id, text);
+                    RawFileViewer.doDraw(vm, id, text);
                 } catch {
 
                 }
@@ -37,7 +41,7 @@
             fileBrowser.createTree("#fileTree", vm.fileTree, vm);
         }
 
-        private static doDraw(vm: TICviewer, id: string, text: string) {
+        private static doDraw(vm: RawFileViewer, id: string, text: string) {
             let mgf = BioDeep.IO.mgf.Parse(text);
             let maxInto = mgf.Max(m => m.intensity).intensity;
             let doSIM = $ts("#do_SIM");
@@ -57,7 +61,7 @@
 
         private buildMzList(mgf: IEnumerator<IO.mgf>, id: string) {
             let mzGroup = mgf
-                .GroupBy(i => i.precursor_mass, TICviewer.mzTree)
+                .GroupBy(i => i.precursor_mass, RawFileViewer.mzTree)
                 .ToDictionary(x => x.Key.toString(), x => <IEnumerator<IO.mgf>>x);
 
             let selects = $ts("#mzlist");

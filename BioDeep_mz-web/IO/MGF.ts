@@ -46,22 +46,36 @@ namespace BioDeep.IO {
         public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
             super(matrix);
 
-            this.charge = parseFloat(meta["charge"]);
-            this.rt = parseFloat(meta["rt"]);
-            this.title = meta["title"];
-            this.precursor_mass = parseFloat(meta["precursor_mass"]);
+            if (!isNullOrUndefined(meta)) {
+                this.charge = parseFloat(meta["charge"]);
+                this.rt = parseFloat(meta["rt"]);
+                this.title = meta["title"];
+                this.precursor_mass = parseFloat(meta["precursor_mass"]);
 
-            if ("intensity" in meta) {
-                this.intensity = parseFloat(meta["intensity"]);
-            } else {
-                var mass = (<string>meta["precursor_mass"]).split(/\s+/g);
-
-                if (mass.length > 1) {
-                    this.intensity = parseFloat(mass[1]);
+                if ("intensity" in meta) {
+                    this.intensity = parseFloat(meta["intensity"]);
                 } else {
-                    this.intensity = 0;
+                    var mass = (<string>meta["precursor_mass"]).split(/\s+/g);
+
+                    if (mass.length > 1) {
+                        this.intensity = parseFloat(mass[1]);
+                    } else {
+                        this.intensity = 0;
+                    }
                 }
             }
+        }
+
+        public static Clone(ion: mgf): mgf {
+            let copy: mgf = new mgf(null, ion.ToArray(true));
+
+            copy.precursor_mass = ion.precursor_mass;
+            copy.intensity = ion.intensity;
+            copy.charge = ion.charge;
+            copy.rt = ion.rt;
+            copy.title = ion.title;
+
+            return copy;
         }
 
         public static Parse(text: string): IEnumerator<mgf> {

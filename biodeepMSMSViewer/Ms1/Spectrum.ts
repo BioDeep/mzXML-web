@@ -73,6 +73,12 @@
             let x = this.x(ions);
             let y = this.y(ions);
             let height = this.height;
+            let maxInto = ions.Select(m => m.into).Max();
+
+            // 为了减少内存占用
+            // 在这里只会绘制出into大于5%的碎片
+            // 请注意，低丰度碎片的删除应该在计算坐标轴缩放之后
+            ions = ions.Where(i => (i.into / maxInto) >= 0.01);
 
             svg.selectAll('.bar')
                 .data(ions.ToArray(false))
@@ -92,10 +98,16 @@
                 .enter()
                 .append('text')
                 .attr('class', 'text')
-                .attr('x', d => x(d.mz))
+                .attr('x', d => x(d.mz) - 10)
                 .attr('y', d => y(d.into))
                 .attr('fill', "black")
-                .text(d => Strings.round(d.mz, 4).toString());
+                .text(function (d) {
+                    if (d.into / maxInto >= 0.1) {
+                        return Strings.round(d.mz, 4).toString();
+                    } else {
+                        return null;
+                    }
+                });
         }
     }
 }
