@@ -4,7 +4,10 @@
 
         private fileTree: fileBrowser.fileIndexTree;
         private chart = new BioDeep.MSMSViewer.TICplot([800, 350], ion => {
-            
+            let maxInto = ion.Select(m => m.into).Max();
+            let simple = ion.Where(m => (m.into / maxInto) >= 0.05).ToArray(false);
+
+            RawFileViewer.doSpectrumRender(new IO.mgf(ion, simple));
         });
         private spectrums = new BioDeep.MSMSViewer.Spectrum([800, 350]);
 
@@ -12,7 +15,7 @@
             this.fileTree = fileTree;
         }
 
-        private doSpectrumRender(ion: IO.mgf) {
+        private static doSpectrumRender(ion: IO.mgf) {
             let matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
                 id: "peakMs2-matrix"
             });

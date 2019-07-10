@@ -54,6 +54,9 @@ declare namespace BioDeep.IO {
         */
         title: string;
         readonly ionPeak: Models.IonPeak;
+        /**
+         * @param meta 可以在进行复制的时候，直接传递其自身进来，只需要保持属性名称一致即可
+        */
         constructor(meta: object, matrix: BioDeep.Models.mzInto[]);
         static Clone(ion: mgf): mgf;
         static Parse(text: string): IEnumerator<mgf>;

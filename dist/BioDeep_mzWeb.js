@@ -135,6 +135,9 @@ var BioDeep;
         */
         var mgf = /** @class */ (function (_super) {
             __extends(mgf, _super);
+            /**
+             * @param meta 可以在进行复制的时候，直接传递其自身进来，只需要保持属性名称一致即可
+            */
             function mgf(meta, matrix) {
                 var _this = _super.call(this, matrix) || this;
                 if (!isNullOrUndefined(meta)) {

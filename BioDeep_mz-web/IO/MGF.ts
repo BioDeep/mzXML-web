@@ -43,6 +43,9 @@ namespace BioDeep.IO {
             };
         }
 
+        /**
+         * @param meta 可以在进行复制的时候，直接传递其自身进来，只需要保持属性名称一致即可
+        */
         public constructor(meta: object, matrix: BioDeep.Models.mzInto[]) {
             super(matrix);
 

@@ -121,11 +121,14 @@ var BioDeep;
     var RawFileViewer = /** @class */ (function () {
         function RawFileViewer(fileTree) {
             this.chart = new BioDeep.MSMSViewer.TICplot([800, 350], function (ion) {
+                var maxInto = ion.Select(function (m) { return m.into; }).Max();
+                var simple = ion.Where(function (m) { return (m.into / maxInto) >= 0.05; }).ToArray(false);
+                RawFileViewer.doSpectrumRender(new BioDeep.IO.mgf(ion, simple));
             });
             this.spectrums = new BioDeep.MSMSViewer.Spectrum([800, 350]);
             this.fileTree = fileTree;
         }
-        RawFileViewer.prototype.doSpectrumRender = function (ion) {
+        RawFileViewer.doSpectrumRender = function (ion) {
             var matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
                 id: "peakMs2-matrix"
             });
