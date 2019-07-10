@@ -1,11 +1,76 @@
 ﻿namespace BioDeep {
 
+    function reorderHandler() {
+        let matrixTable = $ts("#peakMs2-matrix");
+        let tbody = matrixTable.getElementsByTagName("tbody")[0];
+        let bodyRows = $ts(tbody.getElementsByTagName("tr"));
+        let preOrders = { field: "mz", order: 1 };
+
+        $ts("#mz").display($ts("<a>", {
+            href: executeJavaScript,
+            onclick: function () {
+                let isAsc: boolean;
+                let orderRows: IEnumerator<HTMLTableRowElement>;
+
+                if (preOrders.field == "mz") {
+                    isAsc = preOrders.order == 1;
+                    preOrders.order = preOrders.order == 1 ? 0 : 1;
+                } else {
+                    preOrders.field = "mz";
+                    preOrders.order = 1;
+                    isAsc = false;
+                }
+
+                if (isAsc) {
+                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td")[0].innerText));
+                } else {
+                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td")[0].innerText));
+                }
+
+                tbody.innerHTML = "";
+                orderRows.ForEach(r => tbody.appendChild(r));
+            }
+        }).display("mz"));
+
+        $ts("#into").display($ts("<a>", {
+            href: executeJavaScript,
+            onclick: function () {
+                let isAsc: boolean;
+                let orderRows: IEnumerator<HTMLTableRowElement>;
+
+                if (preOrders.field == "into") {
+                    isAsc = preOrders.order == 1;
+                    preOrders.order = preOrders.order == 1 ? 0 : 1;
+                } else {
+                    preOrders.field = "into";
+                    preOrders.order = 1;
+                    isAsc = false;
+                }
+
+                if (isAsc) {
+                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td")[1].innerText));
+                } else {
+                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td")[1].innerText));
+                }
+
+                tbody.innerHTML = "";
+                orderRows.ForEach(r => tbody.appendChild(r));
+            }
+        }).display("mz"));
+    }
+
     export class TICviewer {
 
         private fileTree: fileBrowser.fileIndexTree;
         private chart = new BioDeep.MSMSViewer.TICplot(ion => {
+            let matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, {
+                id: "peakMs2-matrix"
+            });
+
             BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
-            $ts("#peaks").display(BioDeep.Views.CreateTableFromMgfIon(ion));
+
+            $ts("#peaks").display(matrixTable);
+            reorderHandler();
         });
 
         public constructor(fileTree: fileBrowser.fileIndexTree) {

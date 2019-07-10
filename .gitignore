@@ -330,3 +330,4 @@ ASALocalRun/
 .mfractor/
 *.stackdump
 /BioDeep_mz-Browser/app/B10.mzXML
+/BioDeep_mz-Browser/app/dist

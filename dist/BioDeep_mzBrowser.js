@@ -62,11 +62,69 @@ var fileBrowser;
 })(fileBrowser || (fileBrowser = {}));
 var BioDeep;
 (function (BioDeep) {
+    function reorderHandler() {
+        var matrixTable = $ts("#peakMs2-matrix");
+        var tbody = matrixTable.getElementsByTagName("tbody")[0];
+        var bodyRows = $ts(tbody.getElementsByTagName("tr"));
+        var preOrders = { field: "mz", order: 1 };
+        $ts("#mz").display($ts("<a>", {
+            href: executeJavaScript,
+            onclick: function () {
+                var isAsc;
+                var orderRows;
+                if (preOrders.field == "mz") {
+                    isAsc = preOrders.order == 1;
+                    preOrders.order = preOrders.order == 1 ? 0 : 1;
+                }
+                else {
+                    preOrders.field = "mz";
+                    preOrders.order = 1;
+                    isAsc = false;
+                }
+                if (isAsc) {
+                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td")[0].innerText); });
+                }
+                else {
+                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td")[0].innerText); });
+                }
+                tbody.innerHTML = "";
+                orderRows.ForEach(function (r) { return tbody.appendChild(r); });
+            }
+        }).display("mz"));
+        $ts("#into").display($ts("<a>", {
+            href: executeJavaScript,
+            onclick: function () {
+                var isAsc;
+                var orderRows;
+                if (preOrders.field == "into") {
+                    isAsc = preOrders.order == 1;
+                    preOrders.order = preOrders.order == 1 ? 0 : 1;
+                }
+                else {
+                    preOrders.field = "into";
+                    preOrders.order = 1;
+                    isAsc = false;
+                }
+                if (isAsc) {
+                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td")[1].innerText); });
+                }
+                else {
+                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td")[1].innerText); });
+                }
+                tbody.innerHTML = "";
+                orderRows.ForEach(function (r) { return tbody.appendChild(r); });
+            }
+        }).display("mz"));
+    }
     var TICviewer = /** @class */ (function () {
         function TICviewer(fileTree) {
             this.chart = new BioDeep.MSMSViewer.TICplot(function (ion) {
+                var matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, {
+                    id: "peakMs2-matrix"
+                });
                 BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
-                $ts("#peaks").display(BioDeep.Views.CreateTableFromMgfIon(ion));
+                $ts("#peaks").display(matrixTable);
+                reorderHandler();
             });
             this.fileTree = fileTree;
         }

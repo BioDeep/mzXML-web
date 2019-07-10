@@ -264,12 +264,14 @@ var BioDeep;
 (function (BioDeep) {
     var Views;
     (function (Views) {
-        function CreateTableFromMgfIon(ion) {
-            return CreateTableFromMatrix(ion);
+        function CreateTableFromMgfIon(ion, attrs) {
+            if (attrs === void 0) { attrs = null; }
+            return CreateTableFromMatrix(ion, attrs);
         }
         Views.CreateTableFromMgfIon = CreateTableFromMgfIon;
-        function CreateTableFromMatrix(matrix) {
-            return $ts.evalHTML.table(matrix);
+        function CreateTableFromMatrix(matrix, attrs) {
+            if (attrs === void 0) { attrs = null; }
+            return $ts.evalHTML.table(matrix, null, attrs);
         }
         Views.CreateTableFromMatrix = CreateTableFromMatrix;
     })(Views = BioDeep.Views || (BioDeep.Views = {}));
