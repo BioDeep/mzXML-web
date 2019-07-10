@@ -96,6 +96,12 @@ declare namespace BioDeep.Models {
         constructor(id: string, mz: number, into: number);
         toString(): string;
     }
+    enum SpectrumLevels {
+        MS1 = 1,
+        MS2 = 2,
+        MS3 = 10
+    }
+    function SpectrumMatrix(data: IEnumerator<IO.mgf>, levels: number): IEnumerator<mzInto>;
 }
 declare namespace BioDeep.Models {
     /**

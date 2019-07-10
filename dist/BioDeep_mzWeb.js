@@ -258,6 +258,35 @@ var BioDeep;
             return mzInto;
         }());
         Models.mzInto = mzInto;
+        var SpectrumLevels;
+        (function (SpectrumLevels) {
+            SpectrumLevels[SpectrumLevels["MS1"] = 1] = "MS1";
+            SpectrumLevels[SpectrumLevels["MS2"] = 2] = "MS2";
+            SpectrumLevels[SpectrumLevels["MS3"] = 10] = "MS3";
+        })(SpectrumLevels = Models.SpectrumLevels || (Models.SpectrumLevels = {}));
+        function SpectrumMatrix(data, levels) {
+            if (levels == SpectrumLevels.MS1) {
+                // only ms1
+                return data.Select(function (ion) { return new mzInto("", ion.precursor_mass, ion.intensity); });
+            }
+            else if (levels == SpectrumLevels.MS2) {
+                // only ms2
+                return data.Select(function (ion) { return ion.mzInto; }).Unlist(function (ms2) { return ms2; });
+            }
+            else if (levels == SpectrumLevels.MS1 + SpectrumLevels.MS2) {
+                return data.Select(function (ion) {
+                    var union = ion.mzInto.slice();
+                    var ms1 = new mzInto("", ion.precursor_mass, ion.intensity);
+                    // union ms1 and ms2
+                    union.push(ms1);
+                    return union;
+                }).Unlist(function (sp) { return sp; });
+            }
+            else {
+                throw "not implements yet!";
+            }
+        }
+        Models.SpectrumMatrix = SpectrumMatrix;
     })(Models = BioDeep.Models || (BioDeep.Models = {}));
 })(BioDeep || (BioDeep = {}));
 var BioDeep;

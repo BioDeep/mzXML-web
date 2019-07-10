@@ -234,9 +234,13 @@ var BioDeep;
     (function (MSMSViewer) {
         var Spectrum = /** @class */ (function (_super) {
             __extends(Spectrum, _super);
-            function Spectrum() {
-                return _super !== null && _super.apply(this, arguments) || this;
+            function Spectrum(size, margin) {
+                if (size === void 0) { size = [800, 500]; }
+                if (margin === void 0) { margin = MSMSViewer.renderingWork.defaultMargin(); }
+                return _super.call(this, size, margin) || this;
             }
+            Spectrum.prototype.renderChart = function (id, ions) {
+            };
             return Spectrum;
         }(SvgChart));
         MSMSViewer.Spectrum = Spectrum;

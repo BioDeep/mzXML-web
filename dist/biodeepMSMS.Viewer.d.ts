@@ -39,6 +39,8 @@ declare namespace BioDeep.MSMSViewer.PeakScatter {
 }
 declare namespace BioDeep.MSMSViewer {
     class Spectrum extends SvgChart {
+        constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
+        renderChart(id: string, ions: IEnumerator<Models.mzInto>): void;
     }
 }
 declare namespace BioDeep.MSMSViewer {
