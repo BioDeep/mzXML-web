@@ -821,6 +821,24 @@ var IEnumerator = /** @class */ (function (_super) {
     IEnumerator.prototype.Where = function (predicate) {
         return Enumerable.Where(this.sequence, predicate);
     };
+    IEnumerator.prototype.Which = function (predicate, first) {
+        if (first === void 0) { first = true; }
+        var index;
+        if (!first) {
+            index = [];
+        }
+        for (var i = 0; i < this.sequence.length; i++) {
+            if (predicate(this.sequence[i])) {
+                if (first) {
+                    return i;
+                }
+                else {
+                    index.push(i);
+                }
+            }
+        }
+        return new IEnumerator(index);
+    };
     /**
      * Get the min value in current sequence.
      * (求取这个序列集合的最小元素，使用这个函数要求序列之中的元素都必须能够被转换为数值)
@@ -1208,24 +1226,24 @@ var DOMEnumerator = /** @class */ (function (_super) {
             return this.Select(function (x) { return x.getAttribute(attrName); });
         }
     };
-    DOMEnumerator.prototype.AddClass = function (className) {
-        this.ForEach(function (x) {
-            if (!x.classList.contains(className)) {
-                x.classList.add(className);
+    DOMEnumerator.prototype.addClass = function (className) {
+        this.ForEach(function (node) {
+            if (!node.classList.contains(className)) {
+                node.classList.add(className);
             }
         });
         return this;
     };
-    DOMEnumerator.prototype.AddEvent = function (eventName, handler) {
+    DOMEnumerator.prototype.addEvent = function (eventName, handler) {
         this.ForEach(function (element) {
             var event = function (Event) {
                 handler(element, Event);
             };
-            DOM.addEvent(element, eventName, event);
+            DOM.Events.addEvent(element, eventName, event);
         });
     };
     DOMEnumerator.prototype.onChange = function (handler) {
-        this.AddEvent("onchange", handler);
+        this.addEvent("onchange", handler);
     };
     /**
      * 为当前的html节点集合添加鼠标点击事件处理函数
@@ -1238,7 +1256,7 @@ var DOMEnumerator = /** @class */ (function (_super) {
             };
         });
     };
-    DOMEnumerator.prototype.RemoveClass = function (className) {
+    DOMEnumerator.prototype.removeClass = function (className) {
         this.ForEach(function (x) {
             if (x.classList.contains(className)) {
                 x.classList.remove(className);
@@ -1263,7 +1281,7 @@ var DOMEnumerator = /** @class */ (function (_super) {
     /**
      * 将所选定的节点批量删除
     */
-    DOMEnumerator.prototype.Delete = function () {
+    DOMEnumerator.prototype.delete = function () {
         this.ForEach(function (x) { return x.parentNode.removeChild(x); });
     };
     return DOMEnumerator;
@@ -3765,7 +3783,7 @@ var Internal;
         else if (type.typeOf == "function") {
             // 当html文档加载完毕之后就会执行传递进来的这个
             // 函数进行初始化
-            DOM.ready(any);
+            DOM.Events.ready(any);
         }
         else if (!isNullOrUndefined(eval)) {
             // 对html文档之中的节点元素进行查询操作
@@ -4858,70 +4876,170 @@ var TsLinq;
 })(TsLinq || (TsLinq = {}));
 var DOM;
 (function (DOM) {
-    /**
-     * Execute a given function when the document is ready.
-     * It is called when the DOM is ready which can be prior to images and other external content is loaded.
-     *
-     * 可以处理多个函数作为事件，也可以通过loadComplete函数参数来指定准备完毕的状态
-     * 默认的状态是interactive即只需要加载完DOM既可以开始立即执行函数
-     *
-     * @param fn A function that without any parameters
-     * @param loadComplete + ``interactive``: The document has finished loading. We can now access the DOM elements.
-     *                     + ``complete``: The page is fully loaded.
-    */
-    function ready(fn, loadComplete) {
-        if (loadComplete === void 0) { loadComplete = ["interactive", "complete"]; }
-        if (typeof fn !== 'function') {
-            // Sanity check
-            return;
-        }
-        else if (TypeScript.logging.outputEverything) {
-            console.log("Add Document.ready event handler.");
-            console.log("document.readyState = " + document.readyState);
-        }
-        // 2018-12-25 "interactive", "complete" 这两种状态都可以算作是DOM已经准备好了
-        if (loadComplete.indexOf(document.readyState) > -1) {
-            // If document is already loaded, run method
-            return fn();
-        }
-        else {
-            // Otherwise, wait until document is loaded
-            document.addEventListener('DOMContentLoaded', fn, false);
-        }
-    }
-    DOM.ready = ready;
-    /**
-     * 向一个给定的HTML元素或者HTML元素的集合之中的对象添加给定的事件
-     *
-     * @param el HTML节点元素或者节点元素的集合
-     * @param type 事件的名称字符串
-     * @param fn 对事件名称所指定的事件进行处理的工作函数，这个工作函数应该具备有一个事件对象作为函数参数
-    */
-    function addEvent(el, type, fn) {
-        if (document.addEventListener) {
-            if (el && (el.nodeName) || el === window) {
-                el.addEventListener(type, fn, false);
+    var Events;
+    (function (Events) {
+        /**
+         * Execute a given function when the document is ready.
+         * It is called when the DOM is ready which can be prior to images and other external content is loaded.
+         *
+         * 可以处理多个函数作为事件，也可以通过loadComplete函数参数来指定准备完毕的状态
+         * 默认的状态是interactive即只需要加载完DOM既可以开始立即执行函数
+         *
+         * @param fn A function that without any parameters
+         * @param loadComplete + ``interactive``: The document has finished loading. We can now access the DOM elements.
+         *                     + ``complete``: The page is fully loaded.
+        */
+        function ready(fn, loadComplete) {
+            if (loadComplete === void 0) { loadComplete = ["interactive", "complete"]; }
+            if (typeof fn !== 'function') {
+                // Sanity check
+                return;
             }
-            else if (el && el.length) {
-                for (var i = 0; i < el.length; i++) {
-                    addEvent(el[i], type, fn);
+            else if (TypeScript.logging.outputEverything) {
+                console.log("Add Document.ready event handler.");
+                console.log("document.readyState = " + document.readyState);
+            }
+            // 2018-12-25 "interactive", "complete" 这两种状态都可以算作是DOM已经准备好了
+            if (loadComplete.indexOf(document.readyState) > -1) {
+                // If document is already loaded, run method
+                return fn();
+            }
+            else {
+                // Otherwise, wait until document is loaded
+                document.addEventListener('DOMContentLoaded', fn, false);
+            }
+        }
+        Events.ready = ready;
+        /**
+         * 向一个给定的HTML元素或者HTML元素的集合之中的对象添加给定的事件
+         *
+         * @param el HTML节点元素或者节点元素的集合
+         * @param type 事件的名称字符串
+         * @param fn 对事件名称所指定的事件进行处理的工作函数，这个工作函数应该具备有一个事件对象作为函数参数
+        */
+        function addEvent(el, type, fn) {
+            if (document.addEventListener) {
+                if (el && (el.nodeName) || el === window) {
+                    el.addEventListener(type, fn, false);
+                }
+                else if (el && el.length) {
+                    for (var i = 0; i < el.length; i++) {
+                        addEvent(el[i], type, fn);
+                    }
+                }
+            }
+            else {
+                if (el && el.nodeName || el === window) {
+                    el.attachEvent('on' + type, function () {
+                        return fn.call(el, window.event);
+                    });
+                }
+                else if (el && el.length) {
+                    for (var i = 0; i < el.length; i++) {
+                        addEvent(el[i], type, fn);
+                    }
                 }
             }
         }
-        else {
-            if (el && el.nodeName || el === window) {
-                el.attachEvent('on' + type, function () {
-                    return fn.call(el, window.event);
-                });
-            }
-            else if (el && el.length) {
-                for (var i = 0; i < el.length; i++) {
-                    addEvent(el[i], type, fn);
-                }
-            }
+        Events.addEvent = addEvent;
+    })(Events = DOM.Events || (DOM.Events = {}));
+})(DOM || (DOM = {}));
+var DOM;
+(function (DOM) {
+    var Query = /** @class */ (function () {
+        function Query() {
         }
-    }
-    DOM.addEvent = addEvent;
+        /**
+         * + ``#`` by id
+         * + ``.`` by claSS
+         * + ``&`` SINGLE NODE
+         * + ``@`` read meta tag
+         * + ``&lt;>`` create new tag
+        */
+        Query.parseQuery = function (expr) {
+            var isSingle = false;
+            if (expr.charAt(0) == "&") {
+                isSingle = true;
+                expr = expr.substr(1);
+            }
+            else {
+                isSingle = false;
+            }
+            return Query.parseExpression(expr, isSingle);
+        };
+        /**
+         * by node id
+        */
+        Query.getById = function (id) {
+            return {
+                type: DOM.QueryTypes.id,
+                singleNode: true,
+                expression: id
+            };
+        };
+        /**
+         * by class name
+        */
+        Query.getByClass = function (className, isSingle) {
+            return {
+                type: DOM.QueryTypes.class,
+                singleNode: isSingle,
+                expression: className
+            };
+        };
+        /**
+         * by tag name
+        */
+        Query.getByTag = function (tag, isSingle) {
+            return {
+                type: DOM.QueryTypes.tagName,
+                singleNode: isSingle,
+                expression: tag
+            };
+        };
+        /**
+         * create new node
+        */
+        Query.createElement = function (expr) {
+            return {
+                type: DOM.QueryTypes.NoQuery,
+                singleNode: true,
+                expression: expr
+            };
+        };
+        Query.queryMeta = function (expr) {
+            return {
+                type: DOM.QueryTypes.QueryMeta,
+                singleNode: true,
+                expression: expr
+            };
+        };
+        Query.isSelectorQuery = function (expr) {
+            var hasMultiple = expr.indexOf(" ") > -1;
+            var isNodeCreate = expr.charAt(0) == "<" && expr.charAt(expr.length - 1) == ">";
+            return hasMultiple && !isNodeCreate;
+        };
+        Query.parseExpression = function (expr, isSingle) {
+            var prefix = expr.charAt(0);
+            if (Query.isSelectorQuery(expr)) {
+                // 可能是复杂查询表达式
+                return {
+                    type: DOM.QueryTypes.tagName,
+                    singleNode: isSingle,
+                    expression: expr
+                };
+            }
+            switch (prefix) {
+                case "#": return this.getById(expr.substr(1));
+                case ".": return this.getByClass(expr, isSingle);
+                case "<": return this.createElement(expr);
+                case "@": return this.queryMeta(expr.substr(1));
+                default: return this.getByTag(expr, isSingle);
+            }
+        };
+        return Query;
+    }());
+    DOM.Query = Query;
 })(DOM || (DOM = {}));
 var DOM;
 (function (DOM) {
@@ -4963,100 +5081,6 @@ var DOM;
         */
         QueryTypes[QueryTypes["QueryMeta"] = 200] = "QueryMeta";
     })(QueryTypes = DOM.QueryTypes || (DOM.QueryTypes = {}));
-    var Query = /** @class */ (function () {
-        function Query() {
-        }
-        /**
-         * + ``#`` by id
-         * + ``.`` by claSS
-         * + ``&`` SINGLE NODE
-         * + ``@`` read meta tag
-         * + ``&lt;>`` create new tag
-        */
-        Query.parseQuery = function (expr) {
-            var isSingle = false;
-            if (expr.charAt(0) == "&") {
-                isSingle = true;
-                expr = expr.substr(1);
-            }
-            else {
-                isSingle = false;
-            }
-            return Query.parseExpression(expr, isSingle);
-        };
-        /**
-         * by node id
-        */
-        Query.getById = function (id) {
-            return {
-                type: QueryTypes.id,
-                singleNode: true,
-                expression: id
-            };
-        };
-        /**
-         * by class name
-        */
-        Query.getByClass = function (className, isSingle) {
-            return {
-                type: QueryTypes.class,
-                singleNode: isSingle,
-                expression: className
-            };
-        };
-        /**
-         * by tag name
-        */
-        Query.getByTag = function (tag, isSingle) {
-            return {
-                type: QueryTypes.tagName,
-                singleNode: isSingle,
-                expression: tag
-            };
-        };
-        /**
-         * create new node
-        */
-        Query.createElement = function (expr) {
-            return {
-                type: QueryTypes.NoQuery,
-                singleNode: true,
-                expression: expr
-            };
-        };
-        Query.queryMeta = function (expr) {
-            return {
-                type: QueryTypes.QueryMeta,
-                singleNode: true,
-                expression: expr
-            };
-        };
-        Query.isSelectorQuery = function (expr) {
-            var hasMultiple = expr.indexOf(" ") > -1;
-            var isNodeCreate = expr.charAt(0) == "<" && expr.charAt(expr.length - 1) == ">";
-            return hasMultiple && !isNodeCreate;
-        };
-        Query.parseExpression = function (expr, isSingle) {
-            var prefix = expr.charAt(0);
-            if (Query.isSelectorQuery(expr)) {
-                // 可能是复杂查询表达式
-                return {
-                    type: QueryTypes.tagName,
-                    singleNode: isSingle,
-                    expression: expr
-                };
-            }
-            switch (prefix) {
-                case "#": return this.getById(expr.substr(1));
-                case ".": return this.getByClass(expr, isSingle);
-                case "<": return this.createElement(expr);
-                case "@": return this.queryMeta(expr.substr(1));
-                default: return this.getByTag(expr, isSingle);
-            }
-        };
-        return Query;
-    }());
-    DOM.Query = Query;
 })(DOM || (DOM = {}));
 var DOM;
 (function (DOM) {

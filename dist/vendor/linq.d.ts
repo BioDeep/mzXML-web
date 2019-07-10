@@ -256,6 +256,7 @@ declare class IEnumerator<T> extends LINQIterator<T> {
      *     element test pass by the ``predicate`` function.
     */
     Where(predicate: (e: T) => boolean): IEnumerator<T>;
+    Which(predicate: (e: T) => boolean, first?: boolean): number | IEnumerator<number>;
     /**
      * Get the min value in current sequence.
      * (求取这个序列集合的最小元素，使用这个函数要求序列之中的元素都必须能够被转换为数值)
@@ -414,14 +415,14 @@ declare class DOMEnumerator<T extends HTMLElement> extends IEnumerator<T> {
      * @returns 函数总是会返回所设置的或者读取得到的属性值的字符串集合
     */
     attr(attrName: string, val?: string | IEnumerator<string> | string[] | ((x: T) => string)): IEnumerator<string>;
-    AddClass(className: string): DOMEnumerator<T>;
-    AddEvent(eventName: string, handler: (sender: T, event: Event) => void): void;
+    addClass(className: string): DOMEnumerator<T>;
+    addEvent(eventName: string, handler: (sender: T, event: Event) => void): void;
     onChange(handler: (sender: T, event: Event) => void): void;
     /**
      * 为当前的html节点集合添加鼠标点击事件处理函数
     */
     onClick(handler: (sender: T, event: MouseEvent) => void): void;
-    RemoveClass(className: string): DOMEnumerator<T>;
+    removeClass(className: string): DOMEnumerator<T>;
     /**
      * 通过设置css之中的display值来将集合之中的所有的节点元素都隐藏掉
     */
@@ -433,7 +434,7 @@ declare class DOMEnumerator<T extends HTMLElement> extends IEnumerator<T> {
     /**
      * 将所选定的节点批量删除
     */
-    Delete(): void;
+    delete(): void;
 }
 declare namespace Internal.Handlers {
     function hasKey(object: object, key: string): boolean;
@@ -1784,7 +1785,7 @@ declare namespace TsLinq {
         toString(): string;
     }
 }
-declare namespace DOM {
+declare namespace DOM.Events {
     /**
      * Execute a given function when the document is ready.
      * It is called when the DOM is ready which can be prior to images and other external content is loaded.
@@ -1805,6 +1806,43 @@ declare namespace DOM {
      * @param fn 对事件名称所指定的事件进行处理的工作函数，这个工作函数应该具备有一个事件对象作为函数参数
     */
     function addEvent(el: any, type: string, fn: (event: Event) => void): void;
+}
+declare namespace DOM {
+    class Query {
+        type: QueryTypes;
+        singleNode: boolean;
+        /**
+         * Name of the return value is the trimmed expression
+        */
+        expression: string;
+        /**
+         * + ``#`` by id
+         * + ``.`` by claSS
+         * + ``&`` SINGLE NODE
+         * + ``@`` read meta tag
+         * + ``&lt;>`` create new tag
+        */
+        static parseQuery(expr: string): Query;
+        /**
+         * by node id
+        */
+        private static getById;
+        /**
+         * by class name
+        */
+        private static getByClass;
+        /**
+         * by tag name
+        */
+        private static getByTag;
+        /**
+         * create new node
+        */
+        private static createElement;
+        private static queryMeta;
+        private static isSelectorQuery;
+        private static parseExpression;
+    }
 }
 declare namespace DOM {
     /**
@@ -1843,41 +1881,6 @@ declare namespace DOM {
          * ```
         */
         QueryMeta = 200
-    }
-    class Query {
-        type: QueryTypes;
-        singleNode: boolean;
-        /**
-         * Name of the return value is the trimmed expression
-        */
-        expression: string;
-        /**
-         * + ``#`` by id
-         * + ``.`` by claSS
-         * + ``&`` SINGLE NODE
-         * + ``@`` read meta tag
-         * + ``&lt;>`` create new tag
-        */
-        static parseQuery(expr: string): Query;
-        /**
-         * by node id
-        */
-        private static getById;
-        /**
-         * by class name
-        */
-        private static getByClass;
-        /**
-         * by tag name
-        */
-        private static getByTag;
-        /**
-         * create new node
-        */
-        private static createElement;
-        private static queryMeta;
-        private static isSelectorQuery;
-        private static parseExpression;
     }
 }
 declare namespace DOM {
