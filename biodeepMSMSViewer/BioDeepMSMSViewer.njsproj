@@ -44,6 +44,9 @@
     <TypeScriptCompile Include="Ms1\TIC.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="Ms1\Spectrum.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="MS2align\Data\data.ts" />
     <Content Include="MS2align\CSS\style.css" />
     <Content Include="tsconfig.json" />

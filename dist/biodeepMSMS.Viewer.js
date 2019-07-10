@@ -232,6 +232,20 @@ var BioDeep;
 (function (BioDeep) {
     var MSMSViewer;
     (function (MSMSViewer) {
+        var Spectrum = /** @class */ (function (_super) {
+            __extends(Spectrum, _super);
+            function Spectrum() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            return Spectrum;
+        }(SvgChart));
+        MSMSViewer.Spectrum = Spectrum;
+    })(MSMSViewer = BioDeep.MSMSViewer || (BioDeep.MSMSViewer = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var MSMSViewer;
+    (function (MSMSViewer) {
         /**
          * 一级母离子的``[rt, intensity]``峰面积图
         */
