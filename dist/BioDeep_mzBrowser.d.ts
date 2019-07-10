@@ -20,6 +20,7 @@ declare namespace BioDeep {
         private chart;
         constructor(fileTree: fileBrowser.fileIndexTree);
         draw(id: string, src?: string): void;
+        private static doDraw;
         private buildMzList;
         private static mzTree;
     }

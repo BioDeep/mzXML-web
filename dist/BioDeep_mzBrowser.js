@@ -136,23 +136,26 @@ var BioDeep;
             layer.load(5);
             $ts.getText(src, function (text) {
                 try {
-                    var mgf_1 = BioDeep.IO.mgf.Parse(text);
-                    var maxInto = mgf_1.Max(function (m) { return m.intensity; }).intensity;
-                    var doSIM = $ts("#do_SIM");
-                    doSIM.onclick = function () {
-                        var min = parseFloat($ts("#sim-min").CType().value);
-                        var max = parseFloat($ts("#sim-max").CType().value);
-                        var SIM = mgf_1.Where(function (ion) { return ion.precursor_mass >= min && ion.precursor_mass <= max; });
-                        vm.chart.plot("#sim-TIC", SIM);
-                    };
-                    vm.chart.plot(id, mgf_1);
-                    vm.buildMzList(mgf_1, id);
+                    TICviewer.doDraw(vm, id, text);
                 }
                 catch (_a) {
                 }
                 setTimeout(layer.closeAll, 2000);
             });
             fileBrowser.createTree("#fileTree", vm.fileTree, vm);
+        };
+        TICviewer.doDraw = function (vm, id, text) {
+            var mgf = BioDeep.IO.mgf.Parse(text);
+            var maxInto = mgf.Max(function (m) { return m.intensity; }).intensity;
+            var doSIM = $ts("#do_SIM");
+            doSIM.onclick = function () {
+                var min = parseFloat($ts("#sim-min").CType().value);
+                var max = parseFloat($ts("#sim-max").CType().value);
+                var SIM = mgf.Where(function (ion) { return ion.precursor_mass >= min && ion.precursor_mass <= max; });
+                vm.chart.plot("#sim-TIC", SIM);
+            };
+            vm.chart.plot(id, mgf);
+            vm.buildMzList(mgf, id);
         };
         TICviewer.prototype.buildMzList = function (mgf, id) {
             var mzGroup = mgf

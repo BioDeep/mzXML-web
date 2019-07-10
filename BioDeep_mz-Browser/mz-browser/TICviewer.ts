@@ -25,20 +25,7 @@
 
             $ts.getText(src, function (text) {
                 try {
-                    let mgf = BioDeep.IO.mgf.Parse(text);
-                    let maxInto = mgf.Max(m => m.intensity).intensity;
-                    let doSIM = $ts("#do_SIM");
-
-                    doSIM.onclick = function () {
-                        var min = parseFloat($ts("#sim-min").CType<HTMLInputElement>().value);
-                        var max = parseFloat($ts("#sim-max").CType<HTMLInputElement>().value);
-                        var SIM = mgf.Where(ion => ion.precursor_mass >= min && ion.precursor_mass <= max);
-
-                        vm.chart.plot("#sim-TIC", SIM);
-                    }
-
-                    vm.chart.plot(id, mgf);
-                    vm.buildMzList(mgf, id);
+                    TICviewer.doDraw(vm, id, text);
                 } catch {
 
                 }
@@ -47,6 +34,23 @@
             });
 
             fileBrowser.createTree("#fileTree", vm.fileTree, vm);
+        }
+
+        private static doDraw(vm: TICviewer, id: string, text: string) {
+            let mgf = BioDeep.IO.mgf.Parse(text);
+            let maxInto = mgf.Max(m => m.intensity).intensity;
+            let doSIM = $ts("#do_SIM");
+
+            doSIM.onclick = function () {
+                var min = parseFloat($ts("#sim-min").CType<HTMLInputElement>().value);
+                var max = parseFloat($ts("#sim-max").CType<HTMLInputElement>().value);
+                var SIM = mgf.Where(ion => ion.precursor_mass >= min && ion.precursor_mass <= max);
+
+                vm.chart.plot("#sim-TIC", SIM);
+            }
+
+            vm.chart.plot(id, mgf);
+            vm.buildMzList(mgf, id);
         }
 
         private buildMzList(mgf: IEnumerator<IO.mgf>, id: string) {
