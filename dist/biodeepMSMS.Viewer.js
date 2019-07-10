@@ -239,7 +239,70 @@ var BioDeep;
                 if (margin === void 0) { margin = MSMSViewer.renderingWork.defaultMargin(); }
                 return _super.call(this, size, margin) || this;
             }
+            Spectrum.prototype.x = function (ions) {
+                var mz = ions.Select(function (m) { return m.mz; });
+                return d3.scale.linear()
+                    .domain([mz.Min(), mz.Max()])
+                    .range([0, this.width]);
+            };
+            Spectrum.prototype.y = function (ions) {
+                var into = ions.Select(function (m) { return m.into; });
+                return d3.scale.linear()
+                    .domain([0, into.Max()])
+                    .range([this.height, 0]);
+            };
+            Spectrum.prototype.xAxis = function (ions) {
+                return d3.svg.axis()
+                    .scale(this.x(ions))
+                    .orient("bottom");
+            };
+            Spectrum.prototype.yAxis = function (ions) {
+                return d3.svg.axis()
+                    .scale(this.y(ions))
+                    .orient("left")
+                    // 因为intensity是可以非常大的值
+                    // 所以在这里必须要用科学计数法
+                    .tickFormat(d3.format(".1e"));
+            };
+            Spectrum.prototype.renderChartFromMgf = function (id, ions, levels) {
+                this.renderChart(id, BioDeep.Models.SpectrumMatrix(ions, levels));
+            };
             Spectrum.prototype.renderChart = function (id, ions) {
+                var padding = this.margin;
+                BioDeep.MSMSViewer.clear(id);
+                var svg = d3.select(id)
+                    .append('svg')
+                    .attr("width", this.width + padding.left + padding.right)
+                    .attr("height", this.height + padding.top + padding.bottom)
+                    .append("g")
+                    // 给这个分组加上main类
+                    .attr("class", 'main')
+                    // 设置该分组的transform属性
+                    .attr('transform', "translate(" + padding.top + ", " + padding.left + ")")
+                    .attr("viewBox", "0 0 " + this.width + " " + this.height);
+                // 添加坐标轴
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + this.height + ")")
+                    .call(this.xAxis(ions));
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(this.yAxis(ions));
+                var x = this.x(ions);
+                var y = this.y(ions);
+                var height = this.height;
+                svg.selectAll('.bar')
+                    .data(ions.ToArray(false))
+                    .enter()
+                    .append('rect')
+                    .attr('class', 'bar')
+                    .attr('x', function (d) { return x(d.mz); })
+                    .attr('y', function (d) { return y(d.into); })
+                    .attr('width', 1)
+                    .attr('height', function (d, i) {
+                    return height - padding.top - padding.bottom - y(d.into);
+                })
+                    .attr('fill', "black");
             };
             return Spectrum;
         }(SvgChart));
