@@ -62,75 +62,62 @@ var fileBrowser;
 })(fileBrowser || (fileBrowser = {}));
 var BioDeep;
 (function (BioDeep) {
-    function reorderHandler() {
-        var tbody = $ts("tbody").ElementAt(0);
-        console.log(tbody);
-        var bodyRows = $ts(tbody.getElementsByTagName("tr"));
-        var preOrders = { field: "mz", order: 1 };
-        console.log(bodyRows);
+    function getTitleIndex() {
         var table = $ts("#peakMs2-matrix");
         var headers = $ts(table.getElementsByTagName("thead").item(0).getElementsByTagName("th"));
-        var mzIndex;
-        var intoIndex;
-        headers.ForEach(function (r, i) {
-            if (r.innerText == "mz") {
-                mzIndex = i;
+        var mzIndex = headers.Which(function (r) { return r.innerText == "mz"; });
+        var intoIndex = headers.Which(function (r) { return r.innerText == "into"; });
+        return {
+            mz: mzIndex,
+            into: intoIndex
+        };
+    }
+    function reorderHandler() {
+        var tbody = $ts("tbody").ElementAt(0);
+        var bodyRows = $ts(tbody.getElementsByTagName("tr"));
+        var preOrders = { field: "mz", order: 1 };
+        var index = getTitleIndex();
+        function titleClick(orderBy, index) {
+            var isAsc;
+            var orderRows;
+            var getValue = function (r) {
+                return parseFloat(r.getElementsByTagName("td").item(index).innerText);
+            };
+            if (preOrders.field == orderBy) {
+                isAsc = preOrders.order == 1;
+                preOrders.order = preOrders.order == 1 ? 0 : 1;
             }
-        });
-        headers.ForEach(function (r, i) {
-            if (r.innerText == "into") {
-                intoIndex = i;
+            else {
+                preOrders.field = orderBy;
+                preOrders.order = 1;
+                isAsc = false;
             }
-        });
+            if (isAsc) {
+                orderRows = bodyRows.OrderBy(function (r) { return getValue(r); });
+            }
+            else {
+                orderRows = bodyRows.OrderByDescending(function (r) { return getValue(r); });
+            }
+            tbody.innerHTML = "";
+            orderRows.ForEach(function (r) { return tbody.appendChild(r); });
+        }
         $ts("#mz").display($ts("<a>", {
             href: executeJavaScript,
             onclick: function () {
-                var isAsc;
-                var orderRows;
-                if (preOrders.field == "mz") {
-                    isAsc = preOrders.order == 1;
-                    preOrders.order = preOrders.order == 1 ? 0 : 1;
-                }
-                else {
-                    preOrders.field = "mz";
-                    preOrders.order = 1;
-                    isAsc = false;
-                }
-                if (isAsc) {
-                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td").item(mzIndex).innerText); });
-                }
-                else {
-                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td").item(mzIndex).innerText); });
-                }
-                tbody.innerHTML = "";
-                orderRows.ForEach(function (r) { return tbody.appendChild(r); });
+                titleClick("mz", index.mz);
             }
         }).display("mz"));
         $ts("#into").display($ts("<a>", {
             href: executeJavaScript,
             onclick: function () {
-                var isAsc;
-                var orderRows;
-                if (preOrders.field == "into") {
-                    isAsc = preOrders.order == 1;
-                    preOrders.order = preOrders.order == 1 ? 0 : 1;
-                }
-                else {
-                    preOrders.field = "into";
-                    preOrders.order = 1;
-                    isAsc = false;
-                }
-                if (isAsc) {
-                    orderRows = bodyRows.OrderBy(function (r) { return parseFloat(r.getElementsByTagName("td").item(intoIndex).innerText); });
-                }
-                else {
-                    orderRows = bodyRows.OrderByDescending(function (r) { return parseFloat(r.getElementsByTagName("td").item(intoIndex).innerText); });
-                }
-                tbody.innerHTML = "";
-                orderRows.ForEach(function (r) { return tbody.appendChild(r); });
+                titleClick("into", index.into);
             }
         }).display("into"));
     }
+    BioDeep.reorderHandler = reorderHandler;
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
     var TICviewer = /** @class */ (function () {
         function TICviewer(fileTree) {
             this.chart = new BioDeep.MSMSViewer.TICplot([800, 350], function (ion) {
@@ -139,7 +126,7 @@ var BioDeep;
                 });
                 BioDeep.MSMSViewer.previews("#plot", ion, [700, 500]);
                 $ts("#peaks").display(matrixTable);
-                reorderHandler();
+                BioDeep.reorderHandler();
             });
             this.fileTree = fileTree;
         }

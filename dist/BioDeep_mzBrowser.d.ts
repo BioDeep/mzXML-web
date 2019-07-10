@@ -12,6 +12,9 @@ declare module fileBrowser {
     }
 }
 declare namespace BioDeep {
+    function reorderHandler(): void;
+}
+declare namespace BioDeep {
     class TICviewer {
         private fileTree;
         private chart;

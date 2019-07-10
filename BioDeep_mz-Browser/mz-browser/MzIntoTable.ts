@@ -1,78 +1,60 @@
 ﻿namespace BioDeep {
 
-    export function reorderHandler() {
-        let tbody = (<IEnumerator<HTMLElement>><any>$ts("tbody")).ElementAt(0);
-        console.log(tbody);
-        let bodyRows = $ts(tbody.getElementsByTagName("tr"));
-        let preOrders = { field: "mz", order: 1 };
-        console.log(bodyRows);
-
+    function getTitleIndex() {
         let table = $ts("#peakMs2-matrix");
         let headers = $ts(table.getElementsByTagName("thead").item(0).getElementsByTagName("th"));
+        let mzIndex: number = <number>headers.Which(r => r.innerText == "mz");
+        let intoIndex: number = <number>headers.Which(r => r.innerText == "into");
 
-        let mzIndex: number;
-        let intoIndex: number;
+        return {
+            mz: mzIndex,
+            into: intoIndex
+        };
+    }
 
-        headers.ForEach(function (r, i) {
-            if (r.innerText == "mz") {
-                mzIndex = i;
+    export function reorderHandler() {
+        let tbody = (<IEnumerator<HTMLElement>><any>$ts("tbody")).ElementAt(0);
+        let bodyRows = $ts(tbody.getElementsByTagName("tr"));
+        let preOrders = { field: "mz", order: 1 };
+        let index = getTitleIndex();
+
+        function titleClick(orderBy: string, index: number) {
+            let isAsc: boolean;
+            let orderRows: IEnumerator<HTMLTableRowElement>;
+            let getValue = function (r: HTMLElement) {
+                return parseFloat(r.getElementsByTagName("td").item(index).innerText);
             }
-        });
-        headers.ForEach(function (r, i) {
-            if (r.innerText == "into") {
-                intoIndex = i;
+
+            if (preOrders.field == orderBy) {
+                isAsc = preOrders.order == 1;
+                preOrders.order = preOrders.order == 1 ? 0 : 1;
+            } else {
+                preOrders.field = orderBy;
+                preOrders.order = 1;
+                isAsc = false;
             }
-        })
+
+            if (isAsc) {
+                orderRows = bodyRows.OrderBy(r => getValue(r));
+            } else {
+                orderRows = bodyRows.OrderByDescending(r => getValue(r));
+            }
+
+            tbody.innerHTML = "";
+            orderRows.ForEach(r => tbody.appendChild(r));
+        }
 
         $ts("#mz").display($ts("<a>", {
             href: executeJavaScript,
             onclick: function () {
-                let isAsc: boolean;
-                let orderRows: IEnumerator<HTMLTableRowElement>;
-
-                if (preOrders.field == "mz") {
-                    isAsc = preOrders.order == 1;
-                    preOrders.order = preOrders.order == 1 ? 0 : 1;
-                } else {
-                    preOrders.field = "mz";
-                    preOrders.order = 1;
-                    isAsc = false;
-                }
-
-                if (isAsc) {
-                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td").item(mzIndex).innerText));
-                } else {
-                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td").item(mzIndex).innerText));
-                }
-
-                tbody.innerHTML = "";
-                orderRows.ForEach(r => tbody.appendChild(r));
+                titleClick("mz", index.mz);
             }
         }).display("mz"));
 
         $ts("#into").display($ts("<a>", {
             href: executeJavaScript,
             onclick: function () {
-                let isAsc: boolean;
-                let orderRows: IEnumerator<HTMLTableRowElement>;
-
-                if (preOrders.field == "into") {
-                    isAsc = preOrders.order == 1;
-                    preOrders.order = preOrders.order == 1 ? 0 : 1;
-                } else {
-                    preOrders.field = "into";
-                    preOrders.order = 1;
-                    isAsc = false;
-                }
-
-                if (isAsc) {
-                    orderRows = bodyRows.OrderBy(r => parseFloat(r.getElementsByTagName("td").item(intoIndex).innerText));
-                } else {
-                    orderRows = bodyRows.OrderByDescending(r => parseFloat(r.getElementsByTagName("td").item(intoIndex).innerText));
-                }
-
-                tbody.innerHTML = "";
-                orderRows.ForEach(r => tbody.appendChild(r));
+                titleClick("into", index.into);
             }
         }).display("into"));
     }
