@@ -1,95 +1,118 @@
-<meta name="mgf" content="./index.php" />
+<html>
 
-<script src="//cdn.biodeep.cn/vendor/jquery-3.2.1.min.js"></script>
-<script src="//cdn.biodeep.cn/vendor/layer-v2.1/layer/layer.js"></script>
-<script src="//cdn.biodeep.cn/vendor/d3.js"></script>
-<script src="//cdn.biodeep.cn/vendor/d3.tip.v0.6.3.js"></script>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="mgf" content="./index.php" />
 
-<script src="dist/vendor/linq.js"></script>
-<script src="dist/vendor/svg.js"></script>
-<script src="dist/BioDeep_mzWeb.js"></script>
-<script src="dist/biodeepMSMS.Viewer.js"></script>
-<script src="dist/BioDeep_mzBrowser.js"></script>
+	<title>BioDeep RawFile Viewer</title>
 
-<link rel="stylesheet" href="//cdn.biodeep.cn/vendor/vakata-jstree-c9d7c14/dist/themes/default/style.min.css" />
+	<script src="//cdn.biodeep.cn/vendor/jquery-3.2.1.min.js"></script>
+	<script src="//cdn.biodeep.cn/vendor/layer-v2.1/layer/layer.js"></script>
+	<script src="//cdn.biodeep.cn/vendor/d3.js"></script>
+	<script src="//cdn.biodeep.cn/vendor/d3.tip.v0.6.3.js"></script>
 
-<script src="//cdn.biodeep.cn/vendor/vakata-jstree-c9d7c14/dist/jstree.min.js"></script>
+	<script src="dist/vendor/linq.js"></script>
+	<script src="dist/vendor/svg.js"></script>
+	<script src="dist/BioDeep_mzWeb.js"></script>
+	<script src="dist/biodeepMSMS.Viewer.js"></script>
+	<script src="dist/BioDeep_mzBrowser.js"></script>
 
-<style>
-    .domain {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-        stroke-width: 1px;
-    }
-</style>
+	<link rel="stylesheet" href="//cdn.biodeep.cn/vendor/vakata-jstree-c9d7c14/dist/themes/default/style.min.css" />
+	<link rel="stylesheet" href="//cdn.biodeep.cn/styles/normalize-v8.0.0.css" />
+	<link rel="stylesheet" href="//cdn.biodeep.cn/styles/bootstrap4/bootstrap.min.css" />
+
+	<script src="//cdn.biodeep.cn/vendor/vakata-jstree-c9d7c14/dist/jstree.min.js"></script>
+	<script src="//cdn.biodeep.cn/vendor/bootstrap.min.js"></script>
+
+	<style>
+		.domain {
+			fill: none;
+			stroke: #000;
+			shape-rendering: crispEdges;
+			stroke-width: 1px;
+		}
+	</style>
+</head>
 
 <body style="width: 2440px;">
 
-<div style="float: left;">
-<h2>Spectrum Raw File Browser</h2>
-<div id="fileTree"></div>
-</div>
-
-<div style="float: left;margin-left: 20">
-
-<div style="float: left;">
-    <h2>TIC plot</h2>
-
-    <div>Select a precursor m/z: </div>
-    <div>
-        <select id="mzlist"></select>
-    </div>
-	
-	<div>
-	<h3>Instructions</h3>
-	
-	<p>
-	<ul>
-	<li>1. First of all, select a raw file on left panel</li>
-	<li>2. Then TIC plot will be loaded for the file that you've selected.</li>
-	<li>3. TIC plot is show for your entire <strong>Raw File</strong> by default.</li>
-	<li>4. Select precursor m/z for view TIC plot of the ions under specific m/z</li>
-	<li>5. A <strong>red dot</strong> on TIC plot is a <code>[mz,rt]</code> ion, click on it to view corresponding ms2 spectrum.</li>
-	<li>6. Set m/z min and max to draw selective ions TIC plot.</li>
-	</ul>
-	</p>
+	<div style="float: left; border-right: 1px; border-color: deepskyblue;">
+		<h2>Spectrum Raw File Browser</h2>
+		<div id="fileTree"></div>
 	</div>
-	
-	<div id="TIC"></div>
-	
-	<hr />
-	
-	<div>
-	Show TIC by selective m/z range: 
-	<input type="text" id="sim-min"></input> -
-	<input type="text" id="sim-max"></input> <a href="javascript:void(0);" id="do_SIM">Show SIM TIC</a>
-	
-	<div id="sim-TIC"></div>
-	
-	<h4>SIM Spectrum</h4>
-	<p>
-	Ms1 and Ms2 spectrum fragments of in current selected m/z range.
-	</p>
-	<div id="sim-spectrum"></div>
+
+	<div style="float: left;margin-left: 20;">
+
+		<div style="float: left;">
+			<h2>TIC plot</h2>
+
+			<div>Select a precursor m/z: </div>
+			<div>
+				<select id="mzlist" class="form-control" style="width: 20%;"></select>
+			</div>
+
+			<br />
+
+			<div>
+				<h3>Instructions</h3>
+
+				<p>
+					<ul>
+						<li>1. First of all, select a raw file on left panel</li>
+						<li>2. Then TIC plot will be loaded for the file that you've selected.</li>
+						<li>3. TIC plot is show for your entire <strong>Raw File</strong> by default.</li>
+						<li>4. Select precursor m/z for view TIC plot of the ions under specific m/z</li>
+						<li>5. A <strong>red dot</strong> on TIC plot is a <code>[mz,rt]</code> ion, click on it to view
+							corresponding ms2 spectrum.</li>
+						<li>6. Set m/z min and max to draw selective ions TIC plot.</li>
+					</ul>
+				</p>
+			</div>
+
+			<div id="TIC"></div>
+
+			<hr />
+
+			<div style="border: 2px; border-color: #000;">
+				<div>
+					Show TIC by selective m/z range:
+
+					<input type="text" id="sim-min" style="width: 10%;"></input>
+					-
+					<input type="text" id="sim-max" style="width: 10%;"></input>
+
+
+					<a href="javascript:void(0);" id="do_SIM">Show SIM TIC</a>
+				</div>
+
+				<div id="sim-TIC"></div>
+
+				<h4>SIM Spectrum</h4>
+				<p>
+					Ms1 and Ms2 spectrum fragments of in current selected m/z range.
+				</p>
+				<div id="sim-spectrum"></div>
+			</div>
+		</div>
+
+		<div style="float: right; width: 1024px; margin-left: 20px;">
+
+			<h2>Ms2 Spectrum Plot</h2>
+
+			<div id="plot">
+
+			</div>
+
+			<hr />
+
+			<h3>Ms2 Spectrum Matrix</h3>
+			<p>Click on the column title to reorder the matrix rows</p>
+			<div id="peaks"></div>
+		</div>
+
 	</div>
-</div>
-
-<div style="float: right; width: 1024px; margin-left: 20px;">
-
-<h2>Ms2 Spectrum Plot</h2>
-
-<div id="plot">
-
-</div>
-
-<hr />
-
-<h3>Ms2 Spectrum Matrix</h3>
-<p>Click on the column title to reorder the matrix rows</p>
-<div id="peaks"></div>
-</div>
-
-</div>
 
 </body>
+
+</html>
