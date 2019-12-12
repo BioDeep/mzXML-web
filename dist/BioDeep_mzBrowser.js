@@ -148,6 +148,7 @@ var BioDeep;
             $ts.getText(src, function (text) {
                 try {
                     RawFileViewer.doDraw(vm, id, text);
+                    document.title = $ts.baseName(src) + ".mzXML - BioDeep RawFile Viewer";
                 }
                 catch (_a) {
                 }
