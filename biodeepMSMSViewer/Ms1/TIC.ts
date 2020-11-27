@@ -6,7 +6,7 @@
     export class TICplot extends SvgChart {
 
         public data: BioDeep.Models.ChromatogramTick[];
-        // public tip: d3.Tooltip;
+        public ions: Dictionary<any>;
 
         public get area() {
             let x = this.x;
@@ -45,8 +45,9 @@
                 .tickFormat(d3.format(".1e"));
         }
 
-        public constructor(size: number[] = [750, 500], public onClick: (ion: IO.mgf) => void) {
-            super(size, new Canvas.Margin(20, 20, 30, 100));
+        public constructor(size: number[] = [750, 500], public onClick: (ion: any) => void) {
+            super(size, new Canvas.Margin(10, 10, 20, 50));
+            //super(size, new Canvas.Margin(20, 20, 30, 100));
 
             // this.tip = BioDeep.MSMSViewer.mzrtTip();
         }
@@ -60,14 +61,24 @@
             this.bindEvents($ts(this.data));
         }
 
+        plotData(canvas: string | HTMLElement, rt: number[], intensity: number[], tags: any[]) {
+            BioDeep.MSMSViewer.clear(canvas);
+
+            this.data = BioDeep.Models.Chromatogram(rt, intensity, tags).ToArray();
+            this.chart(canvas);
+            // this.tip.hide();
+            this.bindEvents($ts(this.data));
+        }
+
         private bindEvents(ticks: IEnumerator<BioDeep.Models.ChromatogramTick>) {
             let mzrt = $ts.select(".mzrt");
-            let ions: Dictionary<IO.mgf> = ticks.ToDictionary(x => TICplot.uniqueId(x), x => <IO.mgf>x.raw);
             let vm = this;
+
+            this.ions = ticks.ToDictionary(x => TICplot.uniqueId(x), x => x.raw);
 
             mzrt.onClick(x => {
                 let ref = x.getAttribute("unique");
-                let ion: IO.mgf = ions.Item(ref);
+                let ion: any = vm.ions.Item(ref);
 
                 vm.onClick(ion);
             });
@@ -91,16 +102,21 @@
             svg.append("path")
                 .datum(this.data)
                 .attr("class", "area")
-                .attr("fill", "steelblue")
+                .attr("fill", "#007bff")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", "3")
+                .attr("fill-opacity", "0.7")
                 .attr("d", <any>this.area);
 
             svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + this.height + ")")
+                .attr("width", 2)
                 .call(this.xAxis);
 
             svg.append("g")
                 .attr("class", "y axis")
+                .attr("width", 2)
                 .call(this.yAxis);
 
             let x = this.x;
@@ -110,10 +126,11 @@
                 .data(this.data)
                 .enter()
                 .append("circle")
-                .attr("class", "mzrt")
-                .attr("fill", "red")
+                .attr("class", "mzrt pointer")
+                .attr("fill", "blue")
                 .attr("stroke", "none")
                 .attr("unique", d => TICplot.uniqueId(d))
+                .attr("tooltip", d => TICplot.uniqueId(d))
                 .attr("cx", d => x(d.rt))
                 .attr("cy", d => y(d.intensity))
                 .attr("r", 3)

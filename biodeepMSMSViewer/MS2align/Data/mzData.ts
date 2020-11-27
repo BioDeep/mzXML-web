@@ -20,8 +20,12 @@
             mz: number[] | data.NumericRange,
             align: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>) {
 
-            var range: data.NumericRange = Array.isArray(mz) ?
-                data.NumericRange.Create(mz) : mz;
+            let range: data.NumericRange = Array.isArray(mz) ? data.NumericRange.Create(mz) : mz;
+            let d: number = range.min * 0.2;
+
+            if (range.Length == 0.0) {
+                range = new data.NumericRange(range.min - d, range.max + d);
+            }
 
             this.mzRange = [range.min, range.max];
             this.mzMatrix = Array.isArray(align) ? align : align.ToArray();
@@ -41,7 +45,7 @@
         public trim(intoCutoff: number = 5): mzData {
             var src = new IEnumerator<BioDeep.Models.mzInto>(this.mzMatrix);
             var max: number = Math.abs(src.Max(m => m.into).into);
-            var trimmedData = From(this.mzMatrix).Where(m => Math.abs(m.into / max * 100) >= intoCutoff);
+            var trimmedData = $from(this.mzMatrix).Where(m => Math.abs(m.into / max * 100) >= intoCutoff);
             var newRange = data.NumericRange.Create(trimmedData.Select(m => m.mz));
             var newMatrix = new mzData(newRange, trimmedData);
 
@@ -65,6 +69,7 @@
 
         public tooltip(mz: BioDeep.Models.mzInto): string {
             var name: string = mz.into >= 0 ? this.queryName : this.refName;
+
             var tipText: string = `m/z: ${mz.mz.toFixed(4)} (
                 <strong>
                     <span style="color:red;">

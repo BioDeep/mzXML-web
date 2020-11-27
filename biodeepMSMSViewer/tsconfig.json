@@ -6,9 +6,13 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "outFile": "../dist/biodeepMSMS.Viewer.js",
+    "outDir": "../dist",
     "declaration": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "bin",
+    "../dist",
+    "obj"
   ]
 }

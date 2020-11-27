@@ -13,7 +13,7 @@
             mzInt = parseMirror(data.align);
         }
 
-        var mzRange: number[] = From(mzInt).Select(x => x.mz).ToArray();
+        var mzRange: number[] = $from(mzInt).Select(x => x.mz).ToArray();
         var align: mzData = new mzData(mzRange, mzInt);
 
         align.queryName = data.query;
@@ -24,7 +24,7 @@
     }
 
     function parseMirror(aligns: align[]): Models.mzInto[] {
-        return From(aligns)
+        return $from(aligns)
             .Select((x, i) => {
                 var a: Models.mzInto;
                 var b: Models.mzInto;
@@ -57,7 +57,7 @@
         matrix: BioDeep.Models.mzInto[],
         title: string = "Unknown"): mzData {
 
-        var mzSrc: IEnumerator<BioDeep.Models.mzInto> = From(matrix);
+        var mzSrc: IEnumerator<BioDeep.Models.mzInto> = $from(matrix);
         var mzRange = data.NumericRange.Create(mzSrc.Select(mz => mz.mz));
         var intoMax = mzSrc.Select(mz => mz.into).Max();
         var mirror: IEnumerator<BioDeep.Models.mzInto> = mzSrc

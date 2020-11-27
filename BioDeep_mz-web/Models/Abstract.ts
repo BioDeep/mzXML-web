@@ -1,5 +1,4 @@
-﻿/// <reference path="../../../build/linq.d.ts" />
-
+﻿
 namespace BioDeep.Models {
 
     export class IMs2Scan extends IEnumerator<BioDeep.Models.mzInto> {
@@ -8,7 +7,7 @@ namespace BioDeep.Models {
             return [...this.sequence];
         };
 
-        public constructor(matrix: BioDeep.Models.mzInto[]) {
+        public constructor(matrix: BioDeep.Models.mzInto[] | IEnumerator<BioDeep.Models.mzInto>) {
             super(matrix);
         }
     }

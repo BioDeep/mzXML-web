@@ -1,17 +1,18 @@
-﻿/// <reference path="../../../build/linq.d.ts" />
-/// <reference path="../../../build/svg.d.ts" />
+﻿/// <reference path="../../dist/vendor/linq.d.ts" />
+/// <reference path="../../dist/vendor/svg.d.ts" />
+/// <reference path="../../dist/vendor/layer.d.ts" />
+
 /// <reference path="../../dist/BioDeep_mzWeb.d.ts" />
 /// <reference path="../../dist/biodeepMSMS.Viewer.d.ts" />
-/// <reference path="../../../layer.d.ts" />
 
-$ts(function () { 
-    // initial spectrum viewer css style
-    BioDeep.MSMSViewer.loadStyles();
+namespace biodeep {
 
-    $ts.getText("index.json", function (text) {
-        let indexTree = JSON.parse(text);
-        let viewer = new BioDeep.RawFileViewer(indexTree); 
+    export function start() {
+        Router.AddAppHandler(new pages.mzwebViewer());
 
-        viewer.draw("#TIC");          
-    });    
-})
+        Router.RunApp();
+    }
+}
+
+$ts.mode = Modes.debug;
+$ts(biodeep.start);

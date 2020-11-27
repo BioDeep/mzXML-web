@@ -1,4 +1,11 @@
 /// <reference path="linq.d.ts" />
+declare abstract class SvgChart {
+    size: [number, number];
+    margin: Canvas.Margin;
+    get width(): number;
+    get height(): number;
+    constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
+}
 declare module SvgUtils {
     /**
      * 这个函数会直接从目标的width和height属性来获取值
@@ -10,7 +17,7 @@ declare module SvgUtils {
      *
      * @param c The rgb color component numeric value
     */
-    function componentToHex(c: any): string;
+    function componentToHex(c: number): string;
     const HTML5svgFeature: string;
     /**
      * 测试当前的浏览器是否支持HTML5的高级特性
@@ -51,22 +58,6 @@ declare module SvgUtils {
 */
 declare namespace Canvas {
     /**
-     * CSS style object model
-    */
-    interface ICSSStyle {
-        /**
-         * Apply CSS style to a given svg node element
-         *
-         * @param node a given svg document node object
-        */
-        Styling(node: SVGElement): SVGElement;
-        /**
-         * Generate css style string value from this
-         * css style object model.
-        */
-        CSSStyle(): string;
-    }
-    /**
      * The object location data model
     */
     class Point {
@@ -88,14 +79,12 @@ declare namespace Canvas {
      * 表示一个矩形区域的大小
     */
     class Size {
-        /**
-         * 宽度
-        */
         width: number;
-        /**
-         * 高度
-        */
         height: number;
+        /**
+         * @param width 宽度
+         * @param height 高度
+        */
         constructor(width: number, height: number);
         toString(): string;
     }
@@ -115,8 +104,8 @@ declare namespace Canvas {
         right: number;
         bottom: number;
         left: number;
-        readonly horizontal: number;
-        readonly vertical: number;
+        get horizontal(): number;
+        get vertical(): number;
         constructor(top: number, right: number, bottom: number, left: number);
         static Object(obj: {
             top: number;
@@ -204,13 +193,6 @@ declare class Graphics {
     */
     drawPath(path: Canvas.Path, border?: Canvas.Pen, fill?: Canvas.Color, id?: string, className?: string): Graphics;
 }
-declare abstract class SvgChart {
-    size: [number, number];
-    margin: Canvas.Margin;
-    readonly width: number;
-    readonly height: number;
-    constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
-}
 declare namespace Canvas {
     /**
      * RGB color data model
@@ -230,12 +212,30 @@ declare namespace Canvas {
 }
 declare namespace Canvas {
     class Font implements ICSSStyle {
-        size: string;
         family: string;
+        size: any;
         bold: boolean;
         italic: boolean;
         constructor(family: string, size?: any, bold?: boolean, italic?: boolean);
         Styling(node: SVGElement): SVGElement;
+        CSSStyle(): string;
+    }
+}
+declare namespace Canvas {
+    /**
+     * CSS style object model
+    */
+    interface ICSSStyle {
+        /**
+         * Apply CSS style to a given svg node element
+         *
+         * @param node a given svg document node object
+        */
+        Styling(node: SVGElement): SVGElement;
+        /**
+         * Generate css style string value from this
+         * css style object model.
+        */
         CSSStyle(): string;
     }
 }
@@ -249,7 +249,7 @@ declare namespace Canvas {
         /**
          * 获取SVG的path字符串结果
         */
-        readonly d: string;
+        get d(): string;
         constructor();
         toString(): string;
         /**
@@ -325,1371 +325,1371 @@ declare namespace Canvas {
         /**
          * Black (#000000)
         */
-        static Black(): Color;
+        static get Black(): Color;
         /**
          * Night (#0C090A)
         */
-        static Night(): Color;
+        static get Night(): Color;
         /**
          * Gunmetal (#2C3539)
         */
-        static Gunmetal(): Color;
+        static get Gunmetal(): Color;
         /**
          * Midnight (#2B1B17)
         */
-        static Midnight(): Color;
+        static get Midnight(): Color;
         /**
          * Charcoal (#34282C)
         */
-        static Charcoal(): Color;
+        static get Charcoal(): Color;
         /**
          * Dark Slate Grey (#25383C)
         */
-        static DarkSlateGrey(): Color;
+        static get DarkSlateGrey(): Color;
         /**
          * Oil (#3B3131)
         */
-        static Oil(): Color;
+        static get Oil(): Color;
         /**
          * Black Cat (#413839)
         */
-        static BlackCat(): Color;
+        static get BlackCat(): Color;
         /**
          * Iridium (#3D3C3A)
         */
-        static Iridium(): Color;
+        static get Iridium(): Color;
         /**
          * Black Eel (#463E3F)
         */
-        static BlackEel(): Color;
+        static get BlackEel(): Color;
         /**
          * Black Cow (#4C4646)
         */
-        static BlackCow(): Color;
+        static get BlackCow(): Color;
         /**
          * Gray Wolf (#504A4B)
         */
-        static GrayWolf(): Color;
+        static get GrayWolf(): Color;
         /**
          * Vampire Gray (#565051)
         */
-        static VampireGray(): Color;
+        static get VampireGray(): Color;
         /**
          * Gray Dolphin (#5C5858)
         */
-        static GrayDolphin(): Color;
+        static get GrayDolphin(): Color;
         /**
          * Carbon Gray (#625D5D)
         */
-        static CarbonGray(): Color;
+        static get CarbonGray(): Color;
         /**
          * Ash Gray (#666362)
         */
-        static AshGray(): Color;
+        static get AshGray(): Color;
         /**
          * Cloudy Gray (#6D6968)
         */
-        static CloudyGray(): Color;
+        static get CloudyGray(): Color;
         /**
          * Smokey Gray (#726E6D)
         */
-        static SmokeyGray(): Color;
+        static get SmokeyGray(): Color;
         /**
          * Gray (#736F6E)
         */
-        static Gray(): Color;
+        static get Gray(): Color;
         /**
          * Granite (#837E7C)
         */
-        static Granite(): Color;
+        static get Granite(): Color;
         /**
          * Battleship Gray (#848482)
         */
-        static BattleshipGray(): Color;
+        static get BattleshipGray(): Color;
         /**
          * Gray Cloud (#B6B6B4)
         */
-        static GrayCloud(): Color;
+        static get GrayCloud(): Color;
         /**
          * Gray Goose (#D1D0CE)
         */
-        static GrayGoose(): Color;
+        static get GrayGoose(): Color;
         /**
          * Platinum (#E5E4E2)
         */
-        static Platinum(): Color;
+        static get Platinum(): Color;
         /**
          * Metallic Silver (#BCC6CC)
         */
-        static MetallicSilver(): Color;
+        static get MetallicSilver(): Color;
         /**
          * Blue Gray (#98AFC7)
         */
-        static BlueGray(): Color;
+        static get BlueGray(): Color;
         /**
          * Light Slate Gray (#6D7B8D)
         */
-        static LightSlateGray(): Color;
+        static get LightSlateGray(): Color;
         /**
          * Slate Gray (#657383)
         */
-        static SlateGray(): Color;
+        static get SlateGray(): Color;
         /**
          * Jet Gray (#616D7E)
         */
-        static JetGray(): Color;
+        static get JetGray(): Color;
         /**
          * Mist Blue (#646D7E)
         */
-        static MistBlue(): Color;
+        static get MistBlue(): Color;
         /**
          * Marble Blue (#566D7E)
         */
-        static MarbleBlue(): Color;
+        static get MarbleBlue(): Color;
         /**
          * Slate Blue (#737CA1)
         */
-        static SlateBlue(): Color;
+        static get SlateBlue(): Color;
         /**
          * Steel Blue (#4863A0)
         */
-        static SteelBlue(): Color;
+        static get SteelBlue(): Color;
         /**
          * Blue Jay (#2B547E)
         */
-        static BlueJay(): Color;
+        static get BlueJay(): Color;
         /**
          * Dark Slate Blue (#2B3856)
         */
-        static DarkSlateBlue(): Color;
+        static get DarkSlateBlue(): Color;
         /**
          * Midnight Blue (#151B54)
         */
-        static MidnightBlue(): Color;
+        static get MidnightBlue(): Color;
         /**
          * Navy Blue (#000080)
         */
-        static NavyBlue(): Color;
+        static get NavyBlue(): Color;
         /**
          * Blue Whale (#342D7E)
         */
-        static BlueWhale(): Color;
+        static get BlueWhale(): Color;
         /**
          * Lapis Blue (#15317E)
         */
-        static LapisBlue(): Color;
+        static get LapisBlue(): Color;
         /**
          * Denim Dark Blue (#151B8D)
         */
-        static DenimDarkBlue(): Color;
+        static get DenimDarkBlue(): Color;
         /**
          * Earth Blue (#0000A0)
         */
-        static EarthBlue(): Color;
+        static get EarthBlue(): Color;
         /**
          * Cobalt Blue (#0020C2)
         */
-        static CobaltBlue(): Color;
+        static get CobaltBlue(): Color;
         /**
          * Blueberry Blue (#0041C2)
         */
-        static BlueberryBlue(): Color;
+        static get BlueberryBlue(): Color;
         /**
          * Sapphire Blue (#2554C7)
         */
-        static SapphireBlue(): Color;
+        static get SapphireBlue(): Color;
         /**
          * Blue Eyes (#1569C7)
         */
-        static BlueEyes(): Color;
+        static get BlueEyes(): Color;
         /**
          * Royal Blue (#2B60DE)
         */
-        static RoyalBlue(): Color;
+        static get RoyalBlue(): Color;
         /**
          * Blue Orchid (#1F45FC)
         */
-        static BlueOrchid(): Color;
+        static get BlueOrchid(): Color;
         /**
          * Blue Lotus (#6960EC)
         */
-        static BlueLotus(): Color;
+        static get BlueLotus(): Color;
         /**
          * Light Slate Blue (#736AFF)
         */
-        static LightSlateBlue(): Color;
+        static get LightSlateBlue(): Color;
         /**
          * Windows Blue (#357EC7)
         */
-        static WindowsBlue(): Color;
+        static get WindowsBlue(): Color;
         /**
          * Glacial Blue Ice (#368BC1)
         */
-        static GlacialBlueIce(): Color;
+        static get GlacialBlueIce(): Color;
         /**
          * Silk Blue (#488AC7)
         */
-        static SilkBlue(): Color;
+        static get SilkBlue(): Color;
         /**
          * Blue Ivy (#3090C7)
         */
-        static BlueIvy(): Color;
+        static get BlueIvy(): Color;
         /**
          * Blue Koi (#659EC7)
         */
-        static BlueKoi(): Color;
+        static get BlueKoi(): Color;
         /**
          * Columbia Blue (#87AFC7)
         */
-        static ColumbiaBlue(): Color;
+        static get ColumbiaBlue(): Color;
         /**
          * Baby Blue (#95B9C7)
         */
-        static BabyBlue(): Color;
+        static get BabyBlue(): Color;
         /**
          * Light Steel Blue (#728FCE)
         */
-        static LightSteelBlue(): Color;
+        static get LightSteelBlue(): Color;
         /**
          * Ocean Blue (#2B65EC)
         */
-        static OceanBlue(): Color;
+        static get OceanBlue(): Color;
         /**
          * Blue Ribbon (#306EFF)
         */
-        static BlueRibbon(): Color;
+        static get BlueRibbon(): Color;
         /**
          * Blue Dress (#157DEC)
         */
-        static BlueDress(): Color;
+        static get BlueDress(): Color;
         /**
          * Dodger Blue (#1589FF)
         */
-        static DodgerBlue(): Color;
+        static get DodgerBlue(): Color;
         /**
          * Cornflower Blue (#6495ED)
         */
-        static CornflowerBlue(): Color;
+        static get CornflowerBlue(): Color;
         /**
          * Sky Blue (#6698FF)
         */
-        static SkyBlue(): Color;
+        static get SkyBlue(): Color;
         /**
          * Butterfly Blue (#38ACEC)
         */
-        static ButterflyBlue(): Color;
+        static get ButterflyBlue(): Color;
         /**
          * Iceberg (#56A5EC)
         */
-        static Iceberg(): Color;
+        static get Iceberg(): Color;
         /**
          * Crystal Blue (#5CB3FF)
         */
-        static CrystalBlue(): Color;
+        static get CrystalBlue(): Color;
         /**
          * Deep Sky Blue (#3BB9FF)
         */
-        static DeepSkyBlue(): Color;
+        static get DeepSkyBlue(): Color;
         /**
          * Denim Blue (#79BAEC)
         */
-        static DenimBlue(): Color;
+        static get DenimBlue(): Color;
         /**
          * Light Sky Blue (#82CAFA)
         */
-        static LightSkyBlue(): Color;
+        static get LightSkyBlue(): Color;
         /**
          * Day Sky Blue (#82CAFF)
         */
-        static DaySkyBlue(): Color;
+        static get DaySkyBlue(): Color;
         /**
          * Jeans Blue (#A0CFEC)
         */
-        static JeansBlue(): Color;
+        static get JeansBlue(): Color;
         /**
          * Blue Angel (#B7CEEC)
         */
-        static BlueAngel(): Color;
+        static get BlueAngel(): Color;
         /**
          * Pastel Blue (#B4CFEC)
         */
-        static PastelBlue(): Color;
+        static get PastelBlue(): Color;
         /**
          * Sea Blue (#C2DFFF)
         */
-        static SeaBlue(): Color;
+        static get SeaBlue(): Color;
         /**
          * Powder Blue (#C6DEFF)
         */
-        static PowderBlue(): Color;
+        static get PowderBlue(): Color;
         /**
          * Coral Blue (#AFDCEC)
         */
-        static CoralBlue(): Color;
+        static get CoralBlue(): Color;
         /**
          * Light Blue (#ADDFFF)
         */
-        static LightBlue(): Color;
+        static get LightBlue(): Color;
         /**
          * Robin Egg Blue (#BDEDFF)
         */
-        static RobinEggBlue(): Color;
+        static get RobinEggBlue(): Color;
         /**
          * Pale Blue Lily (#CFECEC)
         */
-        static PaleBlueLily(): Color;
+        static get PaleBlueLily(): Color;
         /**
          * Light Cyan (#E0FFFF)
         */
-        static LightCyan(): Color;
+        static get LightCyan(): Color;
         /**
          * Water (#EBF4FA)
         */
-        static Water(): Color;
+        static get Water(): Color;
         /**
          * AliceBlue (#F0F8FF)
         */
-        static AliceBlue(): Color;
+        static get AliceBlue(): Color;
         /**
          * Azure (#F0FFFF)
         */
-        static Azure(): Color;
+        static get Azure(): Color;
         /**
          * Light Slate (#CCFFFF)
         */
-        static LightSlate(): Color;
+        static get LightSlate(): Color;
         /**
          * Light Aquamarine (#93FFE8)
         */
-        static LightAquamarine(): Color;
+        static get LightAquamarine(): Color;
         /**
          * Electric Blue (#9AFEFF)
         */
-        static ElectricBlue(): Color;
+        static get ElectricBlue(): Color;
         /**
          * Aquamarine (#7FFFD4)
         */
-        static Aquamarine(): Color;
+        static get Aquamarine(): Color;
         /**
          * Cyan or Aqua (#00FFFF)
         */
-        static CyanorAqua(): Color;
+        static get CyanorAqua(): Color;
         /**
          * Tron Blue (#7DFDFE)
         */
-        static TronBlue(): Color;
+        static get TronBlue(): Color;
         /**
          * Blue Zircon (#57FEFF)
         */
-        static BlueZircon(): Color;
+        static get BlueZircon(): Color;
         /**
          * Blue Lagoon (#8EEBEC)
         */
-        static BlueLagoon(): Color;
+        static get BlueLagoon(): Color;
         /**
          * Celeste (#50EBEC)
         */
-        static Celeste(): Color;
+        static get Celeste(): Color;
         /**
          * Blue Diamond (#4EE2EC)
         */
-        static BlueDiamond(): Color;
+        static get BlueDiamond(): Color;
         /**
          * Tiffany Blue (#81D8D0)
         */
-        static TiffanyBlue(): Color;
+        static get TiffanyBlue(): Color;
         /**
          * Cyan Opaque (#92C7C7)
         */
-        static CyanOpaque(): Color;
+        static get CyanOpaque(): Color;
         /**
          * Blue Hosta (#77BFC7)
         */
-        static BlueHosta(): Color;
+        static get BlueHosta(): Color;
         /**
          * Northern Lights Blue (#78C7C7)
         */
-        static NorthernLightsBlue(): Color;
+        static get NorthernLightsBlue(): Color;
         /**
          * Medium Turquoise (#48CCCD)
         */
-        static MediumTurquoise(): Color;
+        static get MediumTurquoise(): Color;
         /**
          * Turquoise (#43C6DB)
         */
-        static Turquoise(): Color;
+        static get Turquoise(): Color;
         /**
          * Jellyfish (#46C7C7)
         */
-        static Jellyfish(): Color;
+        static get Jellyfish(): Color;
         /**
          * Blue green (#7BCCB5)
         */
-        static Bluegreen(): Color;
+        static get Bluegreen(): Color;
         /**
          * Macaw Blue Green (#43BFC7)
         */
-        static MacawBlueGreen(): Color;
+        static get MacawBlueGreen(): Color;
         /**
          * Light Sea Green (#3EA99F)
         */
-        static LightSeaGreen(): Color;
+        static get LightSeaGreen(): Color;
         /**
          * Dark Turquoise (#3B9C9C)
         */
-        static DarkTurquoise(): Color;
+        static get DarkTurquoise(): Color;
         /**
          * Sea Turtle Green (#438D80)
         */
-        static SeaTurtleGreen(): Color;
+        static get SeaTurtleGreen(): Color;
         /**
          * Medium Aquamarine (#348781)
         */
-        static MediumAquamarine(): Color;
+        static get MediumAquamarine(): Color;
         /**
          * Greenish Blue (#307D7E)
         */
-        static GreenishBlue(): Color;
+        static get GreenishBlue(): Color;
         /**
          * Grayish Turquoise (#5E7D7E)
         */
-        static GrayishTurquoise(): Color;
+        static get GrayishTurquoise(): Color;
         /**
          * Beetle Green (#4C787E)
         */
-        static BeetleGreen(): Color;
+        static get BeetleGreen(): Color;
         /**
          * Teal (#008080)
         */
-        static Teal(): Color;
+        static get Teal(): Color;
         /**
          * Sea Green (#4E8975)
         */
-        static SeaGreen(): Color;
+        static get SeaGreen(): Color;
         /**
          * Camouflage Green (#78866B)
         */
-        static CamouflageGreen(): Color;
+        static get CamouflageGreen(): Color;
         /**
          * Sage Green (#848b79)
         */
-        static SageGreen(): Color;
+        static get SageGreen(): Color;
         /**
          * Hazel Green (#617C58)
         */
-        static HazelGreen(): Color;
+        static get HazelGreen(): Color;
         /**
          * Venom Green (#728C00)
         */
-        static VenomGreen(): Color;
+        static get VenomGreen(): Color;
         /**
          * Fern Green (#667C26)
         */
-        static FernGreen(): Color;
+        static get FernGreen(): Color;
         /**
          * Dark Forest Green (#254117)
         */
-        static DarkForestGreen(): Color;
+        static get DarkForestGreen(): Color;
         /**
          * Medium Sea Green (#306754)
         */
-        static MediumSeaGreen(): Color;
+        static get MediumSeaGreen(): Color;
         /**
          * Medium Forest Green (#347235)
         */
-        static MediumForestGreen(): Color;
+        static get MediumForestGreen(): Color;
         /**
          * Seaweed Green (#437C17)
         */
-        static SeaweedGreen(): Color;
+        static get SeaweedGreen(): Color;
         /**
          * Pine Green (#387C44)
         */
-        static PineGreen(): Color;
+        static get PineGreen(): Color;
         /**
          * Jungle Green (#347C2C)
         */
-        static JungleGreen(): Color;
+        static get JungleGreen(): Color;
         /**
          * Shamrock Green (#347C17)
         */
-        static ShamrockGreen(): Color;
+        static get ShamrockGreen(): Color;
         /**
          * Medium Spring Green (#348017)
         */
-        static MediumSpringGreen(): Color;
+        static get MediumSpringGreen(): Color;
         /**
          * Forest Green (#4E9258)
         */
-        static ForestGreen(): Color;
+        static get ForestGreen(): Color;
         /**
          * Green Onion (#6AA121)
         */
-        static GreenOnion(): Color;
+        static get GreenOnion(): Color;
         /**
          * Spring Green (#4AA02C)
         */
-        static SpringGreen(): Color;
+        static get SpringGreen(): Color;
         /**
          * Lime Green (#41A317)
         */
-        static LimeGreen(): Color;
+        static get LimeGreen(): Color;
         /**
          * Clover Green (#3EA055)
         */
-        static CloverGreen(): Color;
+        static get CloverGreen(): Color;
         /**
          * Green Snake (#6CBB3C)
         */
-        static GreenSnake(): Color;
+        static get GreenSnake(): Color;
         /**
          * Alien Green (#6CC417)
         */
-        static AlienGreen(): Color;
+        static get AlienGreen(): Color;
         /**
          * Green Apple (#4CC417)
         */
-        static GreenApple(): Color;
+        static get GreenApple(): Color;
         /**
          * Yellow Green (#52D017)
         */
-        static YellowGreen(): Color;
+        static get YellowGreen(): Color;
         /**
          * Kelly Green (#4CC552)
         */
-        static KellyGreen(): Color;
+        static get KellyGreen(): Color;
         /**
          * Zombie Green (#54C571)
         */
-        static ZombieGreen(): Color;
+        static get ZombieGreen(): Color;
         /**
          * Frog Green (#99C68E)
         */
-        static FrogGreen(): Color;
+        static get FrogGreen(): Color;
         /**
          * Green Peas (#89C35C)
         */
-        static GreenPeas(): Color;
+        static get GreenPeas(): Color;
         /**
          * Dollar Bill Green (#85BB65)
         */
-        static DollarBillGreen(): Color;
+        static get DollarBillGreen(): Color;
         /**
          * Dark Sea Green (#8BB381)
         */
-        static DarkSeaGreen(): Color;
+        static get DarkSeaGreen(): Color;
         /**
          * Iguana Green (#9CB071)
         */
-        static IguanaGreen(): Color;
+        static get IguanaGreen(): Color;
         /**
          * Avocado Green (#B2C248)
         */
-        static AvocadoGreen(): Color;
+        static get AvocadoGreen(): Color;
         /**
          * Pistachio Green (#9DC209)
         */
-        static PistachioGreen(): Color;
+        static get PistachioGreen(): Color;
         /**
          * Salad Green (#A1C935)
         */
-        static SaladGreen(): Color;
+        static get SaladGreen(): Color;
         /**
          * Hummingbird Green (#7FE817)
         */
-        static HummingbirdGreen(): Color;
+        static get HummingbirdGreen(): Color;
         /**
          * Nebula Green (#59E817)
         */
-        static NebulaGreen(): Color;
+        static get NebulaGreen(): Color;
         /**
          * Stoplight Go Green (#57E964)
         */
-        static StoplightGoGreen(): Color;
+        static get StoplightGoGreen(): Color;
         /**
          * Algae Green (#64E986)
         */
-        static AlgaeGreen(): Color;
+        static get AlgaeGreen(): Color;
         /**
          * Jade Green (#5EFB6E)
         */
-        static JadeGreen(): Color;
+        static get JadeGreen(): Color;
         /**
          * Green (#00FF00)
         */
-        static Green(): Color;
+        static get Green(): Color;
         /**
          * Emerald Green (#5FFB17)
         */
-        static EmeraldGreen(): Color;
+        static get EmeraldGreen(): Color;
         /**
          * Lawn Green (#87F717)
         */
-        static LawnGreen(): Color;
+        static get LawnGreen(): Color;
         /**
          * Chartreuse (#8AFB17)
         */
-        static Chartreuse(): Color;
+        static get Chartreuse(): Color;
         /**
          * Dragon Green (#6AFB92)
         */
-        static DragonGreen(): Color;
+        static get DragonGreen(): Color;
         /**
          * Mint green (#98FF98)
         */
-        static Mintgreen(): Color;
+        static get Mintgreen(): Color;
         /**
          * Green Thumb (#B5EAAA)
         */
-        static GreenThumb(): Color;
+        static get GreenThumb(): Color;
         /**
          * Light Jade (#C3FDB8)
         */
-        static LightJade(): Color;
+        static get LightJade(): Color;
         /**
          * Tea Green (#CCFB5D)
         */
-        static TeaGreen(): Color;
+        static get TeaGreen(): Color;
         /**
          * Green Yellow (#B1FB17)
         */
-        static GreenYellow(): Color;
+        static get GreenYellow(): Color;
         /**
          * Slime Green (#BCE954)
         */
-        static SlimeGreen(): Color;
+        static get SlimeGreen(): Color;
         /**
          * Goldenrod (#EDDA74)
         */
-        static Goldenrod(): Color;
+        static get Goldenrod(): Color;
         /**
          * Harvest Gold (#EDE275)
         */
-        static HarvestGold(): Color;
+        static get HarvestGold(): Color;
         /**
          * Sun Yellow (#FFE87C)
         */
-        static SunYellow(): Color;
+        static get SunYellow(): Color;
         /**
          * Yellow (#FFFF00)
         */
-        static Yellow(): Color;
+        static get Yellow(): Color;
         /**
          * Corn Yellow (#FFF380)
         */
-        static CornYellow(): Color;
+        static get CornYellow(): Color;
         /**
          * Parchment (#FFFFC2)
         */
-        static Parchment(): Color;
+        static get Parchment(): Color;
         /**
          * Cream (#FFFFCC)
         */
-        static Cream(): Color;
+        static get Cream(): Color;
         /**
          * Lemon Chiffon (#FFF8C6)
         */
-        static LemonChiffon(): Color;
+        static get LemonChiffon(): Color;
         /**
          * Cornsilk (#FFF8DC)
         */
-        static Cornsilk(): Color;
+        static get Cornsilk(): Color;
         /**
          * Beige (#F5F5DC)
         */
-        static Beige(): Color;
+        static get Beige(): Color;
         /**
          * Blonde (#FBF6D9)
         */
-        static Blonde(): Color;
+        static get Blonde(): Color;
         /**
          * AntiqueWhite (#FAEBD7)
         */
-        static AntiqueWhite(): Color;
+        static get AntiqueWhite(): Color;
         /**
          * Champagne (#F7E7CE)
         */
-        static Champagne(): Color;
+        static get Champagne(): Color;
         /**
          * BlanchedAlmond (#FFEBCD)
         */
-        static BlanchedAlmond(): Color;
+        static get BlanchedAlmond(): Color;
         /**
          * Vanilla (#F3E5AB)
         */
-        static Vanilla(): Color;
+        static get Vanilla(): Color;
         /**
          * Tan Brown (#ECE5B6)
         */
-        static TanBrown(): Color;
+        static get TanBrown(): Color;
         /**
          * Peach (#FFE5B4)
         */
-        static Peach(): Color;
+        static get Peach(): Color;
         /**
          * Mustard (#FFDB58)
         */
-        static Mustard(): Color;
+        static get Mustard(): Color;
         /**
          * Rubber Ducky Yellow (#FFD801)
         */
-        static RubberDuckyYellow(): Color;
+        static get RubberDuckyYellow(): Color;
         /**
          * Bright Gold (#FDD017)
         */
-        static BrightGold(): Color;
+        static get BrightGold(): Color;
         /**
          * Golden brown (#EAC117)
         */
-        static Goldenbrown(): Color;
+        static get Goldenbrown(): Color;
         /**
          * Macaroni and Cheese (#F2BB66)
         */
-        static MacaroniandCheese(): Color;
+        static get MacaroniandCheese(): Color;
         /**
          * Saffron (#FBB917)
         */
-        static Saffron(): Color;
+        static get Saffron(): Color;
         /**
          * Beer (#FBB117)
         */
-        static Beer(): Color;
+        static get Beer(): Color;
         /**
          * Cantaloupe (#FFA62F)
         */
-        static Cantaloupe(): Color;
+        static get Cantaloupe(): Color;
         /**
          * Bee Yellow (#E9AB17)
         */
-        static BeeYellow(): Color;
+        static get BeeYellow(): Color;
         /**
          * Brown Sugar (#E2A76F)
         */
-        static BrownSugar(): Color;
+        static get BrownSugar(): Color;
         /**
          * BurlyWood (#DEB887)
         */
-        static BurlyWood(): Color;
+        static get BurlyWood(): Color;
         /**
          * Deep Peach (#FFCBA4)
         */
-        static DeepPeach(): Color;
+        static get DeepPeach(): Color;
         /**
          * Ginger Brown (#C9BE62)
         */
-        static GingerBrown(): Color;
+        static get GingerBrown(): Color;
         /**
          * School Bus Yellow (#E8A317)
         */
-        static SchoolBusYellow(): Color;
+        static get SchoolBusYellow(): Color;
         /**
          * Sandy Brown (#EE9A4D)
         */
-        static SandyBrown(): Color;
+        static get SandyBrown(): Color;
         /**
          * Fall Leaf Brown (#C8B560)
         */
-        static FallLeafBrown(): Color;
+        static get FallLeafBrown(): Color;
         /**
          * Orange Gold (#D4A017)
         */
-        static OrangeGold(): Color;
+        static get OrangeGold(): Color;
         /**
          * Sand (#C2B280)
         */
-        static Sand(): Color;
+        static get Sand(): Color;
         /**
          * Cookie Brown (#C7A317)
         */
-        static CookieBrown(): Color;
+        static get CookieBrown(): Color;
         /**
          * Caramel (#C68E17)
         */
-        static Caramel(): Color;
+        static get Caramel(): Color;
         /**
          * Brass (#B5A642)
         */
-        static Brass(): Color;
+        static get Brass(): Color;
         /**
          * Khaki (#ADA96E)
         */
-        static Khaki(): Color;
+        static get Khaki(): Color;
         /**
          * Camel brown (#C19A6B)
         */
-        static Camelbrown(): Color;
+        static get Camelbrown(): Color;
         /**
          * Bronze (#CD7F32)
         */
-        static Bronze(): Color;
+        static get Bronze(): Color;
         /**
          * Tiger Orange (#C88141)
         */
-        static TigerOrange(): Color;
+        static get TigerOrange(): Color;
         /**
          * Cinnamon (#C58917)
         */
-        static Cinnamon(): Color;
+        static get Cinnamon(): Color;
         /**
          * Bullet Shell (#AF9B60)
         */
-        static BulletShell(): Color;
+        static get BulletShell(): Color;
         /**
          * Dark Goldenrod (#AF7817)
         */
-        static DarkGoldenrod(): Color;
+        static get DarkGoldenrod(): Color;
         /**
          * Copper (#B87333)
         */
-        static Copper(): Color;
+        static get Copper(): Color;
         /**
          * Wood (#966F33)
         */
-        static Wood(): Color;
+        static get Wood(): Color;
         /**
          * Oak Brown (#806517)
         */
-        static OakBrown(): Color;
+        static get OakBrown(): Color;
         /**
          * Moccasin (#827839)
         */
-        static Moccasin(): Color;
+        static get Moccasin(): Color;
         /**
          * Army Brown (#827B60)
         */
-        static ArmyBrown(): Color;
+        static get ArmyBrown(): Color;
         /**
          * Sandstone (#786D5F)
         */
-        static Sandstone(): Color;
+        static get Sandstone(): Color;
         /**
          * Mocha (#493D26)
         */
-        static Mocha(): Color;
+        static get Mocha(): Color;
         /**
          * Taupe (#483C32)
         */
-        static Taupe(): Color;
+        static get Taupe(): Color;
         /**
          * Coffee (#6F4E37)
         */
-        static Coffee(): Color;
+        static get Coffee(): Color;
         /**
          * Brown Bear (#835C3B)
         */
-        static BrownBear(): Color;
+        static get BrownBear(): Color;
         /**
          * Red Dirt (#7F5217)
         */
-        static RedDirt(): Color;
+        static get RedDirt(): Color;
         /**
          * Sepia (#7F462C)
         */
-        static Sepia(): Color;
+        static get Sepia(): Color;
         /**
          * Orange Salmon (#C47451)
         */
-        static OrangeSalmon(): Color;
+        static get OrangeSalmon(): Color;
         /**
          * Rust (#C36241)
         */
-        static Rust(): Color;
+        static get Rust(): Color;
         /**
          * Red Fox (#C35817)
         */
-        static RedFox(): Color;
+        static get RedFox(): Color;
         /**
          * Chocolate (#C85A17)
         */
-        static Chocolate(): Color;
+        static get Chocolate(): Color;
         /**
          * Sedona (#CC6600)
         */
-        static Sedona(): Color;
+        static get Sedona(): Color;
         /**
          * Papaya Orange (#E56717)
         */
-        static PapayaOrange(): Color;
+        static get PapayaOrange(): Color;
         /**
          * Halloween Orange (#E66C2C)
         */
-        static HalloweenOrange(): Color;
+        static get HalloweenOrange(): Color;
         /**
          * Pumpkin Orange (#F87217)
         */
-        static PumpkinOrange(): Color;
+        static get PumpkinOrange(): Color;
         /**
          * Construction Cone Orange (#F87431)
         */
-        static ConstructionConeOrange(): Color;
+        static get ConstructionConeOrange(): Color;
         /**
          * Sunrise Orange (#E67451)
         */
-        static SunriseOrange(): Color;
+        static get SunriseOrange(): Color;
         /**
          * Mango Orange (#FF8040)
         */
-        static MangoOrange(): Color;
+        static get MangoOrange(): Color;
         /**
          * Dark Orange (#F88017)
         */
-        static DarkOrange(): Color;
+        static get DarkOrange(): Color;
         /**
          * Coral (#FF7F50)
         */
-        static Coral(): Color;
+        static get Coral(): Color;
         /**
          * Basket Ball Orange (#F88158)
         */
-        static BasketBallOrange(): Color;
+        static get BasketBallOrange(): Color;
         /**
          * Light Salmon (#F9966B)
         */
-        static LightSalmon(): Color;
+        static get LightSalmon(): Color;
         /**
          * Tangerine (#E78A61)
         */
-        static Tangerine(): Color;
+        static get Tangerine(): Color;
         /**
          * Dark Salmon (#E18B6B)
         */
-        static DarkSalmon(): Color;
+        static get DarkSalmon(): Color;
         /**
          * Light Coral (#E77471)
         */
-        static LightCoral(): Color;
+        static get LightCoral(): Color;
         /**
          * Bean Red (#F75D59)
         */
-        static BeanRed(): Color;
+        static get BeanRed(): Color;
         /**
          * Valentine Red (#E55451)
         */
-        static ValentineRed(): Color;
+        static get ValentineRed(): Color;
         /**
          * Shocking Orange (#E55B3C)
         */
-        static ShockingOrange(): Color;
+        static get ShockingOrange(): Color;
         /**
          * Red (#FF0000)
         */
-        static Red(): Color;
+        static get Red(): Color;
         /**
          * Scarlet (#FF2400)
         */
-        static Scarlet(): Color;
+        static get Scarlet(): Color;
         /**
          * Ruby Red (#F62217)
         */
-        static RubyRed(): Color;
+        static get RubyRed(): Color;
         /**
          * Ferrari Red (#F70D1A)
         */
-        static FerrariRed(): Color;
+        static get FerrariRed(): Color;
         /**
          * Fire Engine Red (#F62817)
         */
-        static FireEngineRed(): Color;
+        static get FireEngineRed(): Color;
         /**
          * Lava Red (#E42217)
         */
-        static LavaRed(): Color;
+        static get LavaRed(): Color;
         /**
          * Love Red (#E41B17)
         */
-        static LoveRed(): Color;
+        static get LoveRed(): Color;
         /**
          * Grapefruit (#DC381F)
         */
-        static Grapefruit(): Color;
+        static get Grapefruit(): Color;
         /**
          * Chestnut Red (#C34A2C)
         */
-        static ChestnutRed(): Color;
+        static get ChestnutRed(): Color;
         /**
          * Cherry Red (#C24641)
         */
-        static CherryRed(): Color;
+        static get CherryRed(): Color;
         /**
          * Mahogany (#C04000)
         */
-        static Mahogany(): Color;
+        static get Mahogany(): Color;
         /**
          * Chilli Pepper (#C11B17)
         */
-        static ChilliPepper(): Color;
+        static get ChilliPepper(): Color;
         /**
          * Cranberry (#9F000F)
         */
-        static Cranberry(): Color;
+        static get Cranberry(): Color;
         /**
          * Red Wine (#990012)
         */
-        static RedWine(): Color;
+        static get RedWine(): Color;
         /**
          * Burgundy (#8C001A)
         */
-        static Burgundy(): Color;
+        static get Burgundy(): Color;
         /**
          * Chestnut (#954535)
         */
-        static Chestnut(): Color;
+        static get Chestnut(): Color;
         /**
          * Blood Red (#7E3517)
         */
-        static BloodRed(): Color;
+        static get BloodRed(): Color;
         /**
          * Sienna (#8A4117)
         */
-        static Sienna(): Color;
+        static get Sienna(): Color;
         /**
          * Sangria (#7E3817)
         */
-        static Sangria(): Color;
+        static get Sangria(): Color;
         /**
          * Firebrick (#800517)
         */
-        static Firebrick(): Color;
+        static get Firebrick(): Color;
         /**
          * Maroon (#810541)
         */
-        static Maroon(): Color;
+        static get Maroon(): Color;
         /**
          * Plum Pie (#7D0541)
         */
-        static PlumPie(): Color;
+        static get PlumPie(): Color;
         /**
          * Velvet Maroon (#7E354D)
         */
-        static VelvetMaroon(): Color;
+        static get VelvetMaroon(): Color;
         /**
          * Plum Velvet (#7D0552)
         */
-        static PlumVelvet(): Color;
+        static get PlumVelvet(): Color;
         /**
          * Rosy Finch (#7F4E52)
         */
-        static RosyFinch(): Color;
+        static get RosyFinch(): Color;
         /**
          * Puce (#7F5A58)
         */
-        static Puce(): Color;
+        static get Puce(): Color;
         /**
          * Dull Purple (#7F525D)
         */
-        static DullPurple(): Color;
+        static get DullPurple(): Color;
         /**
          * Rosy Brown (#B38481)
         */
-        static RosyBrown(): Color;
+        static get RosyBrown(): Color;
         /**
          * Khaki Rose (#C5908E)
         */
-        static KhakiRose(): Color;
+        static get KhakiRose(): Color;
         /**
          * Pink Bow (#C48189)
         */
-        static PinkBow(): Color;
+        static get PinkBow(): Color;
         /**
          * Lipstick Pink (#C48793)
         */
-        static LipstickPink(): Color;
+        static get LipstickPink(): Color;
         /**
          * Rose (#E8ADAA)
         */
-        static Rose(): Color;
+        static get Rose(): Color;
         /**
          * Rose Gold (#ECC5C0)
         */
-        static RoseGold(): Color;
+        static get RoseGold(): Color;
         /**
          * Desert Sand (#EDC9AF)
         */
-        static DesertSand(): Color;
+        static get DesertSand(): Color;
         /**
          * Pig Pink (#FDD7E4)
         */
-        static PigPink(): Color;
+        static get PigPink(): Color;
         /**
          * Cotton Candy (#FCDFFF)
         */
-        static CottonCandy(): Color;
+        static get CottonCandy(): Color;
         /**
          * Pink Bubble Gum (#FFDFDD)
         */
-        static PinkBubbleGum(): Color;
+        static get PinkBubbleGum(): Color;
         /**
          * Misty Rose (#FBBBB9)
         */
-        static MistyRose(): Color;
+        static get MistyRose(): Color;
         /**
          * Pink (#FAAFBE)
         */
-        static Pink(): Color;
+        static get Pink(): Color;
         /**
          * Light Pink (#FAAFBA)
         */
-        static LightPink(): Color;
+        static get LightPink(): Color;
         /**
          * Flamingo Pink (#F9A7B0)
         */
-        static FlamingoPink(): Color;
+        static get FlamingoPink(): Color;
         /**
          * Pink Rose (#E7A1B0)
         */
-        static PinkRose(): Color;
+        static get PinkRose(): Color;
         /**
          * Pink Daisy (#E799A3)
         */
-        static PinkDaisy(): Color;
+        static get PinkDaisy(): Color;
         /**
          * Cadillac Pink (#E38AAE)
         */
-        static CadillacPink(): Color;
+        static get CadillacPink(): Color;
         /**
          * Carnation Pink (#F778A1)
         */
-        static CarnationPink(): Color;
+        static get CarnationPink(): Color;
         /**
          * Blush Red (#E56E94)
         */
-        static BlushRed(): Color;
+        static get BlushRed(): Color;
         /**
          * Hot Pink (#F660AB)
         */
-        static HotPink(): Color;
+        static get HotPink(): Color;
         /**
          * Watermelon Pink (#FC6C85)
         */
-        static WatermelonPink(): Color;
+        static get WatermelonPink(): Color;
         /**
          * Violet Red (#F6358A)
         */
-        static VioletRed(): Color;
+        static get VioletRed(): Color;
         /**
          * Deep Pink (#F52887)
         */
-        static DeepPink(): Color;
+        static get DeepPink(): Color;
         /**
          * Pink Cupcake (#E45E9D)
         */
-        static PinkCupcake(): Color;
+        static get PinkCupcake(): Color;
         /**
          * Pink Lemonade (#E4287C)
         */
-        static PinkLemonade(): Color;
+        static get PinkLemonade(): Color;
         /**
          * Neon Pink (#F535AA)
         */
-        static NeonPink(): Color;
+        static get NeonPink(): Color;
         /**
          * Magenta (#FF00FF)
         */
-        static Magenta(): Color;
+        static get Magenta(): Color;
         /**
          * Dimorphotheca Magenta (#E3319D)
         */
-        static DimorphothecaMagenta(): Color;
+        static get DimorphothecaMagenta(): Color;
         /**
          * Bright Neon Pink (#F433FF)
         */
-        static BrightNeonPink(): Color;
+        static get BrightNeonPink(): Color;
         /**
          * Pale Violet Red (#D16587)
         */
-        static PaleVioletRed(): Color;
+        static get PaleVioletRed(): Color;
         /**
          * Tulip Pink (#C25A7C)
         */
-        static TulipPink(): Color;
+        static get TulipPink(): Color;
         /**
          * Medium Violet Red (#CA226B)
         */
-        static MediumVioletRed(): Color;
+        static get MediumVioletRed(): Color;
         /**
          * Rogue Pink (#C12869)
         */
-        static RoguePink(): Color;
+        static get RoguePink(): Color;
         /**
          * Burnt Pink (#C12267)
         */
-        static BurntPink(): Color;
+        static get BurntPink(): Color;
         /**
          * Bashful Pink (#C25283)
         */
-        static BashfulPink(): Color;
+        static get BashfulPink(): Color;
         /**
          * Dark Carnation Pink (#C12283)
         */
-        static DarkCarnationPink(): Color;
+        static get DarkCarnationPink(): Color;
         /**
          * Plum (#B93B8F)
         */
-        static Plum(): Color;
+        static get Plum(): Color;
         /**
          * Viola Purple (#7E587E)
         */
-        static ViolaPurple(): Color;
+        static get ViolaPurple(): Color;
         /**
          * Purple Iris (#571B7E)
         */
-        static PurpleIris(): Color;
+        static get PurpleIris(): Color;
         /**
          * Plum Purple (#583759)
         */
-        static PlumPurple(): Color;
+        static get PlumPurple(): Color;
         /**
          * Indigo (#4B0082)
         */
-        static Indigo(): Color;
+        static get Indigo(): Color;
         /**
          * Purple Monster (#461B7E)
         */
-        static PurpleMonster(): Color;
+        static get PurpleMonster(): Color;
         /**
          * Purple Haze (#4E387E)
         */
-        static PurpleHaze(): Color;
+        static get PurpleHaze(): Color;
         /**
          * Eggplant (#614051)
         */
-        static Eggplant(): Color;
+        static get Eggplant(): Color;
         /**
          * Grape (#5E5A80)
         */
-        static Grape(): Color;
+        static get Grape(): Color;
         /**
          * Purple Jam (#6A287E)
         */
-        static PurpleJam(): Color;
+        static get PurpleJam(): Color;
         /**
          * Dark Orchid (#7D1B7E)
         */
-        static DarkOrchid(): Color;
+        static get DarkOrchid(): Color;
         /**
          * Purple Flower (#A74AC7)
         */
-        static PurpleFlower(): Color;
+        static get PurpleFlower(): Color;
         /**
          * Medium Orchid (#B048B5)
         */
-        static MediumOrchid(): Color;
+        static get MediumOrchid(): Color;
         /**
          * Purple Amethyst (#6C2DC7)
         */
-        static PurpleAmethyst(): Color;
+        static get PurpleAmethyst(): Color;
         /**
          * Dark Violet (#842DCE)
         */
-        static DarkViolet(): Color;
+        static get DarkViolet(): Color;
         /**
          * Violet (#8D38C9)
         */
-        static Violet(): Color;
+        static get Violet(): Color;
         /**
          * Purple Sage Bush (#7A5DC7)
         */
-        static PurpleSageBush(): Color;
+        static get PurpleSageBush(): Color;
         /**
          * Lovely Purple (#7F38EC)
         */
-        static LovelyPurple(): Color;
+        static get LovelyPurple(): Color;
         /**
          * Purple (#8E35EF)
         */
-        static Purple(): Color;
+        static get Purple(): Color;
         /**
          * Aztech Purple (#893BFF)
         */
-        static AztechPurple(): Color;
+        static get AztechPurple(): Color;
         /**
          * Medium Purple (#8467D7)
         */
-        static MediumPurple(): Color;
+        static get MediumPurple(): Color;
         /**
          * Jasmine Purple (#A23BEC)
         */
-        static JasminePurple(): Color;
+        static get JasminePurple(): Color;
         /**
          * Purple Daffodil (#B041FF)
         */
-        static PurpleDaffodil(): Color;
+        static get PurpleDaffodil(): Color;
         /**
          * Tyrian Purple (#C45AEC)
         */
-        static TyrianPurple(): Color;
+        static get TyrianPurple(): Color;
         /**
          * Crocus Purple (#9172EC)
         */
-        static CrocusPurple(): Color;
+        static get CrocusPurple(): Color;
         /**
          * Purple Mimosa (#9E7BFF)
         */
-        static PurpleMimosa(): Color;
+        static get PurpleMimosa(): Color;
         /**
          * Heliotrope Purple (#D462FF)
         */
-        static HeliotropePurple(): Color;
+        static get HeliotropePurple(): Color;
         /**
          * Crimson (#E238EC)
         */
-        static Crimson(): Color;
+        static get Crimson(): Color;
         /**
          * Purple Dragon (#C38EC7)
         */
-        static PurpleDragon(): Color;
+        static get PurpleDragon(): Color;
         /**
          * Lilac (#C8A2C8)
         */
-        static Lilac(): Color;
+        static get Lilac(): Color;
         /**
          * Blush Pink (#E6A9EC)
         */
-        static BlushPink(): Color;
+        static get BlushPink(): Color;
         /**
          * Mauve (#E0B0FF)
         */
-        static Mauve(): Color;
+        static get Mauve(): Color;
         /**
          * Wisteria Purple (#C6AEC7)
         */
-        static WisteriaPurple(): Color;
+        static get WisteriaPurple(): Color;
         /**
          * Blossom Pink (#F9B7FF)
         */
-        static BlossomPink(): Color;
+        static get BlossomPink(): Color;
         /**
          * Thistle (#D2B9D3)
         */
-        static Thistle(): Color;
+        static get Thistle(): Color;
         /**
          * Periwinkle (#E9CFEC)
         */
-        static Periwinkle(): Color;
+        static get Periwinkle(): Color;
         /**
          * Lavender Pinocchio (#EBDDE2)
         */
-        static LavenderPinocchio(): Color;
+        static get LavenderPinocchio(): Color;
         /**
          * Lavender blue (#E3E4FA)
         */
-        static Lavenderblue(): Color;
+        static get Lavenderblue(): Color;
         /**
          * Pearl (#FDEEF4)
         */
-        static Pearl(): Color;
+        static get Pearl(): Color;
         /**
          * SeaShell (#FFF5EE)
         */
-        static SeaShell(): Color;
+        static get SeaShell(): Color;
         /**
          * Milk White (#FEFCFF)
         */
-        static MilkWhite(): Color;
+        static get MilkWhite(): Color;
         /**
          * White (#FFFFFF)
         */
-        static White(): Color;
+        static get White(): Color;
     }
 }
 declare namespace Canvas {

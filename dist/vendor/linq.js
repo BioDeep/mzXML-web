@@ -1,15 +1,35 @@
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+/**
+ * object creator helper module
+*/
 var Activator;
 (function (Activator) {
+    /**
+     * MetaReader对象和字典相似，只不过是没有类型约束，并且为只读集合
+    */
+    function CreateMetaReader(nameValues) {
+        return new TypeScript.Data.MetaReader(Activator.CreateObject(nameValues));
+    }
+    Activator.CreateMetaReader = CreateMetaReader;
     /**
      * @param properties 如果这个属性定义集合是一个object，则应该是一个IProperty接口的字典对象
     */
@@ -74,11 +94,11 @@ var Activator;
     */
     function CreateObject(nameValues) {
         var obj = {};
-        var type = TypeInfo.typeof(nameValues);
-        if (type.IsArray && type.class == "MapTuple") {
+        var type = TypeScript.Reflection.$typeof(nameValues);
+        if (type.isArray && type.class == "MapTuple") {
             nameValues.forEach(function (map) { return obj[map.key] = map.value; });
         }
-        else if (type.IsArray && type.class == "NamedValue") {
+        else if (type.isArray && type.class == "NamedValue") {
             nameValues.forEach(function (nv) { return obj[nv.name] = nv.value; });
         }
         else if (type.class == "IEnumerator") {
@@ -225,7 +245,8 @@ var data;
                 return format;
             }
             else {
-                // console.log(parsed);
+                TypeScript.logging.log("string format parse result:", TypeScript.ConsoleColors.Magenta);
+                TypeScript.logging.log(parsed);
             }
             if (argv.length < convCount) {
                 // 格式化参数的数量少于占位符的数量，则抛出错误
@@ -426,7 +447,7 @@ var Enumerable;
     */
     function OrderBy(source, key) {
         // array clone
-        var clone = source.slice();
+        var clone = __spreadArrays(source);
         clone.sort(function (a, b) {
             // a - b
             return key(a) - key(b);
@@ -476,9 +497,10 @@ var Enumerable;
     Enumerable.Skip = Skip;
     function TakeWhile(source, predicate) {
         var takes = [];
-        for (var i = 0; i < source.length; i++) {
-            if (predicate(source[i])) {
-                takes.push(source[i]);
+        for (var _i = 0, source_1 = source; _i < source_1.length; _i++) {
+            var x = source_1[_i];
+            if (predicate(x)) {
+                takes.push(x);
             }
             else {
                 break;
@@ -489,11 +511,12 @@ var Enumerable;
     Enumerable.TakeWhile = TakeWhile;
     function Where(source, predicate) {
         var takes = [];
-        source.forEach(function (o) {
+        for (var _i = 0, source_2 = source; _i < source_2.length; _i++) {
+            var o = source_2[_i];
             if (true == predicate(o)) {
                 takes.push(o);
             }
-        });
+        }
         return new IEnumerator(takes);
     }
     Enumerable.Where = Where;
@@ -512,8 +535,9 @@ var Enumerable;
     }
     Enumerable.SkipWhile = SkipWhile;
     function All(source, predicate) {
-        for (var i = 0; i < source.length; i++) {
-            if (!predicate(source[i])) {
+        for (var _i = 0, source_3 = source; _i < source_3.length; _i++) {
+            var element = source_3[_i];
+            if (!predicate(element)) {
                 return false;
             }
         }
@@ -521,8 +545,9 @@ var Enumerable;
     }
     Enumerable.All = All;
     function Any(source, predicate) {
-        for (var i = 0; i < source.length; i++) {
-            if (true == predicate(source[i])) {
+        for (var _i = 0, source_4 = source; _i < source_4.length; _i++) {
+            var element = source_4[_i];
+            if (true == predicate(element)) {
                 return true;
             }
         }
@@ -534,108 +559,35 @@ var Enumerable;
     */
     function GroupBy(source, getKey, compares) {
         var tree = new algorithm.BTree.binaryTree(compares);
-        source.forEach(function (obj) {
-            var key = getKey(obj);
-            var list = tree.find(key);
+        var key;
+        var list;
+        for (var _i = 0, source_5 = source; _i < source_5.length; _i++) {
+            var obj = source_5[_i];
+            key = getKey(obj);
+            list = tree.find(key);
             if (list) {
                 list.push(obj);
             }
             else {
                 tree.add(key, [obj]);
             }
-        });
-        console.log(tree);
-        return tree.AsEnumerable().Select(function (node) {
+        }
+        // TypeScript.logging.log(tree);
+        return tree
+            .AsEnumerable()
+            .Select(function (node) {
             return new Group(node.key, node.value);
         });
     }
     Enumerable.GroupBy = GroupBy;
     function AllKeys(sequence) {
-        return From(sequence)
+        return $from(sequence)
             .Select(function (o) { return Object.keys(o); })
             .Unlist()
             .Distinct()
             .ToArray();
     }
     Enumerable.AllKeys = AllKeys;
-    var JoinHelper = /** @class */ (function () {
-        function JoinHelper(x, y) {
-            this.xset = x;
-            this.yset = y;
-            this.keysT = AllKeys(x);
-            this.keysU = AllKeys(y);
-        }
-        JoinHelper.prototype.JoinProject = function (x, y) {
-            var out = {};
-            this.keysT.forEach(function (k) { return out[k] = x[k]; });
-            this.keysU.forEach(function (k) { return out[k] = y[k]; });
-            return out;
-        };
-        JoinHelper.prototype.Union = function (tKey, uKey, compare, project) {
-            if (project === void 0) { project = this.JoinProject; }
-            var tree = this.buildUtree(uKey, compare);
-            var output = [];
-            var keyX = new algorithm.BTree.binaryTree(compare);
-            this.xset.forEach(function (x) {
-                var key = tKey(x);
-                var list = tree.find(key);
-                if (list) {
-                    // 有交集，则进行叠加投影
-                    list.forEach(function (y) { return output.push(project(x, y)); });
-                    if (!keyX.find(key)) {
-                        keyX.add(key);
-                    }
-                }
-                else {
-                    // 没有交集，则投影空对象
-                    output.push(project(x, {}));
-                }
-            });
-            this.yset.forEach(function (y) {
-                var key = uKey(y);
-                if (!keyX.find(key)) {
-                    // 没有和X进行join，则需要union到最终的结果之中
-                    // 这个y是找不到对应的x元素的
-                    output.push(project({}, y));
-                }
-            });
-            return new IEnumerator(output);
-        };
-        JoinHelper.prototype.buildUtree = function (uKey, compare) {
-            var tree = new algorithm.BTree.binaryTree(compare);
-            this.yset.forEach(function (obj) {
-                var key = uKey(obj);
-                var list = tree.find(key);
-                if (list) {
-                    list.push(obj);
-                }
-                else {
-                    tree.add(key, [obj]);
-                }
-            });
-            return tree;
-        };
-        JoinHelper.prototype.LeftJoin = function (tKey, uKey, compare, project) {
-            if (project === void 0) { project = this.JoinProject; }
-            var tree = this.buildUtree(uKey, compare);
-            var output = [];
-            this.xset.forEach(function (x) {
-                var key = tKey(x);
-                var list = tree.find(key);
-                if (list) {
-                    // 有交集，则进行叠加投影
-                    list.forEach(function (y) { return output.push(project(x, y)); });
-                }
-                else {
-                    // 没有交集，则投影空对象
-                    output.push(project(x, {}));
-                }
-            });
-            return new IEnumerator(output);
-        };
-        return JoinHelper;
-    }());
-    Enumerable.JoinHelper = JoinHelper;
 })(Enumerable || (Enumerable = {}));
 /// <reference path="Iterator.ts" />
 /// <reference path="Enumerable.ts" />
@@ -663,7 +615,7 @@ var IEnumerator = /** @class */ (function (_super) {
          * 获取序列的元素类型
         */
         get: function () {
-            return TypeInfo.typeof(this.First);
+            return $ts.typeof(this.First);
         },
         enumerable: true,
         configurable: true
@@ -685,6 +637,12 @@ var IEnumerator = /** @class */ (function (_super) {
         }
         return this.sequence[index];
     };
+    /**
+     * 在明确类型信息的情况下进行强制类型转换
+    */
+    IEnumerator.prototype.ctype = function () {
+        return new IEnumerator(__spreadArrays(this.sequence));
+    };
     IEnumerator.getArray = function (source) {
         if (!source) {
             return [];
@@ -692,10 +650,10 @@ var IEnumerator = /** @class */ (function (_super) {
         else if (Array.isArray(source)) {
             // 2018-07-31 为了防止外部修改source导致sequence数组被修改
             // 在这里进行数组复制，防止出现这种情况
-            return source.slice();
+            return __spreadArrays(source);
         }
         else {
-            return source.sequence.slice();
+            return __spreadArrays(source.sequence);
         }
     };
     IEnumerator.prototype.indexOf = function (x) {
@@ -781,7 +739,10 @@ var IEnumerator = /** @class */ (function (_super) {
      *                 在这里需要将key转换为数值进行比较，遇到中文字符串可能会出现bug
     */
     IEnumerator.prototype.GroupBy = function (keySelector, compares) {
-        if (isNullOrUndefined(compares)) {
+        if (this.Count == 0) {
+            return $from([]);
+        }
+        else if (isNullOrUndefined(compares)) {
             var x = keySelector(this.First);
             switch (typeof x) {
                 case "string":
@@ -805,7 +766,12 @@ var IEnumerator = /** @class */ (function (_super) {
                     });
                     break;
                 default:
-                    throw "No element comparer was specific!";
+                    if (this.Count == 0) {
+                        return $from([]);
+                    }
+                    else {
+                        throw "No element comparer was specific!";
+                    }
             }
         }
         return Enumerable.GroupBy(this.sequence, keySelector, compares);
@@ -844,7 +810,7 @@ var IEnumerator = /** @class */ (function (_super) {
      * (求取这个序列集合的最小元素，使用这个函数要求序列之中的元素都必须能够被转换为数值)
     */
     IEnumerator.prototype.Min = function (project) {
-        if (project === void 0) { project = function (e) { return DataExtensions.as_numeric(e); }; }
+        if (project === void 0) { project = function (e) { return Strings.as_numeric(e); }; }
         return Enumerable.OrderBy(this.sequence, project).First;
     };
     /**
@@ -852,7 +818,7 @@ var IEnumerator = /** @class */ (function (_super) {
      * (求取这个序列集合的最大元素，使用这个函数要求序列之中的元素都必须能够被转换为数值)
     */
     IEnumerator.prototype.Max = function (project) {
-        if (project === void 0) { project = function (e) { return DataExtensions.as_numeric(e); }; }
+        if (project === void 0) { project = function (e) { return Strings.as_numeric(e); }; }
         return Enumerable.OrderByDescending(this.sequence, project).First;
     };
     /**
@@ -877,8 +843,9 @@ var IEnumerator = /** @class */ (function (_super) {
             project = function (e) {
                 return Number(e);
             };
-        for (var i = 0; i < this.sequence.length; i++) {
-            x += project(this.sequence[i]);
+        for (var _i = 0, _a = this.sequence; _i < _a.length; _i++) {
+            var val = _a[_i];
+            x += project(val);
         }
         return x;
     };
@@ -905,6 +872,47 @@ var IEnumerator = /** @class */ (function (_super) {
         return Enumerable.OrderByDescending(this.sequence, key);
     };
     /**
+     * Split a sequence by elements count
+    */
+    IEnumerator.prototype.Split = function (size) {
+        var seq = [];
+        var row = [];
+        for (var _i = 0, _a = this.sequence; _i < _a.length; _i++) {
+            var element = _a[_i];
+            if (row.length < size) {
+                row.push(element);
+            }
+            else {
+                seq.push(row);
+                row = [];
+            }
+        }
+        if (row.length > 0) {
+            seq.push(row);
+        }
+        return new IEnumerator(seq);
+    };
+    IEnumerator.prototype.subset = function (indexer) {
+        var index;
+        if (typeof indexer[0] == "boolean") {
+            index = [];
+            for (var i = 0; i < indexer.length; i++) {
+                if (indexer[i]) {
+                    index.push(i);
+                }
+            }
+        }
+        else {
+            index = indexer;
+        }
+        var subsetOutput = [];
+        for (var _i = 0, index_1 = index; _i < index_1.length; _i++) {
+            var i = index_1[_i];
+            subsetOutput.push(this.sequence[i]);
+        }
+        return new IEnumerator(subsetOutput);
+    };
+    /**
      * 取出序列之中的前n个元素
     */
     IEnumerator.prototype.Take = function (n) {
@@ -921,7 +929,8 @@ var IEnumerator = /** @class */ (function (_super) {
     */
     IEnumerator.prototype.Reverse = function () {
         var rseq = this.ToArray().reverse();
-        return new IEnumerator(rseq);
+        var seq = new IEnumerator(rseq);
+        return seq;
     };
     /**
      * Returns elements from a sequence as long as a specified condition is true.
@@ -979,7 +988,8 @@ var IEnumerator = /** @class */ (function (_super) {
         if (reserve === void 0) { reserve = false; }
         var chunks = new List();
         var buffer = [];
-        this.sequence.forEach(function (x) {
+        for (var _i = 0, _a = this.sequence; _i < _a.length; _i++) {
+            var x = _a[_i];
             if (isDelimiter(x)) {
                 chunks.Add(buffer);
                 if (reserve) {
@@ -992,7 +1002,7 @@ var IEnumerator = /** @class */ (function (_super) {
             else {
                 buffer.push(x);
             }
-        });
+        }
         if (buffer.length > 0) {
             chunks.Add(buffer);
         }
@@ -1006,7 +1016,9 @@ var IEnumerator = /** @class */ (function (_super) {
      *
     */
     IEnumerator.prototype.ForEach = function (callbackfn) {
-        this.sequence.forEach(callbackfn);
+        this.sequence.forEach(function (value, index, array) {
+            callbackfn(value, index);
+        });
     };
     /**
      * Contract the data sequence to string
@@ -1039,9 +1051,13 @@ var IEnumerator = /** @class */ (function (_super) {
     IEnumerator.prototype.Unlist = function (project) {
         if (project === void 0) { project = function (obj) { return obj; }; }
         var list = [];
-        this.ForEach(function (a) {
-            project(a).forEach(function (x) { return list.push(x); });
-        });
+        for (var _i = 0, _a = this.sequence; _i < _a.length; _i++) {
+            var block = _a[_i];
+            for (var _b = 0, _c = project(block); _b < _c.length; _b++) {
+                var x = _c[_b];
+                list.push(x);
+            }
+        }
         return new IEnumerator(list);
     };
     //#region "conversion"
@@ -1054,7 +1070,7 @@ var IEnumerator = /** @class */ (function (_super) {
     IEnumerator.prototype.ToArray = function (clone) {
         if (clone === void 0) { clone = true; }
         if (clone) {
-            return this.sequence.slice();
+            return __spreadArrays(this.sequence);
         }
         else {
             return this.sequence;
@@ -1074,12 +1090,15 @@ var IEnumerator = /** @class */ (function (_super) {
             return X;
         }; }
         var maps = {};
-        this.sequence.forEach(function (x) {
+        var key;
+        var value;
+        for (var _i = 0, _a = this.sequence; _i < _a.length; _i++) {
+            var x = _a[_i];
             // 2018-08-11 键名只能够是字符串类型的
-            var key = keySelector(x);
-            var value = elementSelector(x);
+            key = keySelector(x);
+            value = elementSelector(x);
             maps[key] = value;
-        });
+        }
         return new Dictionary(maps);
     };
     /**
@@ -1105,6 +1124,9 @@ var IEnumerator = /** @class */ (function (_super) {
 //  * @param tagName The name of an element.
 // */
 // createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, options ?: ElementCreationOptions): HTMLElementTagNameMap[K];
+/**
+ * A collection of html elements with same tag, name or class
+*/
 var DOMEnumerator = /** @class */ (function (_super) {
     __extends(DOMEnumerator, _super);
     /**
@@ -1115,11 +1137,41 @@ var DOMEnumerator = /** @class */ (function (_super) {
     function DOMEnumerator(elements) {
         return _super.call(this, DOMEnumerator.ensureElements(elements)) || this;
     }
+    Object.defineProperty(DOMEnumerator.prototype, "tagName", {
+        /**
+         * 这个只读属性只返回第一个元素的tagName
+         *
+         * @summary 这个属性名与html的节点元素对象的tagName属性名称保持一致
+         * 方便进行代码的编写操作
+        */
+        get: function () {
+            return this.First.tagName;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DOMEnumerator.prototype, "type", {
+        /**
+         * 这个只读属性主要是针对于input输入控件组而言的
+         *
+         * 在假设控件组都是相同类型的情况下, 这个属性直接返回第一个元素的type值
+        */
+        get: function () {
+            if (this.tagName.toLowerCase() == "input") {
+                return this.First.type;
+            }
+            else {
+                return this.tagName;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * 这个函数确保所传递进来的集合总是输出一个数组，方便当前的集合对象向其基类型传递数据源
     */
     DOMEnumerator.ensureElements = function (elements) {
-        var type = TypeInfo.typeof(elements);
+        var type = $ts.typeof(elements);
         var list;
         /**
          * TypeInfo {typeOf: "object", class: "NodeList", property: Array(2), methods: Array(5)}
@@ -1226,6 +1278,11 @@ var DOMEnumerator = /** @class */ (function (_super) {
             return this.Select(function (x) { return x.getAttribute(attrName); });
         }
     };
+    DOMEnumerator.prototype.style = function (styleVal) {
+        var css = DOM.CSS.parseStylesheet(styleVal);
+        this.ForEach(function (e) { return DOM.CSS.Setter.setStyle(e, css); });
+        return this;
+    };
     DOMEnumerator.prototype.addClass = function (className) {
         this.ForEach(function (node) {
             if (!node.classList.contains(className)) {
@@ -1286,13 +1343,46 @@ var DOMEnumerator = /** @class */ (function (_super) {
     };
     return DOMEnumerator;
 }(IEnumerator));
+var Internal;
+(function (Internal) {
+    var Handlers;
+    (function (Handlers) {
+        var Selector;
+        (function (Selector) {
+            function getElementByIdUnderContext(id, context) {
+                if (context instanceof Window) {
+                    return context.document.getElementById(id);
+                }
+                else {
+                    return context.getElementById(id);
+                }
+            }
+            Selector.getElementByIdUnderContext = getElementByIdUnderContext;
+            function selectElementsUnderContext(query, context) {
+                if (context instanceof Window) {
+                    return context
+                        .document
+                        .querySelector(query.expression);
+                }
+                else {
+                    return context.querySelector(query.expression);
+                }
+            }
+            Selector.selectElementsUnderContext = selectElementsUnderContext;
+        })(Selector = Handlers.Selector || (Handlers.Selector = {}));
+    })(Handlers = Internal.Handlers || (Internal.Handlers = {}));
+})(Internal || (Internal = {}));
 /// <reference path="../../../DOM/DOMEnumerator.ts" />
+/// <reference path="./DOMQuery.ts" />
 var Internal;
 (function (Internal) {
     var Handlers;
     (function (Handlers) {
         var events = {
-            onclick: "onclick"
+            onclick: "onclick",
+            onmouseover: "onmouseover",
+            onchange: "onchange",
+            onblur: "onblur"
         };
         var eventFuncNames = Object.keys(events);
         function hasKey(object, key) {
@@ -1303,7 +1393,7 @@ var Internal;
         /**
          * 这个函数确保给定的id字符串总是以符号``#``开始的
         */
-        function EnsureNodeId(str) {
+        function makesureElementIdSelector(str) {
             if (!str) {
                 throw "The given node id value is nothing!";
             }
@@ -1314,7 +1404,7 @@ var Internal;
                 return "#" + str;
             }
         }
-        Handlers.EnsureNodeId = EnsureNodeId;
+        Handlers.makesureElementIdSelector = makesureElementIdSelector;
         /**
          * 字符串格式的值意味着对html文档节点的查询
         */
@@ -1338,6 +1428,8 @@ var Internal;
                 }
             };
             /**
+             * Node selection by css selector
+             *
              * @param query 函数会在这里自动的处理转义问题
              * @param context 默认为当前的窗口文档
             */
@@ -1356,7 +1448,7 @@ var Internal;
                     nodes = context.querySelectorAll(cssSelector);
                 }
                 else {
-                    throw "Unsupported context type: " + TypeInfo.getClass(context);
+                    throw "Unsupported context type: " + TypeScript.Reflection.getClass(context);
                 }
                 var it = new DOMEnumerator(nodes);
                 return it;
@@ -1368,9 +1460,7 @@ var Internal;
                 var context = argument.context || window;
                 if (query.type == DOM.QueryTypes.id) {
                     // 按照id查询
-                    var node = context
-                        .document
-                        .getElementById(query.expression);
+                    var node = Handlers.Selector.getElementByIdUnderContext(query.expression, context);
                     if (isNullOrUndefined(node)) {
                         if (TypeScript.logging.outputWarning) {
                             console.warn("Unable to found a node which its ID='" + expr + "'!");
@@ -1387,10 +1477,20 @@ var Internal;
                     }
                 }
                 else if (query.type == DOM.QueryTypes.NoQuery) {
+                    // create a new node
                     return stringEval.createNew(expr, argument, context);
                 }
                 else if (!query.singleNode) {
-                    return stringEval.select(query.expression, context);
+                    // query by class
+                    if (query.type == DOM.QueryTypes.class) {
+                        // 不通过css select来选择class可以获取更好的代码执行性能
+                        var nodes = document.getElementsByClassName(query.expression);
+                        var it = new DOMEnumerator(nodes);
+                        return it;
+                    }
+                    else {
+                        return stringEval.select(query.expression, context);
+                    }
                 }
                 else if (query.type == DOM.QueryTypes.QueryMeta) {
                     // meta标签查询默认是可以在父节点文档之中查询的
@@ -1402,9 +1502,18 @@ var Internal;
                         console.warn("Apply querySelector for expression: '" + query.expression + "', no typescript extension was made!");
                     }
                     // 只返回第一个满足条件的节点
-                    return context
-                        .document
-                        .querySelector(query.expression);
+                    var element = Handlers.Selector.selectElementsUnderContext(query, context);
+                    if (!isNullOrUndefined(element)) {
+                        if (argument.nativeModel) {
+                            return TypeExtensions.Extends(element);
+                        }
+                        else {
+                            return new HTMLTsElement(element);
+                        }
+                    }
+                    else {
+                        return null;
+                    }
                 }
             };
             /**
@@ -1449,13 +1558,15 @@ var Internal;
                         }
                     }
                     else if (name == "style") {
-                        if (typeof attrs == "string") {
-                            node.setAttribute(name, attrs);
+                        var stylesheet = attrs[name];
+                        if (typeof stylesheet == "string") {
+                            // DOM.CSS.Setter.css(node, stylesheet);   
+                            node.setAttribute(name, stylesheet);
                         }
                         else {
                             // node.style是一个只读属性，无法直接赋值
-                            for (var propertyName in attrs) {
-                                node.style[propertyName] = attrs[propertyName];
+                            for (var propertyName in stylesheet) {
+                                node.style[propertyName] = stylesheet[propertyName];
                             }
                         }
                     }
@@ -1468,18 +1579,47 @@ var Internal;
                         }
                     }
                     else {
-                        node.setAttribute(name, attrs[name]);
+                        var attrVal = attrs[name];
+                        if (name == "src" || name == "href") {
+                            attrVal = Internal.urlSolver(attrVal);
+                        }
+                        node.setAttribute(name, attrVal);
                     }
                 };
                 Internal.Arguments.nameFilter(attrs).forEach(function (name) { return setAttr(name); });
-                // 添加事件
-                if (hasKey(attrs, events.onclick)) {
-                    var onclick_1 = attrs[events.onclick];
-                    if (typeof onclick_1 == "string") {
-                        node.setAttribute(events.onclick, onclick_1);
+                this.hookEvt(node, events.onclick, attrs);
+                this.hookEvt(node, events.onmouseover, attrs);
+                this.hookEvt(node, events.onchange, attrs);
+            };
+            /**
+             * 添加事件
+            */
+            stringEval.hookEvt = function (node, evtName, attrs) {
+                if (hasKey(attrs, evtName)) {
+                    var evt_1 = attrs[evtName];
+                    if (typeof evt_1 == "string") {
+                        node.setAttribute(evtName, evt_1);
                     }
                     else {
-                        node.onclick = onclick_1;
+                        var handler = function (vm, event) {
+                            return evt_1(vm, event, node);
+                        };
+                        switch (evtName) {
+                            case events.onclick:
+                                node.onclick = handler;
+                                break;
+                            case events.onmouseover:
+                                node.onmouseover = handler;
+                                break;
+                            case events.onchange:
+                                node.onchange = handler;
+                                break;
+                            case events.onblur:
+                                node.onblur = handler;
+                                break;
+                            default:
+                                TypeScript.logging.log(evtName, TypeScript.ConsoleColors.Yellow);
+                        }
                     }
                 }
             };
@@ -1518,7 +1658,7 @@ var Internal;
             function arrayEval() {
             }
             arrayEval.prototype.doEval = function (expr, type, args) {
-                return From(expr);
+                return $from(expr);
             };
             return arrayEval;
         }());
@@ -1539,6 +1679,24 @@ var Internal;
 */
 var DataExtensions;
 (function (DataExtensions) {
+    function merge(obj) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        var target;
+        var key;
+        for (var i = 0; i < args.length; i++) {
+            target = args[i];
+            for (key in target) {
+                if (Object.prototype.hasOwnProperty.call(target, key)) {
+                    obj[key] = target[key];
+                }
+            }
+        }
+        return obj;
+    }
+    DataExtensions.merge = merge;
     function arrayBufferToBase64(buffer) {
         var binary = '';
         var bytes = new Uint8Array(buffer);
@@ -1549,118 +1707,43 @@ var DataExtensions;
         return window.btoa(binary);
     }
     DataExtensions.arrayBufferToBase64 = arrayBufferToBase64;
+    function toUri(data) {
+        if (typeof data.data !== "string") {
+            data.data = arrayBufferToBase64(data.data);
+        }
+        return "data:" + data.mime_type + ";base64," + data.data;
+    }
+    DataExtensions.toUri = toUri;
     /**
      * 将uri之中的base64字符串数据转换为一个byte数据流
     */
     function uriToBlob(uri) {
-        var byteString = window.atob(uri.split(',')[1]);
-        var mimeString = uri.split(',')[0].split(':')[1].split(';')[0];
+        var mimeString;
+        var buffer;
+        if (typeof uri == "string") {
+            var base64 = uri.split(',')[1];
+            mimeString = uri.split(',')[0].split(':')[1].split(';')[0];
+            buffer = base64ToBlob(base64);
+        }
+        else {
+            mimeString = uri.mime_type;
+            buffer = typeof uri.data == "string" ? base64ToBlob(uri.data) : uri.data;
+        }
+        return new Blob([buffer], {
+            type: mimeString
+        });
+    }
+    DataExtensions.uriToBlob = uriToBlob;
+    function base64ToBlob(base64) {
+        var byteString = window.atob(base64);
         var buffer = new ArrayBuffer(byteString.length);
         var intArray = new Uint8Array(buffer);
         for (var i = 0; i < byteString.length; i++) {
             intArray[i] = byteString.charCodeAt(i);
         }
-        return new Blob([buffer], { type: mimeString });
+        return buffer;
     }
-    DataExtensions.uriToBlob = uriToBlob;
-    /**
-     * 将URL查询字符串解析为字典对象，所传递的查询字符串应该是查询参数部分，即问号之后的部分，而非完整的url
-     *
-     * @param queryString URL查询参数
-     * @param lowerName 是否将所有的参数名称转换为小写形式？
-     *
-     * @returns 键值对形式的字典对象
-    */
-    function parseQueryString(queryString, lowerName) {
-        if (lowerName === void 0) { lowerName = false; }
-        // stuff after # is not part of query string, so get rid of it
-        // split our query string into its component parts
-        var arr = queryString.split('#')[0].split('&');
-        // we'll store the parameters here
-        var obj = {};
-        for (var i = 0; i < arr.length; i++) {
-            // separate the keys and the values
-            var a = arr[i].split('=');
-            // in case params look like: list[]=thing1&list[]=thing2
-            var paramNum = undefined;
-            var paramName = a[0].replace(/\[\d*\]/, function (v) {
-                paramNum = v.slice(1, -1);
-                return '';
-            });
-            // set parameter value (use 'true' if empty)
-            var paramValue = typeof (a[1]) === 'undefined' ? "true" : a[1];
-            if (lowerName) {
-                paramName = paramName.toLowerCase();
-            }
-            // if parameter name already exists
-            if (obj[paramName]) {
-                // convert value to array (if still string)
-                if (typeof obj[paramName] === 'string') {
-                    obj[paramName] = [obj[paramName]];
-                }
-                if (typeof paramNum === 'undefined') {
-                    // if no array index number specified...
-                    // put the value on the end of the array
-                    obj[paramName].push(paramValue);
-                }
-                else {
-                    // if array index number specified...
-                    // put the value at that index number
-                    obj[paramName][paramNum] = paramValue;
-                }
-            }
-            else {
-                // if param name doesn't exist yet, set it
-                obj[paramName] = paramValue;
-            }
-        }
-        return obj;
-    }
-    DataExtensions.parseQueryString = parseQueryString;
-    /**
-     * 尝试将任意类型的目标对象转换为数值类型
-     *
-     * @returns 一个数值
-    */
-    function as_numeric(obj) {
-        return AsNumeric(obj)(obj);
-    }
-    DataExtensions.as_numeric = as_numeric;
-    /**
-     * 因为在js之中没有类型信息，所以如果要取得类型信息必须要有一个目标对象实例
-     * 所以在这里，函数会需要一个实例对象来取得类型值
-    */
-    function AsNumeric(obj) {
-        if (obj == null || obj == undefined) {
-            return null;
-        }
-        if (typeof obj === 'number') {
-            return function (x) { return x; };
-        }
-        else if (typeof obj === 'boolean') {
-            return function (x) {
-                if (x == true) {
-                    return 1;
-                }
-                else {
-                    return -1;
-                }
-            };
-        }
-        else if (typeof obj == 'undefined') {
-            return function (x) { return 0; };
-        }
-        else if (typeof obj == 'string') {
-            return function (x) {
-                return Strings.Val(x);
-            };
-        }
-        else {
-            // 其他的所有情况都转换为零
-            return function (x) { return 0; };
-        }
-    }
-    DataExtensions.AsNumeric = AsNumeric;
+    DataExtensions.base64ToBlob = base64ToBlob;
     /**
      * @param fill 进行向量填充的初始值，可能不适用于引用类型，推荐应用于初始的基元类型
     */
@@ -1681,10 +1764,14 @@ var MapTuple = /** @class */ (function () {
     /**
      * 创建一个新的键值对集合
      *
+     * @param key 键名称，一般是字符串
+     * @param value 目标键名所映射的值
     */
     function MapTuple(key, value) {
         if (key === void 0) { key = null; }
         if (value === void 0) { value = null; }
+        this.key = key;
+        this.value = value;
         this.key = key;
         this.value = value;
     }
@@ -1703,18 +1790,22 @@ var MapTuple = /** @class */ (function () {
  * 描述了一个带有名字属性的变量值
 */
 var NamedValue = /** @class */ (function () {
-    function NamedValue(name, val) {
+    /**
+     * @param name 变量值的名字属性
+     * @param value 这个变量值
+    */
+    function NamedValue(name, value) {
         if (name === void 0) { name = null; }
-        if (val === void 0) { val = null; }
+        if (value === void 0) { value = null; }
         this.name = name;
-        this.value = val;
+        this.value = value;
     }
     Object.defineProperty(NamedValue.prototype, "TypeOfValue", {
         /**
          * 获取得到变量值的类型定义信息
         */
         get: function () {
-            return TypeInfo.typeof(this.value);
+            return $ts.typeof(this.value);
         },
         enumerable: true,
         configurable: true
@@ -1757,6 +1848,21 @@ var Strings;
     Strings.A = "A".charCodeAt(0);
     Strings.Z = "Z".charCodeAt(0);
     Strings.numericPattern = /[-]?\d+(\.\d+)?/g;
+    Strings.integerPattern = /[-]?[0-9]+/g;
+    function PadLeft(text, padLen, c) {
+        if (c === void 0) { c = " "; }
+        if (Strings.Empty(text)) {
+            return DataExtensions.Dim(padLen, c).join("");
+        }
+        padLen = padLen - text.length;
+        if (padLen < 0) {
+            return text;
+        }
+        else {
+            return DataExtensions.Dim(padLen, c).join("") + text;
+        }
+    }
+    Strings.PadLeft = PadLeft;
     /**
      * 判断所给定的字符串文本是否是任意实数的正则表达式模式
     */
@@ -1764,6 +1870,54 @@ var Strings;
         return IsPattern(text, Strings.numericPattern);
     }
     Strings.isNumericPattern = isNumericPattern;
+    function isIntegerPattern(text) {
+        return IsPattern(text, Strings.integerPattern);
+    }
+    Strings.isIntegerPattern = isIntegerPattern;
+    /**
+     * 尝试将任意类型的目标对象转换为数值类型
+     *
+     * @returns 一个数值
+    */
+    function as_numeric(obj) {
+        return AsNumeric(obj)(obj);
+    }
+    Strings.as_numeric = as_numeric;
+    /**
+     * 因为在js之中没有类型信息，所以如果要取得类型信息必须要有一个目标对象实例
+     * 所以在这里，函数会需要一个实例对象来取得类型值
+    */
+    function AsNumeric(obj) {
+        if (obj == null || obj == undefined) {
+            return null;
+        }
+        if (typeof obj === 'number') {
+            return function (x) { return x; };
+        }
+        else if (typeof obj === 'boolean') {
+            return function (x) {
+                if (x == true) {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
+            };
+        }
+        else if (typeof obj == 'undefined') {
+            return function (x) { return 0; };
+        }
+        else if (typeof obj == 'string') {
+            return function (x) {
+                return Strings.Val(x);
+            };
+        }
+        else {
+            // 其他的所有情况都转换为零
+            return function (x) { return 0; };
+        }
+    }
+    Strings.AsNumeric = AsNumeric;
     /**
      * 对bytes数值进行格式自动优化显示
      *
@@ -1972,6 +2126,24 @@ var Strings;
         return out;
     }
     Strings.PeekLines = PeekLines;
+    function LCase(str) {
+        if (isNullOrUndefined(str)) {
+            return "";
+        }
+        else {
+            return str.toLowerCase();
+        }
+    }
+    Strings.LCase = LCase;
+    function UCase(str) {
+        if (isNullOrUndefined(str)) {
+            return "";
+        }
+        else {
+            return str.toUpperCase();
+        }
+    }
+    Strings.UCase = UCase;
     /**
      * Get all regex pattern matches in target text value.
     */
@@ -2012,12 +2184,12 @@ var Strings;
             return str.trim();
         }
         if (typeof chars == "string") {
-            chars = From(Strings.ToCharArray(chars))
+            chars = $from(Strings.ToCharArray(chars))
                 .Select(function (c) { return c.charCodeAt(0); })
                 .ToArray(false);
         }
         return function (chars) {
-            return From(Strings.ToCharArray(str))
+            return $from(Strings.ToCharArray(str))
                 .SkipWhile(function (c) { return chars.indexOf(c.charCodeAt(0)) > -1; })
                 .Reverse()
                 .SkipWhile(function (c) { return chars.indexOf(c.charCodeAt(0)) > -1; })
@@ -2032,12 +2204,12 @@ var Strings;
             return "";
         }
         if (typeof chars == "string") {
-            chars = From(Strings.ToCharArray(chars))
+            chars = $from(Strings.ToCharArray(chars))
                 .Select(function (c) { return c.charCodeAt(0); })
                 .ToArray(false);
         }
         return function (chars) {
-            return From(Strings.ToCharArray(str))
+            return $from(Strings.ToCharArray(str))
                 .SkipWhile(function (c) { return chars.indexOf(c.charCodeAt(0)) > -1; })
                 .JoinBy("");
         }(chars);
@@ -2049,7 +2221,7 @@ var Strings;
             return "";
         }
         if (typeof chars == "string") {
-            chars = From(Strings.ToCharArray(chars))
+            chars = $from(Strings.ToCharArray(chars))
                 .Select(function (c) { return c.charCodeAt(0); })
                 .ToArray(false);
         }
@@ -2158,6 +2330,20 @@ var Strings;
     }
     Strings.Unique = Unique;
     /**
+     * Count char numbers appears in the given string value
+    */
+    function Count(str, c) {
+        var counts = 0;
+        for (var _i = 0, str_1 = str; _i < str_1.length; _i++) {
+            var chr = str_1[_i];
+            if (chr == c) {
+                counts = counts + 1;
+            }
+        }
+        return counts;
+    }
+    Strings.Count = Count;
+    /**
      * 将字符串转换为字符数组
      *
      * @description > https://jsperf.com/convert-string-to-char-code-array/9
@@ -2259,135 +2445,65 @@ var Strings;
     }
     Strings.WrappingLines = WrappingLines;
 })(Strings || (Strings = {}));
-/**
- * 类似于反射类型
-*/
-var TypeInfo = /** @class */ (function () {
-    function TypeInfo() {
-    }
-    Object.defineProperty(TypeInfo.prototype, "IsPrimitive", {
+var TypeScript;
+(function (TypeScript) {
+    var Reflection;
+    (function (Reflection) {
         /**
-         * 是否是js之中的基础类型？
+         * 类似于反射类型
         */
-        get: function () {
-            return !this.class;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TypeInfo.prototype, "IsArray", {
-        /**
-         * 是否是一个数组集合对象？
-        */
-        get: function () {
-            return this.typeOf == "array";
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TypeInfo.prototype, "IsEnumerator", {
-        /**
-         * 是否是一个枚举器集合对象？
-        */
-        get: function () {
-            return this.typeOf == "object" && this.class == "IEnumerator";
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * 当前的对象是某种类型的数组集合对象
-    */
-    TypeInfo.prototype.IsArrayOf = function (genericType) {
-        return this.IsArray && this.class == genericType;
-    };
-    /**
-     * 获取得到类型名称
-    */
-    TypeInfo.getClass = function (obj) {
-        var type = typeof obj;
-        var isObject = type == "object";
-        var isArray = Array.isArray(obj);
-        var isNull = isNullOrUndefined(obj);
-        return TypeInfo.getClassInternal(obj, isArray, isObject, isNull);
-    };
-    TypeInfo.getClassInternal = function (obj, isArray, isObject, isNull) {
-        if (isArray) {
-            var x = obj[0];
-            var className;
-            if ((className = typeof x) == "object") {
-                className = x.constructor.name;
+        var TypeInfo = /** @class */ (function () {
+            function TypeInfo() {
             }
-            else {
-                // do nothing
-            }
-            return className;
-        }
-        else if (isObject) {
-            if (isNull) {
-                if (TypeScript.logging.outputWarning) {
-                    console.warn(TypeExtensions.objectIsNothing);
+            Object.defineProperty(TypeInfo.prototype, "isPrimitive", {
+                /**
+                 * 是否是js之中的基础类型？
+                */
+                get: function () {
+                    return !this.class;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TypeInfo.prototype, "isArray", {
+                /**
+                 * 是否是一个数组集合对象？
+                */
+                get: function () {
+                    return this.typeOf == "array";
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TypeInfo.prototype, "isEnumerator", {
+                /**
+                 * 是否是一个枚举器集合对象？
+                */
+                get: function () {
+                    return this.typeOf == "object" && ((this.class == "IEnumerator" || this.class == "DOMEnumerator") || Reflection.Internal.isEnumeratorSignature(this));
+                },
+                enumerable: true,
+                configurable: true
+            });
+            /**
+             * 当前的对象是某种类型的数组集合对象
+            */
+            TypeInfo.prototype.isArrayOf = function (genericType) {
+                return this.isArray && this.class == genericType;
+            };
+            TypeInfo.prototype.toString = function () {
+                if (this.typeOf == "object") {
+                    return "<" + this.typeOf + "> " + this.class;
                 }
-                return "null";
-            }
-            else {
-                return obj.constructor.name;
-            }
-        }
-        else {
-            return "";
-        }
-    };
-    /**
-     * 获取某一个对象的类型信息
-    */
-    TypeInfo.typeof = function (obj) {
-        var type = typeof obj;
-        var isObject = type == "object";
-        var isArray = Array.isArray(obj);
-        var isNull = isNullOrUndefined(obj);
-        var typeInfo = new TypeInfo;
-        var className = TypeInfo.getClassInternal(obj, isArray, isObject, isNull);
-        typeInfo.typeOf = isArray ? "array" : type;
-        typeInfo.class = className;
-        if (isNull) {
-            typeInfo.property = [];
-            typeInfo.methods = [];
-        }
-        else {
-            typeInfo.property = isObject ? Object.keys(obj) : [];
-            typeInfo.methods = TypeInfo.GetObjectMethods(obj);
-        }
-        return typeInfo;
-    };
-    /**
-     * 获取object对象上所定义的所有的函数
-    */
-    TypeInfo.GetObjectMethods = function (obj) {
-        var res = [];
-        for (var m in obj) {
-            if (typeof obj[m] == "function") {
-                res.push(m);
-            }
-        }
-        return res;
-    };
-    TypeInfo.prototype.toString = function () {
-        if (this.typeOf == "object") {
-            return "<" + this.typeOf + "> " + this.class;
-        }
-        else {
-            return this.typeOf;
-        }
-    };
-    /**
-     * MetaReader对象和字典相似，只不过是没有类型约束，并且为只读集合
-    */
-    TypeInfo.CreateMetaReader = function (nameValues) {
-        return new TypeScript.Data.MetaReader(Activator.CreateObject(nameValues));
-    };
-    return TypeInfo;
-}());
+                else {
+                    return this.typeOf;
+                }
+            };
+            return TypeInfo;
+        }());
+        Reflection.TypeInfo = TypeInfo;
+    })(Reflection = TypeScript.Reflection || (TypeScript.Reflection = {}));
+})(TypeScript || (TypeScript = {}));
 /**
  * JavaScript MD5 1.0.1
  * https://github.com/blueimp/JavaScript-MD5
@@ -2648,6 +2764,104 @@ var MD5;
     }
     MD5.calculate = calculate;
 })(MD5 || (MD5 = {}));
+var TypeScript;
+(function (TypeScript) {
+    var URLPatterns;
+    (function (URLPatterns) {
+        URLPatterns.hostNamePattern = /:\/\/(www[0-9]?\.)?(.[^/:]+)/i;
+        /**
+         * Regexp pattern for data uri string
+        */
+        URLPatterns.uriPattern = /data[:]\S+[/]\S+;base64,[a-zA-Z0-9/=+]/ig;
+        /**
+         * Regexp pattern for web browser url string
+        */
+        URLPatterns.urlPattern = /((https?)|(ftp))[:]\/{2}\S+\.[a-z]+[^ >"]*/ig;
+        function isFromSameOrigin(url) {
+            var URL = new TypeScript.URL(url);
+            var origin1 = URL.origin.toLowerCase();
+            var origin2 = window.location.origin.toLowerCase();
+            return origin1 == origin2;
+        }
+        URLPatterns.isFromSameOrigin = isFromSameOrigin;
+        /**
+         * 判断目标文本是否可能是一个url字符串
+        */
+        function isAPossibleUrlPattern(text, pattern) {
+            if (pattern === void 0) { pattern = URLPatterns.urlPattern; }
+            var matches = text.match(pattern);
+            if (isNullOrUndefined(matches)) {
+                return false;
+            }
+            var match = matches[0];
+            if (!Strings.Empty(match, true)) {
+                return text.indexOf(match) == 0;
+            }
+            else {
+                return false;
+            }
+        }
+        URLPatterns.isAPossibleUrlPattern = isAPossibleUrlPattern;
+        /**
+         * 将URL查询字符串解析为字典对象，所传递的查询字符串应该是查询参数部分，即问号之后的部分，而非完整的url
+         *
+         * @param queryString URL查询参数
+         * @param lowerName 是否将所有的参数名称转换为小写形式？
+         *
+         * @returns 键值对形式的字典对象
+        */
+        function parseQueryString(queryString, lowerName) {
+            if (lowerName === void 0) { lowerName = false; }
+            // stuff after # is not part of query string, so get rid of it
+            // split our query string into its component parts
+            var arr = queryString.split('#')[0].split('&');
+            // we'll store the parameters here
+            var obj = {};
+            for (var _i = 0, arr_1 = arr; _i < arr_1.length; _i++) {
+                var part = arr_1[_i];
+                // separate the keys and the values
+                obj = parseArgument(part.split('='), obj, lowerName);
+            }
+            return obj;
+        }
+        URLPatterns.parseQueryString = parseQueryString;
+        function parseArgument(a, obj, lowerName) {
+            // in case params look like: list[]=thing1&list[]=thing2
+            var paramNum = undefined;
+            var paramName = a[0].replace(/\[\d*\]/, function (v) {
+                paramNum = v.slice(1, -1);
+                return '';
+            });
+            // set parameter value (use 'true' if empty)
+            var paramValue = typeof (a[1]) === 'undefined' ? "true" : a[1];
+            if (lowerName) {
+                paramName = paramName.toLowerCase();
+            }
+            // if parameter name already exists
+            if (obj[paramName]) {
+                // convert value to array (if still string)
+                if (typeof obj[paramName] === 'string') {
+                    obj[paramName] = [obj[paramName]];
+                }
+                if (typeof paramNum === 'undefined') {
+                    // if no array index number specified...
+                    // put the value on the end of the array
+                    obj[paramName].push(paramValue);
+                }
+                else {
+                    // if array index number specified...
+                    // put the value at that index number
+                    obj[paramName][paramNum] = paramValue;
+                }
+            }
+            else {
+                // if param name doesn't exist yet, set it
+                obj[paramName] = paramValue;
+            }
+            return obj;
+        }
+    })(URLPatterns = TypeScript.URLPatterns || (TypeScript.URLPatterns = {}));
+})(TypeScript || (TypeScript = {}));
 /// <reference path="../../Collections/Abstract/Enumerator.ts" />
 var Internal;
 (function (Internal) {
@@ -2666,7 +2880,7 @@ var Internal;
         */
         StackTrace.Dump = function () {
             var err = new Error().stack.split("\n");
-            var trace = From(err)
+            var trace = $from(err)
                 //   1 是第一行 err 字符串, 
                 // + 1 是跳过当前的这个Dump函数的栈信息
                 .Skip(1 + 1)
@@ -2694,8 +2908,97 @@ var Internal;
     }(IEnumerator));
     Internal.StackTrace = StackTrace;
 })(Internal || (Internal = {}));
+/// <reference path="Type.ts" />
+var TypeScript;
+(function (TypeScript) {
+    var Reflection;
+    (function (Reflection) {
+        /**
+         * 获取某一个对象的类型信息
+        */
+        function $typeof(obj) {
+            var type = typeof obj;
+            var isObject = type == "object";
+            var isArray = Array.isArray(obj);
+            var isNull = isNullOrUndefined(obj);
+            var typeInfo = new Reflection.TypeInfo;
+            var className = getClassInternal(obj, isArray, isObject, isNull);
+            typeInfo.typeOf = isArray ? "array" : type;
+            typeInfo.class = className;
+            if (isNull) {
+                typeInfo.property = [];
+                typeInfo.methods = [];
+            }
+            else {
+                typeInfo.property = isObject ? Object.keys(obj) : [];
+                typeInfo.methods = GetObjectMethods(obj);
+            }
+            return typeInfo;
+        }
+        Reflection.$typeof = $typeof;
+        /**
+         * 获取object对象上所定义的所有的函数
+        */
+        function GetObjectMethods(obj) {
+            var res = [];
+            for (var m in obj) {
+                if (typeof obj[m] == "function") {
+                    res.push(m);
+                }
+            }
+            return res;
+        }
+        Reflection.GetObjectMethods = GetObjectMethods;
+        /**
+         * 获取得到类型名称
+        */
+        function getClass(obj) {
+            var type = typeof obj;
+            var isObject = type == "object";
+            var isArray = Array.isArray(obj);
+            var isNull = isNullOrUndefined(obj);
+            return getClassInternal(obj, isArray, isObject, isNull);
+        }
+        Reflection.getClass = getClass;
+        function getClassInternal(obj, isArray, isObject, isNull) {
+            if (isArray) {
+                return getElementType(obj);
+            }
+            else if (isObject) {
+                return getObjectClassName(obj, isNull);
+            }
+            else {
+                return "";
+            }
+        }
+        Reflection.getClassInternal = getClassInternal;
+        function getObjectClassName(obj, isnull) {
+            if (isnull) {
+                TypeScript.logging.log(TypeExtensions.objectIsNothing);
+                return "null";
+            }
+            else {
+                return obj.constructor.name;
+            }
+        }
+        Reflection.getObjectClassName = getObjectClassName;
+        function getElementType(array) {
+            var x = array[0];
+            var className;
+            if ((className = typeof x) == "object") {
+                className = x.constructor.name;
+            }
+            else {
+                // do nothing
+            }
+            return className;
+        }
+        Reflection.getElementType = getElementType;
+    })(Reflection = TypeScript.Reflection || (TypeScript.Reflection = {}));
+})(TypeScript || (TypeScript = {}));
 /// <reference path="./Abstract/Enumerator.ts" />
 /// <reference path="../Framework/StackTrace/StackTrace.ts" />
+/// <reference path="../Framework/Reflection/Reflector.ts" />
 /**
  * 键值对映射哈希表
  *
@@ -2717,7 +3020,7 @@ var Dictionary = /** @class */ (function (_super) {
         else if (Array.isArray(maps)) {
             _this.maps = Activator.CreateObject(maps);
         }
-        else if (TypeInfo.typeof(maps).class == "IEnumerator") {
+        else if ($ts.typeof(maps).class == "IEnumerator") {
             _this.maps = Activator.CreateObject(maps);
         }
         else {
@@ -2769,7 +3072,7 @@ var Dictionary = /** @class */ (function (_super) {
          * 获取这个字典对象之中的所有的键名
         */
         get: function () {
-            return From(Object.keys(this.maps));
+            return $from(Object.keys(this.maps));
         },
         enumerable: true,
         configurable: true
@@ -2797,7 +3100,7 @@ var Dictionary = /** @class */ (function (_super) {
      * 将目标对象转换为一个类型约束的映射序列集合
     */
     Dictionary.ObjectMaps = function (maps) {
-        var type = TypeInfo.typeof(maps);
+        var type = TypeScript.Reflection.$typeof(maps);
         if (isNullOrUndefined(maps)) {
             return [];
         }
@@ -2808,7 +3111,7 @@ var Dictionary = /** @class */ (function (_super) {
             return maps.ToArray();
         }
         else {
-            return From(Object.keys(maps))
+            return $from(Object.keys(maps))
                 .Select(function (key) { return new MapTuple(key, maps[key]); })
                 .ToArray();
         }
@@ -2840,21 +3143,10 @@ var Dictionary = /** @class */ (function (_super) {
     return Dictionary;
 }(IEnumerator));
 /// <reference path="./sprintf.ts" />
+/// <reference path="./URLPatterns.ts" />
 /// <reference path="../../Collections/DictionaryMaps.ts" />
 var TypeScript;
 (function (TypeScript) {
-    var URLPatterns;
-    (function (URLPatterns) {
-        URLPatterns.hostNamePattern = /:\/\/(www[0-9]?\.)?(.[^/:]+)/i;
-        /**
-         * Regexp pattern for data uri string
-        */
-        URLPatterns.uriPattern = /data[:]\S+[/]\S+;base64,[a-zA-Z0-9/=+]/ig;
-        /**
-         * Regexp pattern for web browser url string
-        */
-        URLPatterns.urlPattern = /((https?)|(ftp))[:]\/{2}\S+\.[a-z]+[^ >"]*/ig;
-    })(URLPatterns = TypeScript.URLPatterns || (TypeScript.URLPatterns = {}));
     /**
      * URL组成字符串解析模块
     */
@@ -2870,15 +3162,32 @@ var TypeScript;
             this.origin = token.name;
             token = Strings.GetTagValue(token.value, "?");
             this.path = token.name;
-            this.fileName = Strings.Empty(this.path) ? "" : TsLinq.PathHelper.basename(this.path);
-            this.hash = From(url.split("#")).Last;
+            this.fileName = Strings.Empty(this.path) ? "" : TypeScript.PathHelper.basename(this.path);
+            this.hash = $from(url.split("#")).Last;
             if (url.indexOf("#") < 0) {
                 this.hash = "";
             }
+            if (!isNullOrUndefined(this.path)) {
+                // 将页面的路径标准化
+                // 应该是一个从wwwroot起始的绝对路径
+                if (this.path.charAt(0) !== "/") {
+                    this.path = "/" + this.path;
+                }
+            }
+            else {
+                this.path = "/";
+            }
             var args = URL.UrlQuery(token.value);
+            this.queryRawString = token.value;
             this.queryArguments = Dictionary
                 .MapSequence(args)
                 .Select(function (m) { return new NamedValue(m.key, m.value); });
+            token = Strings.GetTagValue(this.origin, ":");
+            this.origin = token.name;
+            this.port = Strings.Val(token.value);
+            if (this.port == 0) {
+                this.port = this.protocol == "https" ? 443 : 80;
+            }
         }
         Object.defineProperty(URL.prototype, "query", {
             /**
@@ -2910,7 +3219,7 @@ var TypeScript;
         */
         URL.UrlQuery = function (args) {
             if (args) {
-                return DataExtensions.parseQueryString(args, false);
+                return TypeScript.URLPatterns.parseQueryString(args, false);
             }
             else {
                 return {};
@@ -2944,7 +3253,7 @@ var TypeScript;
             return new URL(window.location.href);
         };
         URL.prototype.toString = function () {
-            var query = From(this.query)
+            var query = $from(this.query)
                 .Select(function (q) { return q.name + "=" + encodeURIComponent(q.value); })
                 .JoinBy("&");
             var url = this.protocol + "://" + this.origin + "/" + this.path;
@@ -2963,7 +3272,7 @@ var TypeScript;
          * 获取所给定的URL之中的host名称字符串，如果解析失败会返回空值
         */
         URL.getHostName = function (url) {
-            var match = url.match(URLPatterns.hostNamePattern);
+            var match = url.match(TypeScript.URLPatterns.hostNamePattern);
             if (match != null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
                 return match[2];
             }
@@ -2976,31 +3285,24 @@ var TypeScript;
         */
         URL.ParseAllUrlStrings = function (text) {
             var urls = [];
-            for (var _i = 0, _a = Strings.getAllMatches(text, URLPatterns.urlPattern); _i < _a.length; _i++) {
+            for (var _i = 0, _a = Strings.getAllMatches(text, TypeScript.URLPatterns.urlPattern); _i < _a.length; _i++) {
                 var url = _a[_i];
                 urls.push(url[0]);
             }
             return urls;
         };
+        /**
+         * 判断所给定的目标字符串是否是一个base64编码的data uri字符串
+        */
         URL.IsWellFormedUriString = function (uri) {
-            var matches = uri.match(URLPatterns.uriPattern);
-            if (isNullOrUndefined(matches)) {
-                return false;
-            }
-            var match = matches[0];
-            if (!Strings.Empty(match, true)) {
-                return uri.indexOf(match) == 0;
-            }
-            else {
-                return false;
-            }
+            return TypeScript.URLPatterns.isAPossibleUrlPattern(uri, TypeScript.URLPatterns.uriPattern);
         };
         return URL;
     }());
     TypeScript.URL = URL;
 })(TypeScript || (TypeScript = {}));
-var TsLinq;
-(function (TsLinq) {
+var TypeScript;
+(function (TypeScript) {
     /**
      * String helpers for the file path string.
     */
@@ -3010,7 +3312,7 @@ var TsLinq;
          * 只保留文件名（已经去除了文件夹路径以及文件名最后的拓展名部分）
         */
         function basename(fileName) {
-            var nameTokens = From(Strings.RTrim(fileName, "/").split("/")).Last.split(".");
+            var nameTokens = $from(Strings.RTrim(fileName, "/").split("/")).Last.split(".");
             if (nameTokens.length == 1) {
                 return nameTokens[0];
             }
@@ -3021,7 +3323,7 @@ var TsLinq;
         }
         PathHelper.basename = basename;
         function extensionName(fileName) {
-            var nameTokens = From(Strings.RTrim(fileName, "/").split("/")).Last.split(".");
+            var nameTokens = $from(Strings.RTrim(fileName, "/").split("/")).Last.split(".");
             if (nameTokens.length == 1) {
                 // 没有拓展名
                 return "";
@@ -3035,11 +3337,11 @@ var TsLinq;
          * 函数返回文件名或者文件夹的名称
         */
         function fileName(path) {
-            return From(Strings.RTrim(path, "/").split("/")).Last;
+            return $from(Strings.RTrim(path, "/").split("/")).Last;
         }
         PathHelper.fileName = fileName;
-    })(PathHelper = TsLinq.PathHelper || (TsLinq.PathHelper = {}));
-})(TsLinq || (TsLinq = {}));
+    })(PathHelper = TypeScript.PathHelper || (TypeScript.PathHelper = {}));
+})(TypeScript || (TypeScript = {}));
 /**
  * 这个枚举选项的值会影响框架之中的调试器的终端输出行为
 */
@@ -3067,47 +3369,75 @@ var Modes;
 var DOM;
 (function (DOM) {
     /**
+     * 判断当前的页面是否显示在一个iframe之中
+     *
+     * https://stackoverflow.com/questions/326069/how-to-identify-if-a-webpage-is-being-loaded-inside-an-iframe-or-directly-into-t
+    */
+    function inIframe() {
+        try {
+            return window.self !== window.top;
+        }
+        catch (e) {
+            return true;
+        }
+    }
+    DOM.inIframe = inIframe;
+    /**
      * File download helper
      *
      * @param name The file save name for download operation
      * @param uri The file object to download
     */
-    function download(name, uri) {
-        if (navigator.msSaveOrOpenBlob) {
+    function download(name, uri, isUrl) {
+        if (isUrl === void 0) { isUrl = false; }
+        if (!isUrl && navigator.msSaveOrOpenBlob) {
             navigator.msSaveOrOpenBlob(DataExtensions.uriToBlob(uri), name);
         }
         else {
-            downloadImpl(name, uri);
+            downloadImpl(name, uri, isUrl);
         }
     }
     DOM.download = download;
-    function downloadImpl(name, uri) {
+    function downloadImpl(name, uri, isUrl) {
         var saveLink = $ts('<a>');
         var downloadSupported = 'download' in saveLink;
         if (downloadSupported) {
             saveLink.download = name;
             saveLink.style.display = 'none';
+            saveLink.target = "__blank";
+            saveLink.type = "application/octet-stream";
             document.body.appendChild(saveLink);
-            try {
-                var blob = DataExtensions.uriToBlob(uri);
-                var url = URL.createObjectURL(blob);
-                saveLink.href = url;
-                saveLink.onclick = function () {
-                    requestAnimationFrame(function () {
-                        URL.revokeObjectURL(url);
-                    });
-                };
-            }
-            catch (e) {
-                if (TypeScript.logging.outputWarning) {
-                    console.warn('This browser does not support object URLs. Falling back to string URL.');
-                }
+            if (isUrl && typeof uri == "string") {
                 saveLink.href = uri;
+            }
+            else {
+                try {
+                    var blob = DataExtensions.uriToBlob(uri);
+                    var url_1 = URL.createObjectURL(blob);
+                    saveLink.href = url_1;
+                    saveLink.onclick = function () {
+                        requestAnimationFrame(function () {
+                            URL.revokeObjectURL(url_1);
+                        });
+                    };
+                }
+                catch (e) {
+                    if (TypeScript.logging.outputWarning) {
+                        console.warn('This browser does not support object URLs. Falling back to string URL.');
+                    }
+                    if (typeof uri !== "string") {
+                        uri = DataExtensions.toUri(uri);
+                    }
+                    saveLink.href = uri;
+                }
             }
             saveLink.click();
             document.body.removeChild(saveLink);
         }
         else {
+            if (typeof uri !== "string") {
+                uri = DataExtensions.toUri(uri);
+            }
             window.open(uri, '_temp', 'menubar=no,toolbar=no,status=no');
         }
     }
@@ -3129,7 +3459,7 @@ var DOM;
     function AddSelectOptions(items, containerID, selectName, className) {
         if (selectName === void 0) { selectName = null; }
         if (className === void 0) { className = null; }
-        var options = From(items)
+        var options = $from(items)
             .Select(function (item) { return "<option value=\"" + item.value + "\">" + item.key + "</option>"; })
             .JoinBy("\n");
         var html;
@@ -3153,7 +3483,7 @@ var DOM;
     function CreateHTMLTableNode(rows, headers, attrs) {
         if (headers === void 0) { headers = null; }
         if (attrs === void 0) { attrs = null; }
-        var thead = $ts("<thead>");
+        var thead = $ts("<tr>");
         var tbody = $ts("<tbody>");
         var fields;
         if (Array.isArray(rows)) {
@@ -3177,7 +3507,7 @@ var DOM;
         fields.forEach(function (r) { return thead.appendChild($ts("<th>", { id: r.value }).display(r.value)); });
         return $ts("<table>", attrs)
             .asExtends
-            .append(thead)
+            .append($ts("<thead>").display(thead))
             .append(tbody)
             .HTMLElement;
     }
@@ -3192,7 +3522,7 @@ var DOM;
     function AddHTMLTable(rows, div, headers, attrs) {
         if (headers === void 0) { headers = null; }
         if (attrs === void 0) { attrs = null; }
-        var id = div + "-table";
+        var id = Strings.Trim(div, "#") + "-table";
         if (attrs) {
             if (!attrs.id) {
                 attrs.id = id;
@@ -3208,21 +3538,21 @@ var DOM;
      * @param headers ``[propertyName => displayTitle]``
     */
     function headerMaps(headers) {
-        var type = TypeInfo.typeof(headers);
-        if (type.IsArrayOf("string")) {
-            return From(headers)
+        var type = $ts.typeof(headers);
+        if (type.isArrayOf("string")) {
+            return $from(headers)
                 .Select(function (h) { return new MapTuple(h, h); })
                 .ToArray();
         }
-        else if (type.IsArrayOf(TypeExtensions.DictionaryMap)) {
+        else if (type.isArrayOf(TypeExtensions.DictionaryMap)) {
             return headers;
         }
-        else if (type.IsEnumerator && typeof headers.First == "string") {
+        else if (type.isEnumerator && typeof headers.First == "string") {
             return headers
                 .Select(function (h) { return new MapTuple(h, h); })
                 .ToArray();
         }
-        else if (type.IsEnumerator && TypeInfo.getClass(headers.First) == TypeExtensions.DictionaryMap) {
+        else if (type.isEnumerator && TypeScript.Reflection.getClass(headers.First) == TypeExtensions.DictionaryMap) {
             return headers.ToArray();
         }
         else {
@@ -3230,6 +3560,178 @@ var DOM;
         }
     }
 })(DOM || (DOM = {}));
+///<reference path="./Modes.ts" />
+var TypeScript;
+(function (TypeScript) {
+    var warningLevel = Modes.development;
+    var anyoutputLevel = Modes.debug;
+    var errorOnly = Modes.production;
+    /**
+     * Console logging helper
+    */
+    var logging = /** @class */ (function () {
+        function logging() {
+        }
+        Object.defineProperty(logging, "outputWarning", {
+            /**
+             * 应用程序的开发模式：只会输出框架的警告信息
+            */
+            get: function () {
+                return $ts.mode <= warningLevel;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(logging, "outputEverything", {
+            /**
+             * 框架开发调试模式：会输出所有的调试信息到终端之上
+            */
+            get: function () {
+                return $ts.mode == anyoutputLevel;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(logging, "outputError", {
+            /**
+             * 生产模式：只会输出错误信息
+            */
+            get: function () {
+                return $ts.mode == errorOnly;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        logging.warning = function (msg) {
+            if (this.outputWarning) {
+                console.warn(msg);
+            }
+        };
+        /**
+         * 使用这个函数显示object的时候，将不会发生样式的变化
+        */
+        logging.log = function (obj, color) {
+            if (color === void 0) { color = ConsoleColors.NA; }
+            if (typeof color != "string") {
+                color = ConsoleColors[color].toLowerCase();
+            }
+            else {
+                color = color.toLowerCase();
+            }
+            if (this.outputEverything) {
+                if (color == "na" || !TypeExtensions.isPrimitive(obj)) {
+                    console.log(obj);
+                }
+                else {
+                    console.log("%c" + obj, "color:" + color);
+                }
+            }
+            else {
+                // go silent
+            }
+        };
+        logging.table = function (objects) {
+            if (this.outputEverything) {
+                if (isNullOrUndefined(objects)) {
+                    objects = [];
+                }
+                else if (typeof objects == "string") {
+                    objects = JSON.parse(objects);
+                }
+                else if (!Array.isArray(objects)) {
+                    objects = objects.ToArray(false);
+                }
+                console.table(objects);
+            }
+            else {
+                // go silent
+            }
+        };
+        logging.runGroup = function (title, program) {
+            var startTime = Date.now();
+            console.group(title);
+            program();
+            console.groupEnd();
+            var endTime = Date.now();
+            var costTime = endTime - startTime;
+            logging.log("Program '" + title + "' cost " + costTime + "ms to run.", "darkblue");
+        };
+        return logging;
+    }());
+    TypeScript.logging = logging;
+    var ConsoleColors;
+    (function (ConsoleColors) {
+        /**
+         * do not set the colors
+        */
+        ConsoleColors[ConsoleColors["NA"] = -1] = "NA";
+        /**
+         * The color black.
+        */
+        ConsoleColors[ConsoleColors["Black"] = 0] = "Black";
+        /**
+         * The color blue.
+        */
+        ConsoleColors[ConsoleColors["Blue"] = 9] = "Blue";
+        /**
+         * The color cyan (blue - green).
+        */
+        ConsoleColors[ConsoleColors["Cyan"] = 11] = "Cyan";
+        /**
+         * The color dark blue.
+        */
+        ConsoleColors[ConsoleColors["DarkBlue"] = 1] = "DarkBlue";
+        /**
+         * The color dark cyan(dark blue - green).
+        */
+        ConsoleColors[ConsoleColors["DarkCyan"] = 3] = "DarkCyan";
+        /**
+         * The color dark gray.
+        */
+        ConsoleColors[ConsoleColors["DarkGray"] = 8] = "DarkGray";
+        /**
+         * The color dark green.
+        */
+        ConsoleColors[ConsoleColors["DarkGreen"] = 2] = "DarkGreen";
+        /**
+         * The color dark magenta(dark purplish - red).
+        */
+        ConsoleColors[ConsoleColors["DarkMagenta"] = 5] = "DarkMagenta";
+        /**
+         * The color dark red.
+        */
+        ConsoleColors[ConsoleColors["DarkRed"] = 4] = "DarkRed";
+        /**
+         * The color dark yellow(ochre).
+        */
+        ConsoleColors[ConsoleColors["DarkYellow"] = 6] = "DarkYellow";
+        /**
+         * The color gray.
+        */
+        ConsoleColors[ConsoleColors["Gray"] = 7] = "Gray";
+        /**
+         * The color green.
+        */
+        ConsoleColors[ConsoleColors["Green"] = 10] = "Green";
+        /**
+         * The color magenta(purplish - red).
+        */
+        ConsoleColors[ConsoleColors["Magenta"] = 13] = "Magenta";
+        /**
+         * The color red.
+        */
+        ConsoleColors[ConsoleColors["Red"] = 12] = "Red";
+        /**
+         * The color white.
+        */
+        ConsoleColors[ConsoleColors["White"] = 15] = "White";
+        /**
+         * The color yellow.
+        */
+        ConsoleColors[ConsoleColors["Yellow"] = 14] = "Yellow";
+    })(ConsoleColors = TypeScript.ConsoleColors || (TypeScript.ConsoleColors = {}));
+})(TypeScript || (TypeScript = {}));
+/// <reference path="../Framework/Log4TypeScript.ts" />
 var DOM;
 (function (DOM) {
     var InputValueGetter;
@@ -3267,10 +3769,19 @@ var DOM;
             return getContent();
         }
         InputValueGetter.metaValue = metaValue;
-        function getValue(id, strict) {
+        /**
+         * @param strict 这个参数主要是针对非输入类型的控件的值获取而言的。
+         * 如果目标id标记的控件不是输入类型的，则如果处于非严格模式下，
+         * 即这个参数为``false``的时候会直接强制读取value属性值
+        */
+        function getValue(resource, strict) {
             if (strict === void 0) { strict = true; }
-            var input = $ts(Internal.Handlers.EnsureNodeId(id));
-            switch (input.tagName) {
+            return unifyGetValue($ts(resource), strict);
+        }
+        InputValueGetter.getValue = getValue;
+        function unifyGetValue(input, strict) {
+            if (strict === void 0) { strict = true; }
+            switch (input.tagName.toLowerCase()) {
                 case "input": return inputValue(input);
                 case "select": return selectOptionValues(input);
                 case "textarea": return largeText(input);
@@ -3284,10 +3795,22 @@ var DOM;
                     }
             }
         }
-        InputValueGetter.getValue = getValue;
+        InputValueGetter.unifyGetValue = unifyGetValue;
         function inputValue(input) {
-            if (input.type == "checkbox") {
-                return checkboxInput(input);
+            var inputType = input.type.toLowerCase();
+            if (inputType == "checkbox") {
+                return checkboxInput(input, true);
+            }
+            else if (inputType == "radio") {
+                if (input instanceof DOMEnumerator) {
+                    return input
+                        .Where(function (radio) { return radio.checked; })
+                        .FirstOrDefault()
+                        .value;
+                }
+                else {
+                    return input.value;
+                }
             }
             else {
                 return input.value;
@@ -3299,19 +3822,34 @@ var DOM;
          * 1. 如果有多个checkbox，则会返回一个数组
          * 2. 反之如果只有一个checkbox，则只会返回一个逻辑值，用来表示是否选中该选项
         */
-        function checkboxInput(input) {
-            var inputs = document.getElementsByName(input.name);
-            var values = [];
-            if (inputs.length == 1) {
-                return input.checked;
+        function checkboxInput(input, singleAsLogical) {
+            if (singleAsLogical === void 0) { singleAsLogical = false; }
+            var inputs;
+            if (input instanceof DOMEnumerator) {
+                inputs = input;
             }
             else {
-                inputs.forEach(function (box) {
-                    var value = box.value;
-                    if (box.checked) {
-                        values.push(value);
-                    }
-                });
+                inputs = new DOMEnumerator(document.getElementsByName(input.name));
+            }
+            if (inputs.Count == 1) {
+                var single = inputs.ElementAt(0);
+                // check or unchecked
+                // true or false
+                if (singleAsLogical) {
+                    return single.checked;
+                }
+                else if (single.checked) {
+                    return single.value;
+                }
+                else {
+                    return null;
+                }
+            }
+            else {
+                var values = inputs
+                    .Where(function (c) { return c.checked; })
+                    .Select(function (box) { return box.value; })
+                    .ToArray(false);
                 return values;
             }
         }
@@ -3340,22 +3878,81 @@ var DOM;
         function getSelectedOptions(sel) {
             var opts = [];
             var opt;
-            // loop through options in select list
-            for (var i = 0, len = sel.options.length; i < len; i++) {
-                opt = sel.options[i];
-                // check if selected
-                if (opt.selected) {
-                    // add to array of option elements to return from this function
-                    opts.push(opt);
+            if (sel instanceof HTMLSelectElement) {
+                // loop through options in select list
+                for (var i = 0, len = sel.options.length; i < len; i++) {
+                    opt = sel.options[i];
+                    // check if selected
+                    if (opt.selected) {
+                        // add to array of option elements to return from this function
+                        opts.push(opt);
+                    }
                 }
+            }
+            else if (sel instanceof HTMLInputElement) {
+                if (sel.checked) {
+                    return sel.value;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return sel
+                    .Where(function (i) { return i.checked; })
+                    .Select(function (i) { return i.value; })
+                    .ToArray(false);
             }
             return opts;
         }
         InputValueGetter.getSelectedOptions = getSelectedOptions;
         function largeText(text) {
+            return text.value;
         }
         InputValueGetter.largeText = largeText;
     })(InputValueGetter = DOM.InputValueGetter || (DOM.InputValueGetter = {}));
+})(DOM || (DOM = {}));
+var DOM;
+(function (DOM) {
+    var Events;
+    (function (Events) {
+        var started = false;
+        var customEvents = [];
+        /**
+         * Add custom user event.
+         *
+         * @param trigger This lambda function detects that custom event is triggered or not.
+         * @param handler This lambda function contains the processor code of your custom event.
+        */
+        function Add(trigger, handler, tag) {
+            if (tag === void 0) { tag = null; }
+            if (trigger instanceof Events.StatusChanged) {
+                var predicate_1 = trigger;
+                trigger = function () {
+                    return predicate_1.changed;
+                };
+            }
+            customEvents.push({
+                hasUpdate: trigger,
+                invoke: handler,
+                name: tag
+            });
+            if (!started) {
+                setInterval(backgroundInternal, 10);
+                started = true;
+                TypeScript.logging.log("Start background worker...", TypeScript.ConsoleColors.DarkBlue);
+            }
+        }
+        Events.Add = Add;
+        function backgroundInternal() {
+            for (var _i = 0, customEvents_1 = customEvents; _i < customEvents_1.length; _i++) {
+                var hook = customEvents_1[_i];
+                if (hook.hasUpdate()) {
+                    hook.invoke();
+                }
+            }
+        }
+    })(Events = DOM.Events || (DOM.Events = {}));
 })(DOM || (DOM = {}));
 var data;
 (function (data_1) {
@@ -3458,35 +4055,89 @@ var data;
     }());
     data_1.NumericRange = NumericRange;
 })(data || (data = {}));
+var csv;
+(function (csv) {
+    /**
+     * 将对象序列转换为``dataframe``对象
+     *
+     * 这个函数只能够转换object类型的数据，对于基础类型将不保证能够正常工作
+     *
+     * @param data 因为这个对象序列对象是具有类型约束的，所以可以直接从第一个
+     *    元素对象之中得到所有的属性名称作为csv文件头的数据
+    */
+    function toDataFrame(data) {
+        var seq = Array.isArray(data) ? new IEnumerator(data) : data;
+        var header = $ts(Object.keys(seq.First));
+        var rows = seq
+            .Select(function (obj) {
+            var columns = header
+                .Select(function (ref, i) {
+                return toString(obj[ref]);
+            });
+            return new csv.row(columns);
+        });
+        return new csv.dataframe([new csv.row(header)]).AppendRows(rows);
+    }
+    csv.toDataFrame = toDataFrame;
+    function toString(obj) {
+        if (isNullOrUndefined(obj)) {
+            // 这个对象值是空的，所以在csv文件之中是空字符串
+            return "";
+        }
+        else {
+            return "" + obj;
+        }
+    }
+    function isTsvFile(content) {
+        var lines = Strings.lineTokens(content);
+        var countTab = $from(lines).Select(function (l) { return Strings.Count(l, "\t"); }).Average();
+        var countComma = $from(lines).Select(function (l) { return Strings.Count(l, ","); }).Average();
+        return countTab >= countComma;
+    }
+    csv.isTsvFile = isTsvFile;
+})(csv || (csv = {}));
 /// <reference path="./Abstracts/TS.ts" />
 /// <reference path="../../Data/StringHelpers/URL.ts" />
 /// <reference path="../../Data/StringHelpers/PathHelper.ts" />
 /// <reference path="../Modes.ts" />
 /// <reference path="../../DOM/Document.ts" />
 /// <reference path="../../DOM/InputValueGetter.ts" />
+/// <reference path="../../DOM/Events/CustomEvents.ts" />
 /// <reference path="../../Data/Range.ts" />
+/// <reference path="../Reflection/Reflector.ts" />
+/// <reference path="../../csv/doc.ts" />
 /**
  * The internal implementation of the ``$ts`` object.
 */
 var Internal;
 (function (Internal) {
     Internal.StringEval = new Internal.Handlers.stringEval();
+    function typeGenericElement(query, args) {
+        if (typeof query == "string") {
+            return Internal.StringEval.doEval(query, null, args);
+        }
+        else {
+            return query;
+        }
+    }
+    Internal.typeGenericElement = typeGenericElement;
     /**
      * 对``$ts``对象的内部实现过程在这里
     */
     function Static() {
         var handle = Internal.Handlers.Shared;
-        var ins = function (any, args) { return queryFunction(handle, any, args); };
+        var symbolInstance = function (any, args) { return queryFunction(handle, any, args); };
         var stringEval = handle.string();
-        ins.mode = Modes.production;
-        ins = extendsUtils(ins, stringEval);
-        ins = extendsLINQ(ins);
-        ins = extendsHttpHelpers(ins);
-        ins = extendsSelector(ins);
-        return ins;
+        symbolInstance.mode = Modes.production;
+        symbolInstance = extendsUtils(symbolInstance, stringEval);
+        symbolInstance = extendsLINQ(symbolInstance);
+        symbolInstance = extendsHttpHelpers(symbolInstance);
+        symbolInstance = extendsSelector(symbolInstance);
+        return symbolInstance;
     }
     Internal.Static = Static;
     function extendsHttpHelpers(ts) {
+        ts.url = urlSolver;
         ts.post = function (url, data, callback, options) {
             var contentType = HttpHelpers.measureContentType(data);
             var post = {
@@ -3494,9 +4145,19 @@ var Internal;
                 data: data,
                 sendContentType: (options || {}).sendContentType || true
             };
-            HttpHelpers.POST(urlSolver(url), post, function (response) {
+            HttpHelpers.POST(urlSolver(url), post, function (response, code) {
                 if (callback) {
-                    callback(handleJSON(response));
+                    if (code == 200) {
+                        callback(handleJSON(response));
+                    }
+                    else {
+                        // handle page not found and internal server error
+                        callback({
+                            code: code,
+                            info: response,
+                            url: url
+                        });
+                    }
                 }
             });
         };
@@ -3519,9 +4180,19 @@ var Internal;
             });
         };
         ts.get = function (url, callback) {
-            HttpHelpers.GetAsyn(urlSolver(url), function (response) {
+            HttpHelpers.GetAsyn(urlSolver(url), function (response, code) {
                 if (callback) {
-                    callback(handleJSON(response));
+                    if (code == 200) {
+                        callback(handleJSON(response));
+                    }
+                    else {
+                        // handle page not found and internal server error
+                        callback({
+                            code: code,
+                            info: response,
+                            url: url
+                        });
+                    }
                 }
             });
         };
@@ -3532,7 +4203,10 @@ var Internal;
                 }
             });
         };
-        ts.location = buildURLHelper();
+        if (typeof window != "undefined") {
+            // 这个是运行在web前段，不是services worker中的
+            ts.location = buildURLHelper();
+        }
         ts.parseURL = (function (url) { return new TypeScript.URL(url); });
         ts.goto = function (url, opt) {
             if (opt === void 0) { opt = { currentFrame: false, lambda: false }; }
@@ -3542,11 +4216,11 @@ var Internal;
             }
             else if (opt.lambda) {
                 return function () {
-                    Goto(url, opt.currentFrame);
+                    $goto(url, opt.currentFrame);
                 };
             }
             else {
-                Goto(url, opt.currentFrame);
+                $goto(url, opt.currentFrame);
             }
         };
         return ts;
@@ -3558,6 +4232,8 @@ var Internal;
             if (Default === void 0) { Default = ""; }
             return url.getArgument(arg, caseSensitive, Default);
         };
+        location.url = url;
+        location.hasQueryArguments = (!isNullOrUndefined(url.query)) && (url.query.length > 0);
         location.path = url.path || "/";
         location.fileName = url.fileName;
         location.hash = function (arg, urlhash) {
@@ -3617,8 +4293,8 @@ var Internal;
             // 因为url可能会带有@，所以可能会出现误查询的情况，所以在这里默认值设置为url
             // 当误查询的时候就会查询不到结果的时候，就可以返回当前的url值了
             var tag = [];
-            var c;
-            var metaQuery;
+            var c = void 0;
+            var metaQuery = void 0;
             // 第一个符号是@符号，跳过
             for (var i = 1; i < url.length; i++) {
                 if (isValidSymbol(c = url.charAt(i))) {
@@ -3669,7 +4345,16 @@ var Internal;
             }
             HttpHelpers.Imports.doEval(script, callback);
         };
-        ts.value = DOM.InputValueGetter.getValue;
+        ts.value = function (resource, value, strict) {
+            if (value === void 0) { value = null; }
+            if (strict === void 0) { strict = false; }
+            if (isNullOrUndefined(value)) {
+                return DOM.InputValueGetter.getValue(resource, strict);
+            }
+            else {
+                DOM.InputValueSetter.setValue(resource, value, strict);
+            }
+        };
         ts.inject = function (iframe, fun) {
             var frame = $ts(iframe);
             var envir = frame.contentWindow;
@@ -3689,45 +4374,130 @@ var Internal;
                 envir.eval(fun.toString());
             }
         };
-        ts.text = function (id, htmlText) {
+        ts.text = function (id, htmlText, defaultVal) {
             if (htmlText === void 0) { htmlText = false; }
-            var nodeID = Internal.Handlers.EnsureNodeId(id);
+            if (defaultVal === void 0) { defaultVal = null; }
+            var nodeID = Internal.Handlers.makesureElementIdSelector(id);
             var node = stringEval.doEval(nodeID, null, null);
-            return htmlText ? node.innerHTML : node.innerText;
+            var text;
+            if (isNullOrUndefined(node)) {
+                return defaultVal;
+            }
+            else {
+                text = htmlText ? node.innerHTML : node.innerText;
+            }
+            TypeScript.logging.log(text, TypeScript.ConsoleColors.DarkGreen);
+            return text;
         };
-        ts.loadJSON = function (id) {
-            return JSON.parse(ts.text(id));
+        ts.loadJSON = function (id, defaultVal) {
+            if (defaultVal === void 0) { defaultVal = null; }
+            var text = ts.text(id);
+            if (isNullOrUndefined(text)) {
+                return defaultVal;
+            }
+            else {
+                return JSON.parse(text);
+            }
+        };
+        ts.excel = function (a, table, sheetName, filters) {
+            if (filters === void 0) { filters = null; }
+            $ts(a).onclick = function () {
+                DOM.Excel.attatchDownload($link(a), typeof table == "string" ? $table(table) : table, sheetName, filters);
+            };
+        };
+        var TRUE = {
+            "✔": true,
+            "T": true,
+            "true": true,
+            "True": true,
+            "TRUE": true,
+            "yes": true,
+            "success": true,
+            "pass": true
+        };
+        var FALSE = {
+            "✘": false,
+            "F": false,
+            "false": false,
+            "FALSE": false,
+            "False": false,
+            "wrong": false,
+            "failure": false
         };
         // file path helpers
-        ts.parseFileName = TsLinq.PathHelper.fileName;
+        ts.parseFileName = TypeScript.PathHelper.fileName;
+        ts.parseBool = function (text) {
+            if (isNullOrUndefined(text)) {
+                return false;
+            }
+            else if (typeof text == "number") {
+                return text !== 0;
+            }
+            else if (text in TRUE) {
+                return true;
+            }
+            else if (text in FALSE) {
+                return false;
+            }
+            else {
+                // all of the none null value will be interpret as boolean true
+                return true;
+            }
+        };
+        ts.unixtimestamp = function () {
+            var d = new Date();
+            var timestamp = Math.round(d.getTime());
+            return timestamp;
+        };
         /**
          * 得到不带有拓展名的文件名部分的字符串
          *
          * @param path Full name
         */
-        ts.baseName = TsLinq.PathHelper.basename;
+        ts.baseName = TypeScript.PathHelper.basename;
         /**
          * 得到不带小数点的文件拓展名字符串
          *
          * @param path Full name
         */
-        ts.extensionName = TsLinq.PathHelper.extensionName;
+        ts.extensionName = TypeScript.PathHelper.extensionName;
         ts.withExtensionName = function (path, ext) {
             var fileExt = $ts.extensionName(path);
             var equals = fileExt.toLowerCase() == ext.toLowerCase();
             return equals;
         };
         ts.doubleRange = data.NumericRange.Create;
+        ts.hook = DOM.Events.Add;
+        ts.typeof = TypeScript.Reflection.$typeof;
+        ts.clone = function (obj) {
+            return DataExtensions.merge(obj, {});
+        };
         return ts;
     }
     function extendsLINQ(ts) {
         ts.isNullOrEmpty = function (obj) {
-            return IsNullOrEmpty(obj);
+            return isNullOrEmpty(obj);
         };
-        ts.from = From;
-        ts.csv = {
-            toObjects: function (data) { return csv.dataframe.Parse(data).Objects(); },
-            toText: function (data) { return csv.toDataFrame(data).buildDoc(); }
+        ts.from = $from;
+        ts.csv = function (data, isTsv) {
+            if (typeof isTsv != "boolean") {
+                isTsv = isTsv(data);
+            }
+            return csv.dataframe.Parse(data, isTsv);
+        };
+        ts.csv.isTsvFile = csv.isTsvFile;
+        ts.csv.toObjects = function (data) { return csv.dataframe.Parse(data, csv.isTsvFile(data)).Objects(); };
+        ts.csv.toText = function (data, tsvOut) {
+            if (tsvOut === void 0) { tsvOut = false; }
+            return csv.toDataFrame(data).buildDoc(tsvOut);
+        };
+        ts.csv.toUri = function (data, outTsv) {
+            var text = $ts.csv.toText(data, outTsv);
+            var url = {
+                mime_type: csv.contentType,
+                data: Base64.encode(text)
+            };
+            return url;
         };
         ts.evalHTML = {
             table: DOM.CreateHTMLTableNode,
@@ -3737,17 +4507,28 @@ var Internal;
         return ts;
     }
     function extendsSelector(ts) {
+        var DOMquery = Internal.Handlers.Shared.string();
         ts.select = function (query, context) {
             if (context === void 0) { context = window; }
-            return Internal.Handlers.stringEval.select(query, context);
+            var dom = Internal.Handlers.stringEval.select(query, context);
+            if (dom.Count == 0) {
+                TypeScript.logging.warning("select query of '" + query + "' returns no data...");
+            }
+            return dom;
         };
+        ts.select.getSelects = (function (id) { return DOMquery.doEval(id, null, null); });
         ts.select.getSelectedOptions = function (query, context) {
             if (context === void 0) { context = window; }
             var sel = $ts(query, {
                 context: context
             });
             var options = DOM.InputValueGetter.getSelectedOptions(sel);
-            return new DOMEnumerator(options);
+            if (Array.isArray(options) && typeof options[0] == "string") {
+                return options;
+            }
+            else {
+                return new DOMEnumerator(options);
+            }
         };
         ts.select.getOption = function (query, context) {
             if (context === void 0) { context = window; }
@@ -3755,35 +4536,50 @@ var Internal;
                 context: context
             });
             var options = DOM.InputValueGetter.getSelectedOptions(sel);
-            if (options.length == 0) {
+            if (typeof options == "boolean") {
+                return options;
+            }
+            else if (options.length == 0) {
                 return null;
             }
             else {
-                return options[0].value;
+                if (typeof options[0] == "string") {
+                    return options[0];
+                }
+                else {
+                    return options[0].value;
+                }
             }
         };
         return ts;
     }
     function queryFunction(handle, any, args) {
-        var type = TypeInfo.typeof(any);
+        var type = TypeScript.Reflection.$typeof(any);
         var typeOf = type.typeOf;
         // symbol renames due to problem in js compress tool
         //
         // ERROR - "eval" cannot be redeclared in strict mode
         //
         var queryEval = typeOf in handle ? handle[typeOf]() : null;
-        var isHtmlCollection = (typeOf == "object") && (type.class == "HTMLCollection" || type.class == "NodeListOf");
+        var isHtmlCollection = (typeOf == "object") && (type.class == "HTMLCollection" || type.class == "NodeListOf" || type.class == "NodeList");
         if (isHtmlCollection) {
             return Internal.Handlers.Shared.HTMLCollection().doEval(any, type, args);
         }
-        else if (type.IsArray) {
+        else if (type.isArray) {
             // 转化为序列集合对象，相当于from函数                
             return queryEval.doEval(any, type, args);
         }
         else if (type.typeOf == "function") {
             // 当html文档加载完毕之后就会执行传递进来的这个
             // 函数进行初始化
-            DOM.Events.ready(any);
+            if (TypeScript.logging.outputEverything && !isNullOrUndefined(args) && TypeScript.Reflection.getClass(args) == "HTMLIFrameElement") {
+                console.log("Apply a new ready event on iframe:");
+                console.log(args);
+            }
+            DOM.Events.ready(any, ["interactive", "complete"], args);
+        }
+        else if (TypeExtensions.isElement(any)) {
+            return TypeExtensions.Extends(any);
         }
         else if (!isNullOrUndefined(eval)) {
             // 对html文档之中的节点元素进行查询操作
@@ -3810,7 +4606,7 @@ var Internal;
 /// <reference path="Framework/Define/Handlers/Handlers.ts" />
 /// <reference path="Helpers/Extensions.ts" />
 /// <reference path="Helpers/Strings.ts" />
-/// <reference path="Type.ts" />
+/// <reference path="Framework/Reflection/Type.ts" />
 /// <reference path="Data/Encoder/MD5.ts" />
 /// <reference path="Framework/Define/Internal.ts" />
 // note: 2018-12-25
@@ -3866,9 +4662,11 @@ function md5(string, key, raw) {
 /**
  * Linq数据流程管线的起始函数
  *
+ * ``$ts``函数也可以达到与这个函数相同的效果，但是这个函数更快一些
+ *
  * @param source 需要进行数据加工的集合对象
 */
-function From(source) {
+function $from(source) {
     return new IEnumerator(source);
 }
 /**
@@ -3884,7 +4682,7 @@ function CharEnumerator(str) {
  *
  * @param array 如果这个数组对象是空值或者未定义，都会被判定为空，如果长度为零，则同样也会被判定为空值
 */
-function IsNullOrEmpty(array) {
+function isNullOrEmpty(array) {
     if (array == null || array == undefined) {
         return true;
     }
@@ -3932,7 +4730,7 @@ function getAllUrlParams(url) {
     if (url.indexOf("?") > -1) {
         // if query string exists
         var queryString = Strings.GetTagValue(url, '?').value;
-        var args = DataExtensions.parseQueryString(queryString);
+        var args = TypeScript.URLPatterns.parseQueryString(queryString);
         return new Dictionary(args);
     }
     else {
@@ -3947,7 +4745,7 @@ function getAllUrlParams(url) {
  * @param url 这个参数支持对meta标签数据的查询操作
  * @param currentFrame 如果这个参数为true，则不会进行父页面的跳转操作
 */
-function Goto(url, currentFrame) {
+function $goto(url, currentFrame) {
     if (currentFrame === void 0) { currentFrame = false; }
     var win = window;
     if (!currentFrame) {
@@ -3957,12 +4755,16 @@ function Goto(url, currentFrame) {
     }
     win.location.href = Internal.urlSolver(url, currentFrame);
 }
+function $download(url, rename) {
+    if (rename === void 0) { rename = null; }
+    DOM.download(rename, url, true);
+}
 /**
  * 这个函数会自动处理多行的情况
 */
 function base64_decode(stream) {
     var data = Strings.lineTokens(stream);
-    var base64Str = From(data)
+    var base64Str = $from(data)
         .Where(function (s) { return s && s.length > 0; })
         .Select(function (s) { return s.trim(); })
         .JoinBy("");
@@ -4010,17 +4812,40 @@ var $ts = Internal.Static();
 /**
  * 从文档之中查询或者创建一个新的图像标签元素
 */
-function $image(query, args) {
-    return Internal.StringEval.doEval(query, null, args);
-}
+var $image = function (query, args) {
+    return Internal.typeGenericElement(query, args);
+};
 /**
  * 从文档之中查询或者创建一个新的输入标签元素
 */
-function $input(query, args) {
-    return Internal.StringEval.doEval(query, null, args);
-}
-function $link(query, args) {
-    return Internal.StringEval.doEval(query, null, args);
+var $input = function (query, args) {
+    return Internal.typeGenericElement(query, args);
+};
+var $link = function (query, args) {
+    return Internal.typeGenericElement(query, args);
+};
+var $iframe = function (query, args) {
+    return Internal.typeGenericElement(query, args);
+};
+var $table = function (query, args) {
+    var table = Internal.typeGenericElement(query, args);
+    table.excel = function (fileName, sheetName) { return DOM.Excel.excel(table, fileName, sheetName); };
+    return table;
+};
+/**
+ * 进行对象的浅克隆
+*/
+function $clone(obj) {
+    var copy = {};
+    if (!isNullOrUndefined(obj)) {
+        for (var name_2 in obj) {
+            copy[name_2] = obj[name_2];
+        }
+    }
+    else {
+        TypeScript.logging.warning("target object is nothing!");
+    }
+    return copy;
 }
 /// <reference path="./Collections/Map.ts" />
 var TypeExtensions;
@@ -4032,7 +4857,7 @@ var TypeExtensions;
     /**
      * 字典类型的元素类型名称字符串
     */
-    TypeExtensions.DictionaryMap = TypeInfo.getClass(new MapTuple("", ""));
+    TypeExtensions.DictionaryMap = TypeScript.Reflection.getClass(new MapTuple("", ""));
     /**
      * Make sure target input is a number
     */
@@ -4045,6 +4870,42 @@ var TypeExtensions;
         }
     }
     TypeExtensions.ensureNumeric = ensureNumeric;
+    /**
+     * 判断目标是否为可以直接转换为字符串的数据类型
+    */
+    function isPrimitive(any) {
+        var type = typeof any;
+        return type == "string" ||
+            type == "number" ||
+            type == "boolean";
+    }
+    TypeExtensions.isPrimitive = isPrimitive;
+    function isElement(obj) {
+        try {
+            //Using W3 DOM2 (works for FF, Opera and Chrome)
+            return obj instanceof HTMLElement;
+        }
+        catch (e) {
+            //Browsers not supporting W3 DOM2 don't have HTMLElement and
+            //an exception is thrown and we end up here. Testing some
+            //properties that all elements have (works on IE7)
+            return (typeof obj === "object") &&
+                (obj.nodeType === 1) && (typeof obj.style === "object") &&
+                (typeof obj.ownerDocument === "object");
+        }
+    }
+    TypeExtensions.isElement = isElement;
+    function isMessageObject(obj) {
+        var type = $ts.typeof(obj);
+        var members = Activator.EmptyObject(type.property, true);
+        if ("code" in members && "info" in members && Strings.IsPattern(obj["code"].toString(), /\d+/g)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    TypeExtensions.isMessageObject = isMessageObject;
 })(TypeExtensions || (TypeExtensions = {}));
 /// <reference path="./Abstract/Enumerator.ts" />
 /**
@@ -4072,7 +4933,7 @@ var Group = /** @class */ (function (_super) {
     */
     Group.prototype.ToMaps = function () {
         var _this = this;
-        return From(this.sequence)
+        return $from(this.sequence)
             .Select(function (x) { return new MapTuple(_this.Key, x); })
             .ToArray();
     };
@@ -4154,6 +5015,9 @@ var Matrix = /** @class */ (function (_super) {
         }
         return matrix;
     };
+    /**
+     * Get or set matrix element value
+    */
     Matrix.prototype.M = function (i, j, val) {
         if (val === void 0) { val = null; }
         if (isNullOrUndefined(val)) {
@@ -4340,9 +5204,9 @@ var Which;
         }
         DefaultCompares.prototype.compares = function (a, b) {
             if (!this.as_numeric) {
-                this.as_numeric = DataExtensions.AsNumeric(a);
+                this.as_numeric = Strings.AsNumeric(a);
                 if (!this.as_numeric) {
-                    this.as_numeric = DataExtensions.AsNumeric(b);
+                    this.as_numeric = Strings.AsNumeric(b);
                 }
             }
             if (!this.as_numeric) {
@@ -4393,644 +5257,87 @@ var Which;
     }
     Which.Min = Min;
 })(Which || (Which = {}));
-/// <reference path="../Collections/Abstract/Enumerator.ts" />
-/**
- * http://www.rfc-editor.org/rfc/rfc4180.txt
-*/
-var csv;
-(function (csv_1) {
-    /**
-     * Common Format and MIME Type for Comma-Separated Values (CSV) Files
-    */
-    var contentType = "text/csv";
-    /**
-     * ``csv``文件模型
-    */
-    var dataframe = /** @class */ (function (_super) {
-        __extends(dataframe, _super);
-        /**
-         * 从行序列之中构建出一个csv对象模型
-        */
-        function dataframe(rows) {
-            return _super.call(this, rows) || this;
+var Enumerable;
+(function (Enumerable) {
+    var JoinHelper = /** @class */ (function () {
+        function JoinHelper(x, y) {
+            this.xset = x;
+            this.yset = y;
+            this.keysT = Enumerable.AllKeys(x);
+            this.keysU = Enumerable.AllKeys(y);
         }
-        Object.defineProperty(dataframe.prototype, "headers", {
-            /**
-             * Csv文件的第一行作为header
-            */
-            get: function () {
-                return new IEnumerator(this.sequence[0]);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(dataframe.prototype, "contents", {
-            /**
-             * 获取除了第一行作为``header``数据的剩余的所有的行数据
-            */
-            get: function () {
-                return this.Skip(1);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * 获取指定列名称的所有的行的列数据
-         *
-         * @param name csv文件的列名称，第一行之中的文本数据的内容
-         *
-         * @returns 该使用名称所指定的列的所有的内容字符串的枚举序列对象
-        */
-        dataframe.prototype.Column = function (name) {
-            var index = this.sequence[0].indexOf(name);
-            if (index == -1) {
-                return new IEnumerator([]);
-            }
-            else {
-                return this.Select(function (r) { return r.ElementAt(index); });
-            }
+        JoinHelper.prototype.JoinProject = function (x, y) {
+            var out = {};
+            this.keysT.forEach(function (k) { return out[k] = x[k]; });
+            this.keysU.forEach(function (k) { return out[k] = y[k]; });
+            return out;
         };
-        /**
-         * 向当前的数据框对象之中添加一行数据
-        */
-        dataframe.prototype.AppendLine = function (line) {
-            this.sequence.push(line);
-            return this;
-        };
-        /**
-         * 向当前的数据框对象之中添加多行数据
-        */
-        dataframe.prototype.AppendRows = function (data) {
-            var _this = this;
-            if (Array.isArray(data)) {
-                data.forEach(function (r) { return _this.sequence.push(r); });
-            }
-            else {
-                data.ForEach(function (r) { return _this.sequence.push(r); });
-            }
-            return this;
-        };
-        /**
-         * 将当前的这个数据框对象转换为csv文本内容
-        */
-        dataframe.prototype.buildDoc = function () {
-            return this.Select(function (r) { return r.rowLine; }).JoinBy("\n");
-        };
-        /**
-         * 使用反射操作将csv文档转换为特定类型的对象数据序列
-         *
-         * @param fieldMaps 这个参数是一个对象，其描述了如何将csv文档之中在js之中
-         *     的非法标识符转换为合法的标识符的映射
-         * @param activator 这个函数指针描述了如何创建一个新的指定类型的对象的过程，
-         *     这个函数指针不可以有参数的传递。
-         *
-         * @returns 这个函数返回类型约束的对象Linq序列集合
-        */
-        dataframe.prototype.Objects = function (fieldMaps, activator) {
-            if (fieldMaps === void 0) { fieldMaps = {}; }
-            if (activator === void 0) { activator = function () {
-                return {};
-            }; }
-            var header = dataframe.ensureMapsAll(fieldMaps, this.headers.ToArray());
-            var objs = this
-                .Skip(1)
-                .Select(function (r) {
-                var o = activator();
-                r.ForEach(function (c, i) {
-                    o[header(i)] = c;
-                });
-                return o;
+        JoinHelper.prototype.Union = function (tKey, uKey, compare, project) {
+            if (project === void 0) { project = this.JoinProject; }
+            var tree = this.buildUtree(uKey, compare);
+            var output = [];
+            var keyX = new algorithm.BTree.binaryTree(compare);
+            this.xset.forEach(function (x) {
+                var key = tKey(x);
+                var list = tree.find(key);
+                if (list) {
+                    // 有交集，则进行叠加投影
+                    list.forEach(function (y) { return output.push(project(x, y)); });
+                    if (!keyX.find(key)) {
+                        keyX.add(key);
+                    }
+                }
+                else {
+                    // 没有交集，则投影空对象
+                    output.push(project(x, {}));
+                }
             });
-            return objs;
-        };
-        dataframe.ensureMapsAll = function (fieldMaps, headers) {
-            for (var i = 0; i < headers.length; i++) {
-                var column = headers[i];
-                if (column in fieldMaps) {
-                    // do nothing
+            this.yset.forEach(function (y) {
+                var key = uKey(y);
+                if (!keyX.find(key)) {
+                    // 没有和X进行join，则需要union到最终的结果之中
+                    // 这个y是找不到对应的x元素的
+                    output.push(project({}, y));
                 }
-                else {
-                    // fill gaps
-                    fieldMaps[column] = column;
-                }
-            }
-            return function (i) {
-                return fieldMaps[headers[i]];
-            };
-        };
-        /**
-         * 使用ajax将csv文件保存到服务器
-         *
-         * @param url csv文件数据将会被通过post方法保存到这个url所指定的网络资源上面
-         * @param callback ajax异步回调，默认是打印返回结果到终端之上
-         *
-        */
-        dataframe.prototype.save = function (url, fileName, callback) {
-            if (fileName === void 0) { fileName = "upload.csv"; }
-            if (callback === void 0) { callback = function (response) {
-                console.log(response);
-            }; }
-            var file = this.buildDoc();
-            HttpHelpers.UploadFile(url, file, fileName, callback);
-        };
-        /**
-         * 使用ajax GET加载csv文件数据，不推荐使用这个方法处理大型的csv文件数据
-         *
-         * @param callback 当这个异步回调为空值的时候，函数使用同步的方式工作，返回csv对象
-         *                 如果这个参数不是空值，则以异步的方式工作，此时函数会返回空值
-         * @param parseText 如果url返回来的数据之中还包含有其他的信息，则会需要这个参数来进行csv文本数据的解析
-        */
-        dataframe.Load = function (url, callback, parseText) {
-            var _this = this;
-            if (callback === void 0) { callback = null; }
-            if (parseText === void 0) { parseText = this.defaultContent; }
-            if (callback == null || callback == undefined) {
-                // 同步
-                var load = parseText(HttpHelpers.GET(url));
-                var tsv = this.isTsv(load);
-                return dataframe.Parse(load.content, tsv);
-            }
-            else {
-                // 异步
-                HttpHelpers.GetAsyn(url, function (text, code, contentType) {
-                    if (code == 200) {
-                        var load = parseText(text, contentType);
-                        var tsv = _this.isTsv(load);
-                        var data = dataframe.Parse(load.content, tsv);
-                        console.log(data.headers);
-                        callback(data);
-                    }
-                    else {
-                        throw "Error while load csv data source, http " + code + ": " + text;
-                    }
-                });
-            }
-            return null;
-        };
-        dataframe.isTsv = function (load) {
-            var type = load.type.trim();
-            var tsv = (type == "tsv") || (type == "#tsv");
-            return tsv;
-        };
-        /**
-         * 默认是直接加个csv标签将格式设为默认的csv文件
-        */
-        dataframe.defaultContent = function (content) {
-            return {
-                type: "csv",
-                content: content
-            };
-        };
-        /**
-         * 将所给定的文本文档内容解析为数据框对象
-         *
-         * @param tsv 所需要进行解析的文本内容是否为使用``<TAB>``作为分割符的tsv文本文件？
-         *   默认不是，即默认使用逗号``,``作为分隔符的csv文本文件。
-        */
-        dataframe.Parse = function (text, tsv) {
-            if (tsv === void 0) { tsv = false; }
-            var parse = tsv ? csv_1.row.ParseTsv : csv_1.row.Parse;
-            var allTextLines = $ts.from(text.split(/\n/));
-            var rows;
-            if (Strings.Empty(allTextLines.Last)) {
-                // 2019-1-2 因为文本文件很有可能是以空行结尾的
-                // 所以在这里需要做下额外的判断
-                // 否则会在序列的最后面出现一行空数据
-                // 这个空数据很有可能会对下游程序代码产生bug影响
-                rows = allTextLines
-                    .Take(allTextLines.Count - 1)
-                    .Select(parse);
-            }
-            else {
-                rows = allTextLines.Select(parse);
-            }
-            return new dataframe(rows);
-        };
-        return dataframe;
-    }(IEnumerator));
-    csv_1.dataframe = dataframe;
-})(csv || (csv = {}));
-var csv;
-(function (csv) {
-    /**
-     * 将对象序列转换为``dataframe``对象
-     *
-     * 这个函数只能够转换object类型的数据，对于基础类型将不保证能够正常工作
-     *
-     * @param data 因为这个对象序列对象是具有类型约束的，所以可以直接从第一个
-     *    元素对象之中得到所有的属性名称作为csv文件头的数据
-    */
-    function toDataFrame(data) {
-        var seq = Array.isArray(data) ? new IEnumerator(data) : data;
-        var header = $ts(Object.keys(seq.First));
-        var rows = seq
-            .Select(function (obj) {
-            var columns = header
-                .Select(function (ref, i) {
-                return toString(obj[ref]);
             });
-            return new csv.row(columns);
-        });
-        return new csv.dataframe([new csv.row(header)]).AppendRows(rows);
-    }
-    csv.toDataFrame = toDataFrame;
-    function toString(obj) {
-        if (isNullOrUndefined(obj)) {
-            // 这个对象值是空的，所以在csv文件之中是空字符串
-            return "";
-        }
-        else {
-            return "" + obj;
-        }
-    }
-})(csv || (csv = {}));
-var csv;
-(function (csv) {
-    var HTML;
-    (function (HTML) {
-        var bootstrap = ["table", "table-hover"];
-        /**
-         * 将数据框对象转换为HTMl格式的表格对象的html代码
-         *
-         * @param tblClass 所返回来的html表格代码之中的table对象的类型默认是bootstrap类型的，
-         * 所以默认可以直接应用bootstrap的样式在这个表格之上
-         *
-         * @returns 表格的HTML代码
-        */
-        function toHTMLTable(data, tblClass) {
-            if (tblClass === void 0) { tblClass = bootstrap; }
-            var th = data.headers
-                .Select(function (h) { return "<th>" + h + "</th>"; })
-                .JoinBy("\n");
-            var tr = data.contents
-                .Select(function (r) { return r.Select(function (c) { return "<td>" + c + "</td>"; }).JoinBy(""); })
-                .Select(function (r) { return "<tr>" + r + "</tr>"; })
-                .JoinBy("\n");
-            return "\n            <table class=\"" + tblClass + "\">\n                <thead>\n                    <tr>" + th + "</tr>\n                </thead>\n                <tbody>\n                    " + tr + "\n                </tbody>\n            </table>";
-        }
-        HTML.toHTMLTable = toHTMLTable;
-        function createHTMLTable(data, tblClass) {
-            if (tblClass === void 0) { tblClass = bootstrap; }
-            return toHTMLTable(csv.toDataFrame(data), tblClass);
-        }
-        HTML.createHTMLTable = createHTMLTable;
-    })(HTML = csv.HTML || (csv.HTML = {}));
-})(csv || (csv = {}));
-var csv;
-(function (csv) {
-    /**
-     * csv文件之中的一行数据，相当于当前行的列数据的集合
-    */
-    var row = /** @class */ (function (_super) {
-        __extends(row, _super);
-        function row(cells) {
-            return _super.call(this, cells) || this;
-        }
-        Object.defineProperty(row.prototype, "columns", {
-            /**
-             * 当前的这一个行对象的列数据集合
-             *
-             * 注意，你无法通过直接修改这个数组之中的元素来达到修改这个行之中的值的目的
-             * 因为这个属性会返回这个行的数组值的复制对象
-            */
-            get: function () {
-                return this.sequence.slice();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(row.prototype, "rowLine", {
-            /**
-             * 这个只读属性仅用于生成csv文件
-            */
-            get: function () {
-                return From(this.columns)
-                    .Select(row.autoEscape)
-                    .JoinBy(",");
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * Returns the index of the first occurrence of a value in an array.
-         *
-         * 函数得到指定的值在本行对象之中的列的编号
-         *
-         * @param value The value to locate in the array.
-         * @param fromIndex The array index at which to begin the search. If ``fromIndex`` is omitted,
-         *      the search starts at index 0.
-         *
-         * @returns 如果这个函数返回-1则表示找不到
-        */
-        row.prototype.indexOf = function (value, fromIndex) {
-            if (fromIndex === void 0) { fromIndex = null; }
-            if (isNullOrUndefined(fromIndex)) {
-                return this.sequence.indexOf(value);
-            }
-            else {
-                return this.sequence.indexOf(value, fromIndex);
-            }
+            return new IEnumerator(output);
         };
-        row.prototype.ProjectObject = function (headers) {
-            var obj = {};
-            var data = this.columns;
-            if (Array.isArray(headers)) {
-                headers.forEach(function (h, i) {
-                    obj[h] = data[i];
-                });
-            }
-            else {
-                headers.ForEach(function (h, i) {
-                    obj[h] = data[i];
-                });
-            }
-            return obj;
-        };
-        row.autoEscape = function (c) {
-            if (c.indexOf(",") > -1) {
-                return "\"" + c + "\"";
-            }
-            else {
-                return c;
-            }
-        };
-        row.Parse = function (line) {
-            return new row(csv.CharsParser(line));
-        };
-        row.ParseTsv = function (line) {
-            return new row(csv.CharsParser(line, "\t"));
-        };
-        return row;
-    }(IEnumerator));
-    csv.row = row;
-})(csv || (csv = {}));
-/// <reference path="../Collections/Pointer.ts" />
-var csv;
-(function (csv) {
-    /**
-     * 通过Chars枚举来解析域，分隔符默认为逗号
-     * > https://github.com/xieguigang/sciBASIC/blame/701f9d0e6307a779bb4149c57a22a71572f1e40b/Data/DataFrame/IO/csv/Tokenizer.vb#L97
-     *
-    */
-    function CharsParser(s, delimiter, quot) {
-        if (delimiter === void 0) { delimiter = ","; }
-        if (quot === void 0) { quot = '"'; }
-        var tokens = [];
-        var temp = [];
-        var openStack = false;
-        var buffer = From(Strings.ToCharArray(s)).ToPointer();
-        var dblQuot = new RegExp("[" + quot + "]{2}", 'g');
-        var cellStr = function () {
-            // https://stackoverflow.com/questions/1144783/how-to-replace-all-occurrences-of-a-string-in-javascript
-            // 2018-09-02
-            // 如果join函数的参数是空的话，则js之中默认是使用逗号作为连接符的 
-            return temp.join("").replace(dblQuot, quot);
-        };
-        var procEscape = function (c) {
-            if (!StartEscaping(temp)) {
-                // 查看下一个字符是否为分隔符
-                // 因为前面的 Dim c As Char = +buffer 已经位移了，所以在这里直接取当前的字符
-                var peek = buffer.Current;
-                // 也有可能是 "" 转义 为单个 "
-                var lastQuot = (temp.length > 0 && temp[temp.length - 1] != quot);
-                if (temp.length == 0 && peek == delimiter) {
-                    // openStack意味着前面已经出现一个 " 了
-                    // 这里又出现了一个 " 并且下一个字符为分隔符
-                    // 则说明是 "", 当前的cell内容是一个空字符串
-                    tokens.push("");
-                    temp = [];
-                    buffer.MoveNext();
-                    openStack = false;
-                }
-                else if ((peek == delimiter || buffer.EndRead) && lastQuot) {
-                    // 下一个字符为分隔符，则结束这个token
-                    tokens.push(cellStr());
-                    temp = [];
-                    // 跳过下一个分隔符，因为已经在这里判断过了
-                    buffer.MoveNext();
-                    openStack = false;
+        JoinHelper.prototype.buildUtree = function (uKey, compare) {
+            var tree = new algorithm.BTree.binaryTree(compare);
+            this.yset.forEach(function (obj) {
+                var key = uKey(obj);
+                var list = tree.find(key);
+                if (list) {
+                    list.push(obj);
                 }
                 else {
-                    // 不是，则继续添加
-                    temp.push(c);
+                    tree.add(key, [obj]);
                 }
-            }
-            else {
-                // \" 会被转义为单个字符 "
-                temp[temp.length - 1] = c;
-            }
+            });
+            return tree;
         };
-        while (!buffer.EndRead) {
-            var c = buffer.Next;
-            if (openStack) {
-                if (c == quot) {
-                    procEscape(c);
+        JoinHelper.prototype.LeftJoin = function (tKey, uKey, compare, project) {
+            if (project === void 0) { project = this.JoinProject; }
+            var tree = this.buildUtree(uKey, compare);
+            var output = [];
+            this.xset.forEach(function (x) {
+                var key = tKey(x);
+                var list = tree.find(key);
+                if (list) {
+                    // 有交集，则进行叠加投影
+                    list.forEach(function (y) { return output.push(project(x, y)); });
                 }
                 else {
-                    // 由于双引号而产生的转义          
-                    temp.push(c);
+                    // 没有交集，则投影空对象
+                    output.push(project(x, {}));
                 }
-            }
-            else {
-                if (temp.length == 0 && c == quot) {
-                    // token的第一个字符串为双引号，则开始转义
-                    openStack = true;
-                }
-                else {
-                    if (c == delimiter) {
-                        tokens.push(cellStr());
-                        temp = [];
-                    }
-                    else {
-                        temp.push(c);
-                    }
-                }
-            }
-        }
-        if (temp.length > 0) {
-            tokens.push(cellStr());
-        }
-        return tokens;
-    }
-    csv.CharsParser = CharsParser;
-    /**
-     * 当前的token对象之中是否是转义的起始，即当前的token之中的最后一个符号
-     * 是否是转义符<paramref name="escape"/>?
-    */
-    function StartEscaping(buffer, escape) {
-        if (escape === void 0) { escape = "\\"; }
-        if (IsNullOrEmpty(buffer)) {
-            return false;
-        }
-        else {
-            return buffer[buffer.length - 1] == escape;
-        }
-    }
-})(csv || (csv = {}));
-var TypeScript;
-(function (TypeScript) {
-    var Data;
-    (function (Data) {
-        /**
-         * 这个对象可以自动的将调用者的函数名称作为键名进行对应的键值的读取操作
-        */
-        var MetaReader = /** @class */ (function () {
-            function MetaReader(meta) {
-                this.meta = meta;
-            }
-            /**
-             * Read meta object value by call name
-             *
-             * > https://stackoverflow.com/questions/280389/how-do-you-find-out-the-caller-function-in-javascript
-            */
-            MetaReader.prototype.GetValue = function (key) {
-                if (key === void 0) { key = null; }
-                if (!key) {
-                    key = Internal.StackTrace.GetCallerMember().memberName;
-                }
-                if (key in this.meta) {
-                    return this.meta[key];
-                }
-                else {
-                    return null;
-                }
-            };
-            return MetaReader;
-        }());
-        Data.MetaReader = MetaReader;
-    })(Data = TypeScript.Data || (TypeScript.Data = {}));
-})(TypeScript || (TypeScript = {}));
-/// <reference path="../Collections/Abstract/Enumerator.ts" />
-var TsLinq;
-(function (TsLinq) {
-    var PriorityQueue = /** @class */ (function (_super) {
-        __extends(PriorityQueue, _super);
-        function PriorityQueue() {
-            return _super.call(this, []) || this;
-        }
-        Object.defineProperty(PriorityQueue.prototype, "Q", {
-            /**
-             * 队列元素
-            */
-            get: function () {
-                return this.sequence;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         *
-        */
-        PriorityQueue.prototype.enqueue = function (obj) {
-            var last = this.Last;
-            var q = this.Q;
-            var x = new QueueItem(obj);
-            q.push(x);
-            if (last) {
-                last.below = x;
-                x.above = last;
-            }
+            });
+            return new IEnumerator(output);
         };
-        PriorityQueue.prototype.extract = function (i) {
-            var q = this.Q;
-            var x_above = q[i - 1];
-            var x_below = q[i + 1];
-            var x = q.splice(i, 1)[0];
-            if (x_above) {
-                x_above.below = x_below;
-            }
-            if (x_below) {
-                x_below.above = x_above;
-            }
-            return x;
-        };
-        PriorityQueue.prototype.dequeue = function () {
-            return this.extract(0);
-        };
-        return PriorityQueue;
-    }(IEnumerator));
-    TsLinq.PriorityQueue = PriorityQueue;
-    var QueueItem = /** @class */ (function () {
-        function QueueItem(x) {
-            this.value = x;
-        }
-        QueueItem.prototype.toString = function () {
-            return this.value.toString();
-        };
-        return QueueItem;
+        return JoinHelper;
     }());
-    TsLinq.QueueItem = QueueItem;
-})(TsLinq || (TsLinq = {}));
-var DOM;
-(function (DOM) {
-    var Events;
-    (function (Events) {
-        /**
-         * Execute a given function when the document is ready.
-         * It is called when the DOM is ready which can be prior to images and other external content is loaded.
-         *
-         * 可以处理多个函数作为事件，也可以通过loadComplete函数参数来指定准备完毕的状态
-         * 默认的状态是interactive即只需要加载完DOM既可以开始立即执行函数
-         *
-         * @param fn A function that without any parameters
-         * @param loadComplete + ``interactive``: The document has finished loading. We can now access the DOM elements.
-         *                     + ``complete``: The page is fully loaded.
-        */
-        function ready(fn, loadComplete) {
-            if (loadComplete === void 0) { loadComplete = ["interactive", "complete"]; }
-            if (typeof fn !== 'function') {
-                // Sanity check
-                return;
-            }
-            else if (TypeScript.logging.outputEverything) {
-                console.log("Add Document.ready event handler.");
-                console.log("document.readyState = " + document.readyState);
-            }
-            // 2018-12-25 "interactive", "complete" 这两种状态都可以算作是DOM已经准备好了
-            if (loadComplete.indexOf(document.readyState) > -1) {
-                // If document is already loaded, run method
-                return fn();
-            }
-            else {
-                // Otherwise, wait until document is loaded
-                document.addEventListener('DOMContentLoaded', fn, false);
-            }
-        }
-        Events.ready = ready;
-        /**
-         * 向一个给定的HTML元素或者HTML元素的集合之中的对象添加给定的事件
-         *
-         * @param el HTML节点元素或者节点元素的集合
-         * @param type 事件的名称字符串
-         * @param fn 对事件名称所指定的事件进行处理的工作函数，这个工作函数应该具备有一个事件对象作为函数参数
-        */
-        function addEvent(el, type, fn) {
-            if (document.addEventListener) {
-                if (el && (el.nodeName) || el === window) {
-                    el.addEventListener(type, fn, false);
-                }
-                else if (el && el.length) {
-                    for (var i = 0; i < el.length; i++) {
-                        addEvent(el[i], type, fn);
-                    }
-                }
-            }
-            else {
-                if (el && el.nodeName || el === window) {
-                    el.attachEvent('on' + type, function () {
-                        return fn.call(el, window.event);
-                    });
-                }
-                else if (el && el.length) {
-                    for (var i = 0; i < el.length; i++) {
-                        addEvent(el[i], type, fn);
-                    }
-                }
-            }
-        }
-        Events.addEvent = addEvent;
-    })(Events = DOM.Events || (DOM.Events = {}));
-})(DOM || (DOM = {}));
+    Enumerable.JoinHelper = JoinHelper;
+})(Enumerable || (Enumerable = {}));
 var DOM;
 (function (DOM) {
     var Query = /** @class */ (function () {
@@ -5038,7 +5345,8 @@ var DOM;
         }
         /**
          * + ``#`` by id
-         * + ``.`` by claSS
+         * + ``.`` by class
+         * + ``!`` by name
          * + ``&`` SINGLE NODE
          * + ``@`` read meta tag
          * + ``&lt;>`` create new tag
@@ -5072,6 +5380,16 @@ var DOM;
                 type: DOM.QueryTypes.class,
                 singleNode: isSingle,
                 expression: className
+            };
+        };
+        /**
+         * by name attribute
+        */
+        Query.getByName = function (nameVal, isSingle) {
+            return {
+                type: DOM.QueryTypes.name,
+                singleNode: isSingle,
+                expression: "[name='" + nameVal + "']"
             };
         };
         /**
@@ -5118,7 +5436,8 @@ var DOM;
             }
             switch (prefix) {
                 case "#": return this.getById(expr.substr(1));
-                case ".": return this.getByClass(expr, isSingle);
+                case ".": return this.getByClass(expr.substr(1), isSingle);
+                case "!": return this.getByName(expr.substr(1), isSingle);
                 case "<": return this.createElement(expr);
                 case "@": return this.queryMeta(expr.substr(1));
                 default: return this.getByTag(expr, isSingle);
@@ -5150,6 +5469,7 @@ var DOM;
          * ``<tag class="xxx">``
         */
         QueryTypes[QueryTypes["class"] = 10] = "class";
+        QueryTypes[QueryTypes["name"] = 100] = "name";
         /**
          * 表达式为 xxx
          * 按照节点的名称进行查询
@@ -5168,6 +5488,193 @@ var DOM;
         */
         QueryTypes[QueryTypes["QueryMeta"] = 200] = "QueryMeta";
     })(QueryTypes = DOM.QueryTypes || (DOM.QueryTypes = {}));
+})(DOM || (DOM = {}));
+var DOM;
+(function (DOM) {
+    var Excel;
+    (function (Excel) {
+        Excel.contentType = "application/vnd.ms-excel";
+        function attatchDownload(a, table, sheetName, filters) {
+            if (sheetName === void 0) { sheetName = "Sheet1"; }
+            if (filters === void 0) { filters = null; }
+            excel((typeof table == "string" ? $ts(table) : table), a.download, sheetName, filters);
+        }
+        Excel.attatchDownload = attatchDownload;
+        function excel(table, fileName, sheetName, filters) {
+            if (filters === void 0) { filters = null; }
+            DOM.download(fileName, {
+                mime_type: Excel.contentType,
+                data: Base64.encode(ToExcel(table, sheetName, filters))
+            });
+        }
+        Excel.excel = excel;
+        function ToExcel(table, sheetName, filters) {
+            if (filters === void 0) { filters = null; }
+            var html = new StringBuilder("", "\n");
+            html.AppendLine("<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\" xmlns=\"http://www.w3.org/TR/REC-html40\">");
+            html.AppendLine("<head>");
+            html.AppendLine("<meta name=\"ProgId\" content=\"Excel.Sheet\">");
+            html.AppendLine("<meta name=\"Generator\" content=\"Microsoft Excel 11\">");
+            html.AppendLine("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+            html.AppendLine("    \n<!--[if gte mso 9]>\n\t<xml>\n\t\t<x:ExcelWorkbook>\n\t\t\t<x:ExcelWorksheets>\n\t\t\t\t<x:ExcelWorksheet>\n\t\t\t\t\t<x:Name>" + sheetName + "</x:Name>\n\t\t\t\t\t<x:WorksheetOptions>\n\t\t\t\t\t\t<x:DisplayGridlines/>\n\t\t\t\t\t</x:WorksheetOptions>\n\t\t\t\t</x:ExcelWorksheet>\n\t\t\t</x:ExcelWorksheets>\n\t\t</x:ExcelWorkbook>\n\t</xml>\n<![endif]-->\n");
+            html.AppendLine("</head>");
+            html.AppendLine("<body>");
+            html.AppendLine(ToHtml(table, filters));
+            html.AppendLine("</body>");
+            html.AppendLine("</html>");
+            return html.toString();
+        }
+        Excel.ToExcel = ToExcel;
+        function ToHtml(table, filters) {
+            if (filters === void 0) { filters = null; }
+            var html = new StringBuilder("", "\n");
+            var body = table.tBodies.item(0);
+            var theader = table.tHead.rows.item(0);
+            html.AppendLine(tagOpenWithCssStyle(table));
+            html.AppendLine(tagOpenWithCssStyle(table.tHead));
+            html.AppendLine(rowHtml(theader, true));
+            html.AppendLine("</thead>");
+            html.AppendLine(tagOpenWithCssStyle(body));
+            for (var i = 0; i < body.rows.length; i++) {
+                html.AppendLine(rowHtml(body.rows.item(i), false));
+            }
+            html.AppendLine("</tbody>");
+            html.AppendLine("</table>");
+            return html.toString();
+        }
+        Excel.ToHtml = ToHtml;
+        function tagOpenWithCssStyle(node) {
+            var tagName = node.tagName.toLowerCase();
+            var css = node.style.cssText;
+            if (Strings.Empty(css, true)) {
+                return "<" + tagName + ">";
+            }
+            else {
+                return "<" + tagName + " style=\"" + css + "\">";
+            }
+        }
+        function rowHtml(row, isTHead) {
+            var keyword = isTHead ? "th" : "td";
+            var columns = [];
+            for (var i = 0; i < row.cells.length; i++) {
+                columns.push("<" + keyword + ">" + cellHtml(row.cells.item(i)) + "</" + keyword + ">");
+            }
+            return "" + tagOpenWithCssStyle(row) + columns.join("") + "</tr>";
+        }
+        function cellHtml(cell) {
+            var html = cell.innerHTML;
+            // removes html form controls
+            html = html.replace(/[<]\/?button([\s\S]*?)[>]/ig, "");
+            html = html.replace(/[<]select([\s\S]*?)[<]\/select[>]/ig, "");
+            // removes <script> code blocks
+            // https://stackoverflow.com/questions/28889767/javascript-regex-to-match-multiple-lines
+            html = html.replace(/[<]script([\s\S]*?)[<]\/script[>]/ig, "");
+            // console.log(html);
+            return html;
+        }
+    })(Excel = DOM.Excel || (DOM.Excel = {}));
+})(DOM || (DOM = {}));
+var DOM;
+(function (DOM) {
+    var InputValueSetter;
+    (function (InputValueSetter) {
+        /**
+         * 设置控件的输入值
+         *
+         * @param resource name or id
+         *
+         * @param strict 这个参数主要是针对非输入类型的控件的值获取而言的。
+         *   如果目标id标记的控件不是输入类型的，则如果处于非严格模式下，
+         *   即这个参数为``false``的时候会直接强制读取value属性值
+        */
+        function setValue(resource, value, strict) {
+            if (strict === void 0) { strict = true; }
+            var input = $ts(resource);
+            var type = $ts.typeof(input);
+            if (type.isEnumerator) {
+                setValues(new DOMEnumerator(input), value, strict);
+            }
+            else {
+                switch (input.tagName.toLowerCase()) {
+                    case "input":
+                        input.asInput.value = value;
+                        break;
+                    case "select":
+                        setSelection(input, value);
+                        break;
+                    case "textarea":
+                        input.any.value = value;
+                        break;
+                    default:
+                        if (strict) {
+                            throw "Set value of <" + input.tagName + "> is not supported!";
+                        }
+                        else {
+                            // 强制读取目标节点的value属性值
+                            return input.setAttribute("value", value);
+                        }
+                }
+            }
+        }
+        InputValueSetter.setValue = setValue;
+        function setSelection(sel, value) {
+            var opts = sel.options;
+            for (var i = 0; i < opts.length; i++) {
+                opts.item(i).selected = false;
+                if (opts.item(i).value == value) {
+                    opts.item(i).selected = true;
+                }
+            }
+        }
+        /**
+         * Set option value for checkbox or radio button
+        */
+        function setOption(inputs, value) {
+            var opt = inputs
+                .Select(function (a) {
+                var input = a.asInput;
+                input.checked = false;
+                return input;
+            })
+                .Where(function (a) { return a.value == value; })
+                .First;
+            opt.checked = true;
+            // view set value result in debug mode
+            TypeScript.logging.log(opt);
+        }
+        function setValues(inputs, value, strict) {
+            var first = inputs.First;
+            switch (first.tagName.toLowerCase()) {
+                case "input":
+                    var type = first.asInput.type;
+                    switch (type.toLowerCase()) {
+                        case "checkbox":
+                            setOption(inputs, value);
+                            break;
+                        case "radio":
+                            setOption(inputs, value);
+                            break;
+                        default:
+                            inputs.attr("value", value);
+                    }
+                    break;
+                case "select":
+                    inputs.ForEach(function (sel) { return setSelection(sel, value); });
+                    break;
+                case "textarea":
+                    inputs.ctype().ForEach(function (t) { return t.value = value; });
+                    break;
+                default:
+                    if (strict) {
+                        throw "Set value of <" + inputs.tagName + "> is not supported!";
+                    }
+                    else {
+                        // 强制读取目标节点的value属性值
+                        inputs.attr("value", value);
+                    }
+            }
+        }
+    })(InputValueSetter = DOM.InputValueSetter || (DOM.InputValueSetter = {}));
 })(DOM || (DOM = {}));
 var DOM;
 (function (DOM) {
@@ -5223,7 +5730,7 @@ var DOM;
         var attrs = [];
         if (tagValue.value.length > 0) {
             // 使用正则表达式进行解析
-            attrs = From(tagValue.value.match(DOM.attrs))
+            attrs = $from(tagValue.value.match(DOM.attrs))
                 .Where(function (s) { return s.length > 0; })
                 .Select(function (s) {
                 var attr = Strings.GetTagValue(s, "=");
@@ -5238,657 +5745,698 @@ var DOM;
     }
     DOM.ParseNodeDeclare = ParseNodeDeclare;
 })(DOM || (DOM = {}));
-/**
- * 实现这个类需要重写下面的方法实现：
- *
- * + ``protected abstract init(): void;``
- * + ``public abstract get appName(): string``
- *
- * 可以选择性的重写下面的事件处理器
- *
- * + ``protected OnDocumentReady(): void``
- * + ``protected OnWindowLoad(): void``
- * + ``protected OnWindowUnload(): string``
- * + ``protected OnHashChanged(hash: string): void``
- *
- * 也可以重写下面的事件来获取当前的app的名称
- *
- * + ``protected getCurrentAppPage(): string``
-*/
-var Bootstrap = /** @class */ (function () {
-    function Bootstrap() {
-        this.status = "Sleep";
-        this.hookUnload = null;
-    }
-    Object.defineProperty(Bootstrap.prototype, "appStatus", {
-        get: function () {
-            return this.status;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Bootstrap.prototype, "appHookMsg", {
-        get: function () {
-            return this.hookUnload;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Bootstrap.prototype.Init = function () {
-        var _this = this;
-        var vm = this;
-        var currentAppName = this.getCurrentAppPage();
-        var awake;
-        if (Router.isCaseSensitive()) {
-            awake = currentAppName == this.appName;
-        }
-        else {
-            awake = currentAppName.toLowerCase() == this.appName.toLowerCase();
-        }
-        // 必须要当前的App名称和当前的页面app一致的时候这个App的运行才会被触发
-        if (!awake) {
-            if (TypeScript.logging.outputEverything) {
-                console.log("%c[" + TypeInfo.typeof(this).class + "] Continue Sleep as: TRUE = " + currentAppName + " <> " + this.appName, "color:green;");
-            }
-            return;
-        }
-        else if (TypeScript.logging.outputEverything) {
-            console.log("%c[" + TypeInfo.typeof(this).class + "] App(name:=" + this.appName + ") Init...", "color:blue;");
-        }
-        // attach event handlers
-        $ts(function () { return _this.OnDocumentReady(); });
-        // 2019-1-7 因为js是解释执行的，所以OnWindowLoad函数里面的代码之中的this，
-        // 可能会被解释为window对象
-        // 从而导致出现bug，所以在这里需要使用一个函数的封装来避免这个问题
-        window.onload = function () { return _this.OnWindowLoad(); };
-        window.onbeforeunload = function () { return _this.OnWindowUnload(); };
-        window.onhashchange = function () {
-            var hash = window.location.hash;
-            var val = hash.substr(1);
-            vm.OnHashChanged(val);
-        };
-        this.init();
-        this.status = "Running";
-    };
-    /**
-     * Event handler on document is ready
-    */
-    Bootstrap.prototype.OnDocumentReady = function () {
-        // do nothing
-    };
-    /**
-     * Event handler on Window loaded
-    */
-    Bootstrap.prototype.OnWindowLoad = function () {
-        // do nothing
-    };
-    Bootstrap.prototype.OnWindowUnload = function () {
-        if (!Strings.Empty(this.hookUnload, true)) {
-            return this.hookUnload;
-        }
-    };
-    Bootstrap.prototype.unhook = function () {
-        this.hookUnload = null;
-    };
-    /**
-     * Event handler on url hash link changed
-    */
-    Bootstrap.prototype.OnHashChanged = function (hash) {
-        // do nothing
-    };
-    /**
-     * 这个函数默认是取出url query之中的app参数字符串作为应用名称
-     *
-     * @returns 如果没有定义app参数，则默认是返回``/``作为名称
-    */
-    Bootstrap.prototype.getCurrentAppPage = function () {
-        return getAllUrlParams().Item("app") || "/";
-    };
-    Bootstrap.prototype.toString = function () {
-        return "[" + this.status + "] " + this.appName;
-    };
-    return Bootstrap;
-}());
-var Framework;
-(function (Framework) {
-    var Extensions;
-    (function (Extensions) {
+var DOM;
+(function (DOM) {
+    var Animation;
+    (function (Animation) {
         /**
-         * 确保所传递进来的参数输出的是一个序列集合对象
+         * 查看在当前的浏览器中，是否支持css3动画特性
         */
-        function EnsureCollection(data, n) {
-            if (n === void 0) { n = -1; }
-            return new IEnumerator(EnsureArray(data, n));
-        }
-        Extensions.EnsureCollection = EnsureCollection;
-        /**
-         * 确保随传递进来的参数所输出的是一个数组对象
-         *
-         * @param data 如果这个参数是一个数组，则在这个函数之中会执行复制操作
-         * @param n 如果data数据序列长度不足，则会使用null进行补充，n为任何小于data长度的正实数都不会进行补充操作，
-         *     相反只会返回前n个元素，如果n是负数，则不进行任何操作
-        */
-        function EnsureArray(data, n) {
-            if (n === void 0) { n = -1; }
-            var type = TypeInfo.typeof(data);
-            var array;
-            if (type.IsEnumerator) {
-                array = data.ToArray();
-            }
-            else if (type.IsArray) {
-                array = data.slice();
+        function isSupportsCSSAnimation() {
+            var bodyStyle = document.getElementsByTagName("body")[0].style;
+            if (typeof bodyStyle.animation != "undefined" || typeof bodyStyle.WebkitAnimation != "undefined") {
+                return true;
             }
             else {
-                var x = data;
-                if (n <= 0) {
-                    array = [x];
-                }
-                else {
-                    array = [];
-                    for (var i = 0; i < n; i++) {
-                        array.push(x);
-                    }
-                }
+                return false;
             }
-            if (1 <= n) {
-                if (n < array.length) {
-                    array = array.slice(0, n);
-                }
-                else if (n > array.length) {
-                    var len = array.length;
-                    for (var i = len; i < n; i++) {
-                        array.push(null);
-                    }
-                }
-                else {
-                    // n 和 array 等长，不做任何事
-                }
-            }
-            return array;
         }
-        Extensions.EnsureArray = EnsureArray;
+        Animation.isSupportsCSSAnimation = isSupportsCSSAnimation;
+    })(Animation = DOM.Animation || (DOM.Animation = {}));
+})(DOM || (DOM = {}));
+var DOM;
+(function (DOM) {
+    var CSS;
+    (function (CSS) {
         /**
-         * Extends `from` object with members from `to`.
-         *
-         * > https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
-         *
-         * @param to If `to` is null, a deep clone of `from` is returned
+         * 解析选择器所对应的样式配置信息
         */
-        function extend(from, to) {
-            if (to === void 0) { to = null; }
-            if (from == null || typeof from != "object")
-                return from;
-            if (from.constructor != Object && from.constructor != Array)
-                return from;
-            if (from.constructor == Date ||
-                from.constructor == RegExp ||
-                from.constructor == Function ||
-                from.constructor == String ||
-                from.constructor == Number ||
-                from.constructor == Boolean)
-                return new from.constructor(from);
-            to = to || new from.constructor();
-            for (var name in from) {
-                to[name] = typeof to[name] == "undefined" ? extend(from[name], null) : to[name];
+        function parseStylesheet(content) {
+            var i = new Pointer(CharEnumerator(content));
+            var stylesheet = [];
+            var buf = [];
+            var name;
+            var value;
+            var c;
+            while (!i.EndRead) {
+                c = i.Current;
+                i.MoveNext();
+                if (c == ":") {
+                    name = buf.join("").trim();
+                    buf = [];
+                }
+                else if (c == ";") {
+                    value = buf.join("").trim();
+                    buf = [];
+                    stylesheet.push(new NamedValue(name, value));
+                }
+                else {
+                    buf.push(c);
+                }
             }
-            return to;
+            if (buf.length > 0) {
+                stylesheet.push(new NamedValue(name, buf.join("")));
+            }
+            return stylesheet;
         }
-        Extensions.extend = extend;
-    })(Extensions = Framework.Extensions || (Framework.Extensions = {}));
-})(Framework || (Framework = {}));
-var TypeScript;
-(function (TypeScript) {
-    function gc() {
-        return TypeScript.garbageCollect.handler();
+        CSS.parseStylesheet = parseStylesheet;
+    })(CSS = DOM.CSS || (DOM.CSS = {}));
+})(DOM || (DOM = {}));
+var DOM;
+(function (DOM) {
+    var CSS;
+    (function (CSS) {
+        var Setter;
+        (function (Setter) {
+            function css(node, style) {
+                setStyle(node, CSS.parseStylesheet(style));
+            }
+            Setter.css = css;
+            function setStyle(node, style) {
+                for (var _i = 0, style_1 = style; _i < style_1.length; _i++) {
+                    var declare = style_1[_i];
+                    applyStyle(node, declare.name, declare.value);
+                }
+            }
+            Setter.setStyle = setStyle;
+            /**
+             * 20200427
+             * 似乎直接应用于style属性上并不会起作用，所以在这里修改为应用于节点元素的style上
+            */
+            function applyStyle(styledNode, name, value) {
+                switch (name.toLowerCase()) {
+                    case "color":
+                        styledNode.style.color = value;
+                        break;
+                    case "background-color":
+                        styledNode.style.backgroundColor = value;
+                        break;
+                    case "font-size":
+                        styledNode.style.fontSize = value;
+                        break;
+                    default:
+                        styledNode.style[name] = value;
+                        TypeScript.logging.warning("Set style '" + name + "' is not implements yet...");
+                }
+            }
+        })(Setter = CSS.Setter || (CSS.Setter = {}));
+    })(CSS = DOM.CSS || (DOM.CSS = {}));
+})(DOM || (DOM = {}));
+var DOM;
+(function (DOM) {
+    var Events;
+    (function (Events) {
+        /**
+         * Execute a given function when the document is ready.
+         * It is called when the DOM is ready which can be prior to images and other external content is loaded.
+         *
+         * 可以处理多个函数作为事件，也可以通过loadComplete函数参数来指定准备完毕的状态
+         * 默认的状态是interactive即只需要加载完DOM既可以开始立即执行函数
+         *
+         * @param fn A function that without any parameters
+         * @param loadComplete + ``interactive``: The document has finished loading. We can now access the DOM elements.
+         *                     + ``complete``: The page is fully loaded.
+         * @param iframe Event execute on document from target iframe.
+         *
+        */
+        function ready(fn, loadComplete, iframe) {
+            if (loadComplete === void 0) { loadComplete = ["interactive", "complete"]; }
+            if (iframe === void 0) { iframe = null; }
+            var docObj = isNullOrUndefined(iframe) ? document :
+                (isNullOrUndefined(iframe.contentDocument) ? iframe.contentWindow.document : iframe.contentDocument);
+            if (typeof fn !== 'function') {
+                // Sanity check
+                return;
+            }
+            else if (isNullOrUndefined(docObj)) {
+                if ($ts.mode == Modes.production) {
+                    console.warn("Target document object is nothing! Current event will not be handled....");
+                    return;
+                }
+                else if ($ts.mode == Modes.debug) {
+                    console.warn("Target document object is nothing! Current event will not be handled....");
+                    console.log("target iframe:");
+                    console.warn(iframe.contentWindow);
+                    return;
+                }
+            }
+            else if (TypeScript.logging.outputEverything) {
+                TypeScript.logging.log("Add Document.ready event handler.", TypeScript.ConsoleColors.Green);
+                TypeScript.logging.log("document.readyState = " + docObj.readyState, TypeScript.ConsoleColors.Green);
+            }
+            // 2018-12-25 "interactive", "complete" 这两种状态都可以算作是DOM已经准备好了
+            if (loadComplete.indexOf(docObj.readyState) > -1) {
+                // If document is already loaded, run method
+                return fn();
+            }
+            else {
+                // Otherwise, wait until document is loaded
+                docObj.addEventListener('DOMContentLoaded', fn, false);
+            }
+        }
+        Events.ready = ready;
+        /**
+         * 向一个给定的HTML元素或者HTML元素的集合之中的对象添加给定的事件
+         *
+         * @param el HTML节点元素或者节点元素的集合
+         * @param type 事件的名称字符串
+         * @param fn 对事件名称所指定的事件进行处理的工作函数，这个工作函数应该具备有一个事件对象作为函数参数
+        */
+        function addEvent(el, type, fn) {
+            if (document.addEventListener) {
+                if (el && (el.nodeName) || el === window) {
+                    el.addEventListener(type, fn, false);
+                }
+                else if (el && el.length) {
+                    for (var i = 0; i < el.length; i++) {
+                        addEvent(el[i], type, fn);
+                    }
+                }
+            }
+            else {
+                if (el && el.nodeName || el === window) {
+                    el.attachEvent('on' + type, function () {
+                        return fn.call(el, window.event);
+                    });
+                }
+                else if (el && el.length) {
+                    for (var i = 0; i < el.length; i++) {
+                        addEvent(el[i], type, fn);
+                    }
+                }
+            }
+        }
+        Events.addEvent = addEvent;
+    })(Events = DOM.Events || (DOM.Events = {}));
+})(DOM || (DOM = {}));
+var DOM;
+(function (DOM) {
+    var Events;
+    (function (Events) {
+        var StatusChanged = /** @class */ (function () {
+            function StatusChanged(predicate, triggerNo) {
+                if (triggerNo === void 0) { triggerNo = true; }
+                this.predicate = predicate;
+                this.triggerNo = triggerNo;
+                this.agree = predicate();
+                if (isNullOrUndefined(triggerNo)) {
+                    this.triggerNo = false;
+                }
+            }
+            Object.defineProperty(StatusChanged.prototype, "changed", {
+                get: function () {
+                    var test = this.predicate();
+                    // 当前的测试状态为yes，并且之前的状态也为yes
+                    // 则肯定没有发生变化
+                    if (test && this.agree) {
+                        return false;
+                    }
+                    else if (test && !this.agree) {
+                        // 当前的测试状态为yes，并且之前的状态为no
+                        // 则肯定发生了变化
+                        this.agree = true;
+                        return true;
+                    }
+                    else if (!test && this.agree) {
+                        // 当前的测试状态为no，并且之前的状态为yes
+                        // 则肯定发生了变化
+                        this.agree = false;
+                        return this.triggerNo;
+                    }
+                    else {
+                        return false;
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return StatusChanged;
+        }());
+        Events.StatusChanged = StatusChanged;
+    })(Events = DOM.Events || (DOM.Events = {}));
+})(DOM || (DOM = {}));
+// namespace DOM {
+// 2018-10-15
+// 为了方便书写代码，在其他脚本之中添加变量类型申明，在这里就不进行命名空间的包裹了
+/**
+ * TypeScript脚本之中的HTML节点元素的类型代理接口
+*/
+var HTMLTsElement = /** @class */ (function () {
+    function HTMLTsElement(node) {
+        this.node = node instanceof HTMLElement ?
+            node :
+            node.node;
     }
-    TypeScript.gc = gc;
-})(TypeScript || (TypeScript = {}));
+    Object.defineProperty(HTMLTsElement.prototype, "HTMLElement", {
+        /**
+         * 可以从这里获取得到原生的``HTMLElement``对象用于操作
+        */
+        get: function () {
+            return this.node;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * 这个拓展函数总是会将节点中的原来的内容清空，然后显示html函数参数
+     * 所给定的内容
+     *
+     * @param html 当这个参数为一个无参数的函数的时候，主要是用于生成一个比较复杂的文档节点而使用的;
+     *    如果为字符串文本类型，则是直接将文本当作为HTML代码赋值给当前的这个节点对象的innerHTML属性;
+    */
+    HTMLTsElement.prototype.display = function (html) {
+        if (!html) {
+            this.HTMLElement.innerHTML = "";
+        }
+        else if (typeof html == "string" || typeof html == "number" || typeof html == "boolean") {
+            this.HTMLElement.innerHTML = html.toString();
+        }
+        else {
+            var node;
+            var parent = this.HTMLElement;
+            if (typeof html == "function") {
+                node = html();
+            }
+            else {
+                node = html instanceof HTMLTsElement ?
+                    html.HTMLElement :
+                    html;
+            }
+            parent.innerHTML = "";
+            parent.appendChild(node);
+        }
+        return this;
+    };
+    /**
+     * Clear all of the contents in current html element node.
+    */
+    HTMLTsElement.prototype.clear = function () {
+        this.HTMLElement.innerHTML = "";
+        return this;
+    };
+    HTMLTsElement.prototype.text = function (innerText) {
+        this.HTMLElement.innerText = innerText;
+        return this;
+    };
+    HTMLTsElement.prototype.addClass = function (className) {
+        var node = this.HTMLElement;
+        if (!node.classList.contains(className)) {
+            node.classList.add(className);
+        }
+        return this;
+    };
+    HTMLTsElement.prototype.removeClass = function (className) {
+        var node = this.HTMLElement;
+        if (node.classList.contains(className)) {
+            node.classList.remove(className);
+        }
+        return this;
+    };
+    /**
+     * 在当前的HTML文档节点之中添加一个新的文档节点
+    */
+    HTMLTsElement.prototype.append = function (node) {
+        if (node instanceof HTMLTsElement) {
+            this.HTMLElement.appendChild(node.HTMLElement);
+        }
+        else if (node instanceof HTMLElement) {
+            this.HTMLElement.appendChild(node);
+        }
+        else {
+            this.HTMLElement.appendChild(node());
+        }
+        return this;
+    };
+    /**
+     * 将css的display属性值设置为block用来显示当前的节点
+    */
+    HTMLTsElement.prototype.show = function () {
+        this.HTMLElement.style.display = "block";
+        return this;
+    };
+    /**
+     * 将css的display属性值设置为none来隐藏当前的节点
+    */
+    HTMLTsElement.prototype.hide = function () {
+        this.HTMLElement.style.display = "none";
+        return this;
+    };
+    return HTMLTsElement;
+}());
+/**
+ * 在这里对原生的html节点进行拓展
+*/
+var TypeExtensions;
+(function (TypeExtensions) {
+    function appendElement(extendsNode, html) {
+        if (typeof html == "string") {
+            html = $ts("<span>").display(html);
+        }
+        else if (typeof html == "function") {
+            html = html();
+        }
+        extendsNode.append(html);
+    }
+    /**
+     * 在原生节点模式之下对输入的给定的节点对象添加拓展方法
+     *
+     * 向HTML节点对象的原型定义之中拓展新的方法和成员属性
+     * 这个函数的输出在ts之中可能用不到，主要是应用于js脚本
+     * 编程之中
+     *
+     * @param node 当查询失败的时候是空值
+    */
+    function Extends(node) {
+        var obj = node;
+        if (isNullOrUndefined(node)) {
+            return null;
+        }
+        var extendsNode = new HTMLTsElement(node);
+        obj.css = function (stylesheet, reset) {
+            if (reset === void 0) { reset = false; }
+            if (reset) {
+                node.setAttribute("style", stylesheet);
+            }
+            else {
+                DOM.CSS.Setter.css(node, stylesheet);
+            }
+            return node;
+        };
+        /**
+         * 这个拓展函数总是会将节点中的原来的内容清空，然后显示html函数参数
+         * 所给定的内容
+        */
+        obj.display = function (html) {
+            extendsNode.display(html);
+            return node;
+        };
+        obj.appendElement = function (html) {
+            // a(args[])
+            if (Array.isArray(html)) {
+                html.forEach(function (n) { return appendElement(extendsNode, n); });
+            }
+            else {
+                // a(a,b,c,d,...)
+                for (var i = 0; i < arguments.length; i++) {
+                    appendElement(extendsNode, arguments[i]);
+                }
+            }
+            return node;
+        };
+        obj.show = function () {
+            extendsNode.show();
+            return node;
+        };
+        obj.hide = function () {
+            extendsNode.hide();
+            return node;
+        };
+        obj.addClass = function (name) {
+            extendsNode.addClass(name);
+            return node;
+        };
+        obj.removeClass = function (name) {
+            extendsNode.removeClass(name);
+            return node;
+        };
+        obj.onClassChanged = function (className, action, includesRemoves) {
+            var predicate = new DOM.Events.StatusChanged(function () {
+                return node.classList.contains(className);
+            }, includesRemoves);
+            $ts.hook(predicate, action);
+        };
+        obj.CType = function () {
+            return node;
+        };
+        obj.clear = function () {
+            node.innerHTML = "";
+            return node;
+        };
+        obj.selects = function (cssSelector) { return Internal.Handlers.stringEval.select(cssSelector, node); };
+        obj.attr = function (name, value) {
+            if ((name = name.toLowerCase()) == "src" || name == "href") {
+                value = Internal.urlSolver(value, true);
+                TypeScript.logging.log("set_attr " + name + "='" + value + "'");
+            }
+            if (isNullOrUndefined(value)) {
+                node.removeAttribute(name);
+            }
+            else {
+                node.setAttribute(name, value);
+            }
+            return node;
+        };
+        obj.interactive = function (enable) {
+            if (enable) {
+                node.style.pointerEvents = "auto";
+                node.style.opacity = "1";
+                node.style.filter = null;
+                node.style.webkitFilter = null;
+            }
+            else {
+                node.style.pointerEvents = "none";
+                node.style.opacity = "0.4";
+                node.style.filter = "grayscale(100%)";
+                node.style.webkitFilter = "grayscale(100%)";
+            }
+        };
+        // 用这个方法可以很方便的从现有的节点进行转换
+        // 也可以直接使用new进行构造
+        obj.asExtends = extendsNode;
+        obj.any = node;
+        obj.asImage = node;
+        obj.asInput = node;
+        return node;
+    }
+    TypeExtensions.Extends = Extends;
+})(TypeExtensions || (TypeExtensions = {}));
 var TypeScript;
 (function (TypeScript) {
-    /**
-     * https://github.com/natewatson999/js-gc
-    */
-    var garbageCollect;
-    (function (garbageCollect) {
+    var Data;
+    (function (Data) {
         /**
-         * try to do garbageCollect by invoke this function
+         * an argument update helper
         */
-        garbageCollect.handler = getHandler();
-        function getHandler() {
-            if (typeof require === "function") {
-                try {
-                    require("v8").setFlagsFromString('--expose_gc');
-                    if (global != null) {
-                        if (typeof global.gc == "function") {
-                            return global.gc;
-                        }
-                    }
-                    var vm = require("vm");
-                    if (vm != null) {
-                        if (typeof vm.runInNewContext == "function") {
-                            var k = vm.runInNewContext("gc");
-                            return function () {
-                                k();
-                                return;
-                            };
-                        }
-                    }
-                }
-                catch (e) { }
-            }
-            if (typeof window !== 'undefined') {
-                if (window.CollectGarbage) {
-                    return window.CollectGarbage;
-                }
-                if (window.gc) {
-                    return window.gc;
-                }
-                if (window.opera) {
-                    if (window.opera.collect) {
-                        return window.opera.collect;
+        var Arguments = /** @class */ (function () {
+            /**
+             * create a new argument helper
+             *
+             * @param args the ``[key => value]`` pairs
+             * @param categories a collection object of ``[category => keys[]]``
+            */
+            function Arguments(args, categories) {
+                if (args === void 0) { args = {}; }
+                if (categories === void 0) { categories = {}; }
+                /**
+                 * ``[key => value]`` pairs
+                */
+                this.args = {};
+                this.changes = [];
+                this.args = $clone(args);
+                this.categories = {};
+                for (var category in categories) {
+                    var keys = categories[category];
+                    for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+                        var key = keys_1[_i];
+                        this.categories[key] = category;
                     }
                 }
-                //if ((<any>window).QueryInterface) {
-                //    return (<any>window).QueryInterface((<any>Components).interfaces.nsIInterfaceRequestor).getInterface((<any>Components).interfaces.nsIDOMWindowUtils).garbageCollect;
-                //}
             }
-            //if (typeof ProfilerAgent !== 'undefined') {
-            //    if (ProfilerAgent.collectGarbage) {
-            //        return ProfilerAgent.collectGarbage;
-            //    }
-            //}
-            if (typeof global !== 'undefined') {
-                if (global.gc) {
-                    return global.gc;
+            Arguments.prototype.reset = function () {
+                this.changes = [];
+            };
+            Arguments.prototype.setObject = function (newVals) {
+                this.reset();
+                for (var name_3 in newVals) {
+                    this.set(name_3, newVals[name_3]);
                 }
-            }
-            //if (typeof Duktape == 'object') {
-            //    if (typeof Duktape.gc) {
-            //        return Duktape.gc;
-            //    }
-            //}
-            //if (typeof Packages !== 'undefined') {
-            //    if (typeof Packages.java !== 'undefined') {
-            //        if (Packages.java.lang) {
-            //            if (Packages.java.lang) {
-            //                if (Packages.java.lang.System) {
-            //                    return Packages.java.lang.System.gc;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-            //if (typeof java !== 'undefined') {
-            //    if (java.lang) {
-            //        if (java.lang) {
-            //            if (java.lang.System) {
-            //                return java.lang.System.gc;
-            //            }
-            //        }
-            //    }
-            //}
-            //if (typeof Java !== 'undefined') {
-            //    if (java.type) {
-            //        return Java.type('java.lang.System').gc;
-            //    }
-            //}
-            //if (typeof CollectGarbage == "function") {
-            //    return CollectGarbage;
-            //}
-            //if (typeof jerry_gc == "function") {
-            //    return jerry_gc;
-            //}
-            return function () {
-                if (TypeScript.logging.outputEverything) {
-                    console.log("There is no gc handler could be found currently....");
+                return this.getUpdatedCategories(true);
+            };
+            /**
+             * test that argument value is changed or not?
+            */
+            Arguments.prototype.assert = function (key, value) {
+                var oldVal = this.args[key];
+                if (isNullOrUndefined(value) && isNullOrUndefined(oldVal)) {
+                    return false;
+                }
+                if (isNullOrUndefined(value)) {
+                    return true;
+                }
+                else if (isNullOrUndefined(oldVal)) {
+                    return true;
+                }
+                else {
+                    return value !== oldVal;
                 }
             };
-        }
-    })(garbageCollect = TypeScript.garbageCollect || (TypeScript.garbageCollect = {}));
-})(TypeScript || (TypeScript = {}));
-var TypeScript;
-(function (TypeScript) {
-    var warningLevel = Modes.development;
-    var anyoutputLevel = Modes.debug;
-    var errorOnly = Modes.production;
-    /**
-     * Console logging helper
-    */
-    var logging = /** @class */ (function () {
-        function logging() {
-        }
-        Object.defineProperty(logging, "outputWarning", {
             /**
-             * 应用程序的开发模式：只会输出框架的警告信息
+             * set argument category group.
+             *
+             * @param key the argument name.
+             * @param group the argument category group.
+             *
             */
-            get: function () {
-                return $ts.mode <= warningLevel;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(logging, "outputEverything", {
-            /**
-             * 框架开发调试模式：会输出所有的调试信息到终端之上
-            */
-            get: function () {
-                return $ts.mode == anyoutputLevel;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(logging, "outputError", {
-            /**
-             * 生产模式：只会输出错误信息
-            */
-            get: function () {
-                return $ts.mode == errorOnly;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        logging.log = function (obj, color) {
-            if (color === void 0) { color = "black"; }
-            if (this.outputEverything) {
-                console.log(obj);
-            }
-        };
-        return logging;
-    }());
-    TypeScript.logging = logging;
-})(TypeScript || (TypeScript = {}));
-/// <reference path="../DOM/DOMEnumerator.ts" />
-/**
- * 路由器模块
-*/
-var Router;
-(function (Router) {
-    var hashLinks;
-    var webApp;
-    var caseSensitive = true;
-    function isCaseSensitive() {
-        return caseSensitive;
-    }
-    Router.isCaseSensitive = isCaseSensitive;
-    /**
-     * 设置路由器对URL的解析是否是大小写不敏感模式，也可以在这里函数中设置参数为false，来切换为大小写敏感模式
-     *
-     * @param option 通过这个参数来设置是否为大小写不敏感模式？
-     *
-    */
-    function CaseInsensitive(option) {
-        if (option === void 0) { option = true; }
-        caseSensitive = !option;
-    }
-    Router.CaseInsensitive = CaseInsensitive;
-    /**
-     * @param module 默认的模块是``/``，即如果服务器为php服务器的话，则默认为index.php
-    */
-    function AddAppHandler(app, module) {
-        if (module === void 0) { module = "/"; }
-        if (isNullOrUndefined(webApp)) {
-            webApp = {};
-        }
-        if (!(module in webApp)) {
-            webApp[module] = new Dictionary({});
-        }
-        doModule(module, function (apps) { return apps.Add(app.appName, app); });
-    }
-    Router.AddAppHandler = AddAppHandler;
-    function doModule(module, action) {
-        action(webApp[module]);
-    }
-    /**
-     * fix for index.php, VBServerScript etc.
-    */
-    var indexModule = {
-        "/": "general",
-        "index.php": "php server",
-        "index.perl": "perl server",
-        "index.do": "",
-        "index.jsp": "java server",
-        "index.vbs": "VB server script",
-        "index.vb": "VB server",
-        "index.asp": "VB6 server",
-        "index.aspx": "VB.NET server"
-    };
-    function getAppSummary(app, module) {
-        if (module === void 0) { module = "/"; }
-        var type = TypeInfo.typeof(app);
-        var info = {
-            module: module,
-            appName: app.appName,
-            className: type.class,
-            status: app.appStatus,
-            hookUnload: app.appHookMsg
-        };
-        return info;
-    }
-    Router.getAppSummary = getAppSummary;
-    function RunApp(module) {
-        if (module === void 0) { module = "/"; }
-        if (module in webApp) {
-            doModule(module, function (apps) { return apps.Select(function (app) { return app.value.Init(); }); });
-        }
-        else if (module == "index" || module in indexModule) {
-            var runInit = false;
-            for (var _i = 0, _a = Object.keys(indexModule); _i < _a.length; _i++) {
-                var index = _a[_i];
-                if (index in webApp) {
-                    doModule(index, function (apps) { return apps.Select(function (app) { return app.value.Init(); }); });
-                    runInit = true;
-                    break;
+            Arguments.prototype.category = function (key, group) {
+                if (group === void 0) { group = null; }
+                if (Strings.Empty(group)) {
+                    if (key in this.categories) {
+                        return this.categories[key];
+                    }
+                    else {
+                        return null;
+                    }
                 }
-            }
-            if (!runInit) {
-                throw "Default module is not found!";
-            }
-        }
-        else {
-            throw "Module \"" + module + "\" is not exists in your web app.";
-        }
-        if (TypeScript.logging.outputEverything) {
-            // 在console中显示table
-            var summary = [];
-            Object.keys(webApp).forEach(function (module) {
-                doModule(module, function (apps) {
-                    apps.ForEach(function (app) { return summary.push(getAppSummary(app.value, module)); });
-                });
-            });
-            console.table(summary);
-        }
-    }
-    Router.RunApp = RunApp;
-    var routerLink = "router-link";
-    function queryKey(argName) {
-        return function (link) { return getAllUrlParams(link).Item(argName); };
-    }
-    Router.queryKey = queryKey;
-    function moduleName() {
-        return function (link) { return (new TypeScript.URL(link)).fileName; };
-    }
-    Router.moduleName = moduleName;
-    /**
-     * 父容器页面注册视图容器对象
-    */
-    function register(appId, hashKey, frameRegister) {
-        if (appId === void 0) { appId = "app"; }
-        if (hashKey === void 0) { hashKey = null; }
-        if (frameRegister === void 0) { frameRegister = true; }
-        var aLink;
-        var gethashKey;
-        if (!hashLinks) {
-            hashLinks = new Dictionary({
-                "/": "/"
-            });
-        }
-        if (!hashKey) {
-            gethashKey = function (link) { return (new TypeScript.URL(link)).fileName; };
-        }
-        else if (typeof hashKey == "string") {
-            gethashKey = Router.queryKey(hashKey);
-        }
-        else {
-            gethashKey = hashKey;
-        }
-        aLink = $ts(".router");
-        aLink.attr("router-link", function (link) { return link.href; });
-        aLink.attr("href", "javascript:void(0);");
-        aLink.onClick(function (link, click) {
-            Router.goto(link.getAttribute("router-link"), appId, gethashKey);
-        });
-        aLink.attr(routerLink)
-            .ForEach(function (link) {
-            hashLinks.Add(gethashKey(link), link);
-        });
-        // 假设当前的url之中有hash的话，还需要根据注册的路由配置进行跳转显示
-        hashChanged(appId);
-        // clientResize(appId);
-    }
-    Router.register = register;
-    function clientResize(appId) {
-        var app = $ts("#" + appId);
-        var frame = $ts("#" + appId + "-frame");
-        var size = DOM.clientSize();
-        if (!app) {
-            if (TypeScript.logging.outputWarning) {
-                console.warn("[#" + appId + "] not found!");
-            }
-        }
-        else {
-            app.style.width = size[0].toString();
-            app.style.height = size[1].toString();
-            frame.width = size[0].toString();
-            frame.height = size[1].toString();
-        }
-    }
-    /**
-     * 根据当前url之中的hash进行相应的页面的显示操作
-    */
-    function hashChanged(appId) {
-        var hash = TypeScript.URL.WindowLocation().hash;
-        var url = hashLinks.Item(hash);
-        if (url) {
-            if (url == "/") {
-                // 跳转到主页，重新刷新页面？
-                window.location.hash = "";
-                window.location.reload(true);
-            }
-            else {
-                $ts("#" + appId).innerHTML = HttpHelpers.GET(url);
-            }
-        }
-    }
-    function navigate(link, stack, appId, hashKey) {
-        var frame = $ts("#" + appId);
-        frame.innerHTML = HttpHelpers.GET(link);
-        Router.register(appId, hashKey, false);
-        window.location.hash = hashKey(link);
-    }
-    /**
-     * 当前的堆栈环境是否是最顶层的堆栈？
-    */
-    function IsTopWindowStack() {
-        return parent && (parent.location.pathname == window.location.pathname);
-    }
-    Router.IsTopWindowStack = IsTopWindowStack;
-    /**
-     * 因为link之中可能存在查询参数，所以必须要在web服务器上面测试
-    */
-    function goto(link, appId, hashKey, stack) {
-        if (stack === void 0) { stack = null; }
-        if (!Router.IsTopWindowStack()) {
-            parent.Router.goto(link, appId, hashKey, parent);
-        }
-        else if (stack) {
-            // 没有parent了，已经到达最顶端了
-            navigate(link, stack, appId, hashKey);
-        }
-        else {
-            navigate(link, window, appId, hashKey);
-        }
-    }
-    Router.goto = goto;
-})(Router || (Router = {}));
+                else {
+                    this.categories[key] = group;
+                }
+                return group;
+            };
+            Arguments.prototype.set = function (key, value) {
+                this.args[key] = value;
+                if (key in this.categories) {
+                    this.changes.push(this.categories[key]);
+                }
+            };
+            Arguments.prototype.get = function (key) {
+                if (key in this.args) {
+                    return this.args[key];
+                }
+                else {
+                    return null;
+                }
+            };
+            Arguments.prototype.getUpdatedCategories = function (reset) {
+                if (reset === void 0) { reset = true; }
+                var updates = {};
+                if (this.changes.length == 0) {
+                    return {};
+                }
+                else {
+                    for (var _i = 0, _a = $from(this.changes).Distinct().ToArray(); _i < _a.length; _i++) {
+                        var cat = _a[_i];
+                        updates[cat] = true;
+                    }
+                }
+                if (reset) {
+                    this.changes = [];
+                }
+                return updates;
+            };
+            /**
+             * to url query parameters
+            */
+            Arguments.prototype.toString = function () {
+                return HttpHelpers.serialize(this.args);
+            };
+            return Arguments;
+        }());
+        Data.Arguments = Arguments;
+    })(Data = TypeScript.Data || (TypeScript.Data = {}));
+})(TypeScript || (TypeScript = {}));
 var TypeScript;
 (function (TypeScript) {
-    /**
-     * 性能计数器
-    */
-    var Benchmark = /** @class */ (function () {
-        function Benchmark() {
-            this.start = (new Date).getTime();
-            this.lastCheck = this.start;
-        }
-        Benchmark.prototype.Tick = function () {
-            var now = (new Date).getTime();
-            var checkpoint = new CheckPoint();
-            checkpoint.start = this.start;
-            checkpoint.time = now;
-            checkpoint.sinceFromStart = now - this.start;
-            checkpoint.sinceLastCheck = now - this.lastCheck;
-            this.lastCheck = now;
-            return checkpoint;
-        };
-        return Benchmark;
-    }());
-    TypeScript.Benchmark = Benchmark;
-    /**
-     * 单位都是毫秒
-    */
-    var CheckPoint = /** @class */ (function () {
-        function CheckPoint() {
-        }
-        Object.defineProperty(CheckPoint.prototype, "elapsedMilisecond", {
+    var Data;
+    (function (Data) {
+        /**
+         * 这个对象可以自动的将调用者的函数名称作为键名进行对应的键值的读取操作
+        */
+        var MetaReader = /** @class */ (function () {
             /**
-             * 获取从``time``到当前时间所流逝的毫秒计数
+             *
+             * @param meta 字典对象
+             *
+             * > 在这里不使用Dictionary对象是因为该对象为一个强类型约束对象
             */
-            get: function () {
-                return (new Date).getTime() - this.time;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return CheckPoint;
-    }());
-    TypeScript.CheckPoint = CheckPoint;
+            function MetaReader(meta) {
+                this.meta = meta;
+            }
+            /**
+             * Read meta object value by call name
+             *
+             * > https://stackoverflow.com/questions/280389/how-do-you-find-out-the-caller-function-in-javascript
+            */
+            MetaReader.prototype.GetValue = function (key) {
+                if (key === void 0) { key = null; }
+                if (!key) {
+                    key = Internal.StackTrace.GetCallerMember().memberName;
+                }
+                if (key in this.meta) {
+                    return this.meta[key];
+                }
+                else {
+                    return null;
+                }
+            };
+            return MetaReader;
+        }());
+        Data.MetaReader = MetaReader;
+    })(Data = TypeScript.Data || (TypeScript.Data = {}));
 })(TypeScript || (TypeScript = {}));
-var Cookies;
-(function (Cookies) {
-    /**
-     * Cookie 不存在，函数会返回空字符串
-    */
-    function getCookie(cookiename) {
-        // Get name followed by anything except a semicolon
-        var cookie = document.cookie;
-        var cookiestring = RegExp("" + cookiename + "[^;]+").exec(cookie);
-        var value;
-        // Return everything after the equal sign, 
-        // or an empty string if the cookie name not found
-        if (!!cookiestring) {
-            value = cookiestring.toString().replace(/^[^=]+./, "");
-        }
-        else {
-            value = "";
-        }
-        return decodeURIComponent(value);
-    }
-    Cookies.getCookie = getCookie;
-    /**
-     * 将cookie设置为过期，进行cookie的删除操作
-    */
-    function delCookie(name) {
-        var cval = getCookie(name);
-        var exp = new Date();
-        exp.setTime(exp.getTime() - 1);
-        if (cval != null) {
-            var expires = exp.toGMTString();
-            expires = name + "=" + cval + ";expires=" + expires;
-            document.cookie = expires;
-        }
-    }
-    Cookies.delCookie = delCookie;
-})(Cookies || (Cookies = {}));
+/// <reference path="../Collections/Abstract/Enumerator.ts" />
+var TypeScript;
+(function (TypeScript) {
+    var Data;
+    (function (Data) {
+        var PriorityQueue = /** @class */ (function (_super) {
+            __extends(PriorityQueue, _super);
+            function PriorityQueue() {
+                return _super.call(this, []) || this;
+            }
+            Object.defineProperty(PriorityQueue.prototype, "Q", {
+                /**
+                 * 队列元素
+                */
+                get: function () {
+                    return this.sequence;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            /**
+             *
+            */
+            PriorityQueue.prototype.enqueue = function (obj) {
+                var last = this.Last;
+                var q = this.Q;
+                var x = new QueueItem(obj);
+                q.push(x);
+                if (last) {
+                    last.below = x;
+                    x.above = last;
+                }
+            };
+            PriorityQueue.prototype.extract = function (i) {
+                var q = this.Q;
+                var x_above = q[i - 1];
+                var x_below = q[i + 1];
+                var x = q.splice(i, 1)[0];
+                if (x_above) {
+                    x_above.below = x_below;
+                }
+                if (x_below) {
+                    x_below.above = x_above;
+                }
+                return x;
+            };
+            PriorityQueue.prototype.dequeue = function () {
+                return this.extract(0);
+            };
+            return PriorityQueue;
+        }(IEnumerator));
+        Data.PriorityQueue = PriorityQueue;
+        var QueueItem = /** @class */ (function () {
+            function QueueItem(value) {
+                this.value = value;
+            }
+            QueueItem.prototype.toString = function () {
+                return this.value.toString();
+            };
+            return QueueItem;
+        }());
+        Data.QueueItem = QueueItem;
+    })(Data = TypeScript.Data || (TypeScript.Data = {}));
+})(TypeScript || (TypeScript = {}));
 /**
  * Binary tree implements
 */
@@ -5910,8 +6458,8 @@ var algorithm;
             */
             function binaryTree(comparer) {
                 if (comparer === void 0) { comparer = function (a, b) {
-                    var x = DataExtensions.as_numeric(a);
-                    var y = DataExtensions.as_numeric(b);
+                    var x = Strings.as_numeric(a);
+                    var y = Strings.as_numeric(b);
                     return x - y;
                 }; }
                 this.compares = comparer;
@@ -6062,6 +6610,890 @@ var algorithm;
         BTree.node = node;
     })(BTree = algorithm.BTree || (algorithm.BTree = {}));
 })(algorithm || (algorithm = {}));
+var TypeScript;
+(function (TypeScript) {
+    var ColorManager;
+    (function (ColorManager) {
+        function toColorObject(c) {
+            var x, y, typ, arr = [], arrlength, i, opacity, match, a, hue, sat, rgb, colornames = [], colorhexs = [];
+            c = ColorManager.w3trim(c.toLowerCase());
+            x = c.substr(0, 1).toUpperCase();
+            y = c.substr(1);
+            a = 1;
+            if ((x == "R" || x == "Y" || x == "G" || x == "C" || x == "B" || x == "M" || x == "W") && !isNaN(y)) {
+                if (c.length == 6 && c.indexOf(",") == -1) {
+                }
+                else {
+                    c = "ncol(" + c + ")";
+                }
+            }
+            if (c.length != 3 && c.length != 6 && !isNaN(parseFloat(c))) {
+                c = "ncol(" + c + ")";
+            }
+            if (c.indexOf(",") > 0 && c.indexOf("(") == -1) {
+                c = "ncol(" + c + ")";
+            }
+            if (c.substr(0, 3) == "rgb" || c.substr(0, 3) == "hsl" || c.substr(0, 3) == "hwb" || c.substr(0, 4) == "ncol" || c.substr(0, 4) == "cmyk") {
+                if (c.substr(0, 4) == "ncol") {
+                    if (c.split(",").length == 4 && c.indexOf("ncola") == -1) {
+                        c = c.replace("ncol", "ncola");
+                    }
+                    typ = "ncol";
+                    c = c.substr(4);
+                }
+                else if (c.substr(0, 4) == "cmyk") {
+                    typ = "cmyk";
+                    c = c.substr(4);
+                }
+                else {
+                    typ = c.substr(0, 3);
+                    c = c.substr(3);
+                }
+                arrlength = 3;
+                opacity = false;
+                if (c.substr(0, 1).toLowerCase() == "a") {
+                    arrlength = 4;
+                    opacity = true;
+                    c = c.substr(1);
+                }
+                else if (typ == "cmyk") {
+                    arrlength = 4;
+                    if (c.split(",").length == 5) {
+                        arrlength = 5;
+                        opacity = true;
+                    }
+                }
+                c = c.replace("(", "");
+                c = c.replace(")", "");
+                arr = c.split(",");
+                if (typ == "rgb") {
+                    if (arr.length != arrlength) {
+                        return ColorManager.w3color.emptyObject;
+                    }
+                    for (i = 0; i < arrlength; i++) {
+                        if (arr[i] == "" || arr[i] == " ") {
+                            arr[i] = "0";
+                        }
+                        if (arr[i].indexOf("%") > -1) {
+                            arr[i] = arr[i].replace("%", "");
+                            arr[i] = Number(arr[i] / 100);
+                            if (i < 3) {
+                                arr[i] = Math.round(arr[i] * 255);
+                            }
+                        }
+                        if (isNaN(arr[i])) {
+                            return ColorManager.w3color.emptyObject;
+                        }
+                        if (parseInt(arr[i]) > 255) {
+                            arr[i] = 255;
+                        }
+                        if (i < 3) {
+                            arr[i] = parseInt(arr[i]);
+                        }
+                        if (i == 3 && Number(arr[i]) > 1) {
+                            arr[i] = 1;
+                        }
+                    }
+                    rgb = { r: arr[0], g: arr[1], b: arr[2] };
+                    if (opacity == true) {
+                        a = Number(arr[3]);
+                    }
+                }
+                if (typ == "hsl" || typ == "hwb" || typ == "ncol") {
+                    while (arr.length < arrlength) {
+                        arr.push("0");
+                    }
+                    if (typ == "hsl" || typ == "hwb") {
+                        if (parseInt(arr[0]) >= 360) {
+                            arr[0] = 0;
+                        }
+                    }
+                    for (i = 1; i < arrlength; i++) {
+                        if (arr[i].indexOf("%") > -1) {
+                            arr[i] = arr[i].replace("%", "");
+                            arr[i] = Number(arr[i]);
+                            if (isNaN(arr[i])) {
+                                return ColorManager.w3color.emptyObject;
+                            }
+                            arr[i] = arr[i] / 100;
+                        }
+                        else {
+                            arr[i] = Number(arr[i]);
+                        }
+                        if (Number(arr[i]) > 1) {
+                            arr[i] = 1;
+                        }
+                        if (Number(arr[i]) < 0) {
+                            arr[i] = 0;
+                        }
+                    }
+                    if (typ == "hsl") {
+                        rgb = ColorManager.hslToRgb(arr[0], arr[1], arr[2]);
+                        hue = Number(arr[0]);
+                        sat = Number(arr[1]);
+                    }
+                    if (typ == "hwb") {
+                        rgb = ColorManager.hwbToRgb(arr[0], arr[1], arr[2]);
+                    }
+                    if (typ == "ncol") {
+                        rgb = ncolToRgb(arr[0], arr[1], arr[2]);
+                    }
+                    if (opacity == true) {
+                        a = Number(arr[3]);
+                    }
+                }
+                if (typ == "cmyk") {
+                    while (arr.length < arrlength) {
+                        arr.push("0");
+                    }
+                    for (i = 0; i < arrlength; i++) {
+                        if (arr[i].indexOf("%") > -1) {
+                            arr[i] = arr[i].replace("%", "");
+                            arr[i] = Number(arr[i]);
+                            if (isNaN(arr[i])) {
+                                return ColorManager.w3color.emptyObject;
+                            }
+                            arr[i] = arr[i] / 100;
+                        }
+                        else {
+                            arr[i] = Number(arr[i]);
+                        }
+                        if (Number(arr[i]) > 1) {
+                            arr[i] = 1;
+                        }
+                        if (Number(arr[i]) < 0) {
+                            arr[i] = 0;
+                        }
+                    }
+                    rgb = ColorManager.cmykToRgb(arr[0], arr[1], arr[2], arr[3]);
+                    if (opacity == true) {
+                        a = Number(arr[4]);
+                    }
+                }
+            }
+            else if (c.substr(0, 3) == "ncs") {
+                rgb = ncsToRgb(c);
+            }
+            else {
+                match = false;
+                colornames = getColorArr('names');
+                for (i = 0; i < colornames.length; i++) {
+                    if (c.toLowerCase() == colornames[i].toLowerCase()) {
+                        colorhexs = getColorArr('hexs');
+                        match = true;
+                        rgb = {
+                            r: parseInt(colorhexs[i].substr(0, 2), 16),
+                            g: parseInt(colorhexs[i].substr(2, 2), 16),
+                            b: parseInt(colorhexs[i].substr(4, 2), 16)
+                        };
+                        break;
+                    }
+                }
+                if (match == false) {
+                    c = c.replace("#", "");
+                    if (c.length == 3) {
+                        c = c.substr(0, 1) + c.substr(0, 1) + c.substr(1, 1) + c.substr(1, 1) + c.substr(2, 1) + c.substr(2, 1);
+                    }
+                    for (i = 0; i < c.length; i++) {
+                        if (!ColorManager.isHex(c.substr(i, 1))) {
+                            return ColorManager.w3color.emptyObject;
+                        }
+                    }
+                    arr[0] = parseInt(c.substr(0, 2), 16);
+                    arr[1] = parseInt(c.substr(2, 2), 16);
+                    arr[2] = parseInt(c.substr(4, 2), 16);
+                    for (i = 0; i < 3; i++) {
+                        if (isNaN(arr[i])) {
+                            return ColorManager.w3color.emptyObject;
+                        }
+                    }
+                    rgb = {
+                        r: arr[0],
+                        g: arr[1],
+                        b: arr[2]
+                    };
+                }
+            }
+            return colorObject(rgb, a, hue, sat);
+        }
+        ColorManager.toColorObject = toColorObject;
+        function colorObject(rgb, a, h, s) {
+            var hsl, hwb, cmyk, ncol, color, hue, sat;
+            if (!rgb) {
+                return ColorManager.w3color.emptyObject;
+            }
+            if (!a) {
+                a = 1;
+            }
+            hsl = ColorManager.rgbToHsl(rgb.r, rgb.g, rgb.b);
+            hwb = ColorManager.rgbToHwb(rgb.r, rgb.g, rgb.b);
+            cmyk = ColorManager.rgbToCmyk(rgb.r, rgb.g, rgb.b);
+            hue = (h || hsl.h);
+            sat = (s || hsl.s);
+            ncol = hueToNcol(hue);
+            color = {
+                red: rgb.r,
+                green: rgb.g,
+                blue: rgb.b,
+                hue: hue,
+                sat: sat,
+                lightness: hsl.l,
+                whiteness: hwb.w,
+                blackness: hwb.b,
+                cyan: cmyk.c,
+                magenta: cmyk.m,
+                yellow: cmyk.y,
+                black: cmyk.k,
+                ncol: ncol,
+                opacity: a,
+                valid: true
+            };
+            color = roundDecimals(color);
+            return color;
+        }
+        ColorManager.colorObject = colorObject;
+        function getColorArr(x) {
+            if (x == "names") {
+                return ['AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque', 'Black', 'BlanchedAlmond', 'Blue', 'BlueViolet', 'Brown', 'BurlyWood', 'CadetBlue', 'Chartreuse', 'Chocolate', 'Coral', 'CornflowerBlue', 'Cornsilk', 'Crimson', 'Cyan', 'DarkBlue', 'DarkCyan', 'DarkGoldenRod', 'DarkGray', 'DarkGrey', 'DarkGreen', 'DarkKhaki', 'DarkMagenta', 'DarkOliveGreen', 'DarkOrange', 'DarkOrchid', 'DarkRed', 'DarkSalmon', 'DarkSeaGreen', 'DarkSlateBlue', 'DarkSlateGray', 'DarkSlateGrey', 'DarkTurquoise', 'DarkViolet', 'DeepPink', 'DeepSkyBlue', 'DimGray', 'DimGrey', 'DodgerBlue', 'FireBrick', 'FloralWhite', 'ForestGreen', 'Fuchsia', 'Gainsboro', 'GhostWhite', 'Gold', 'GoldenRod', 'Gray', 'Grey', 'Green', 'GreenYellow', 'HoneyDew', 'HotPink', 'IndianRed', 'Indigo', 'Ivory', 'Khaki', 'Lavender', 'LavenderBlush', 'LawnGreen', 'LemonChiffon', 'LightBlue', 'LightCoral', 'LightCyan', 'LightGoldenRodYellow', 'LightGray', 'LightGrey', 'LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen', 'LightSkyBlue', 'LightSlateGray', 'LightSlateGrey', 'LightSteelBlue', 'LightYellow', 'Lime', 'LimeGreen', 'Linen', 'Magenta', 'Maroon', 'MediumAquaMarine', 'MediumBlue', 'MediumOrchid', 'MediumPurple', 'MediumSeaGreen', 'MediumSlateBlue', 'MediumSpringGreen', 'MediumTurquoise', 'MediumVioletRed', 'MidnightBlue', 'MintCream', 'MistyRose', 'Moccasin', 'NavajoWhite', 'Navy', 'OldLace', 'Olive', 'OliveDrab', 'Orange', 'OrangeRed', 'Orchid', 'PaleGoldenRod', 'PaleGreen', 'PaleTurquoise', 'PaleVioletRed', 'PapayaWhip', 'PeachPuff', 'Peru', 'Pink', 'Plum', 'PowderBlue', 'Purple', 'RebeccaPurple', 'Red', 'RosyBrown', 'RoyalBlue', 'SaddleBrown', 'Salmon', 'SandyBrown', 'SeaGreen', 'SeaShell', 'Sienna', 'Silver', 'SkyBlue', 'SlateBlue', 'SlateGray', 'SlateGrey', 'Snow', 'SpringGreen', 'SteelBlue', 'Tan', 'Teal', 'Thistle', 'Tomato', 'Turquoise', 'Violet', 'Wheat', 'White', 'WhiteSmoke', 'Yellow', 'YellowGreen'];
+            }
+            if (x == "hexs") {
+                return ['f0f8ff', 'faebd7', '00ffff', '7fffd4', 'f0ffff', 'f5f5dc', 'ffe4c4', '000000', 'ffebcd', '0000ff', '8a2be2', 'a52a2a', 'deb887', '5f9ea0', '7fff00', 'd2691e', 'ff7f50', '6495ed', 'fff8dc', 'dc143c', '00ffff', '00008b', '008b8b', 'b8860b', 'a9a9a9', 'a9a9a9', '006400', 'bdb76b', '8b008b', '556b2f', 'ff8c00', '9932cc', '8b0000', 'e9967a', '8fbc8f', '483d8b', '2f4f4f', '2f4f4f', '00ced1', '9400d3', 'ff1493', '00bfff', '696969', '696969', '1e90ff', 'b22222', 'fffaf0', '228b22', 'ff00ff', 'dcdcdc', 'f8f8ff', 'ffd700', 'daa520', '808080', '808080', '008000', 'adff2f', 'f0fff0', 'ff69b4', 'cd5c5c', '4b0082', 'fffff0', 'f0e68c', 'e6e6fa', 'fff0f5', '7cfc00', 'fffacd', 'add8e6', 'f08080', 'e0ffff', 'fafad2', 'd3d3d3', 'd3d3d3', '90ee90', 'ffb6c1', 'ffa07a', '20b2aa', '87cefa', '778899', '778899', 'b0c4de', 'ffffe0', '00ff00', '32cd32', 'faf0e6', 'ff00ff', '800000', '66cdaa', '0000cd', 'ba55d3', '9370db', '3cb371', '7b68ee', '00fa9a', '48d1cc', 'c71585', '191970', 'f5fffa', 'ffe4e1', 'ffe4b5', 'ffdead', '000080', 'fdf5e6', '808000', '6b8e23', 'ffa500', 'ff4500', 'da70d6', 'eee8aa', '98fb98', 'afeeee', 'db7093', 'ffefd5', 'ffdab9', 'cd853f', 'ffc0cb', 'dda0dd', 'b0e0e6', '800080', '663399', 'ff0000', 'bc8f8f', '4169e1', '8b4513', 'fa8072', 'f4a460', '2e8b57', 'fff5ee', 'a0522d', 'c0c0c0', '87ceeb', '6a5acd', '708090', '708090', 'fffafa', '00ff7f', '4682b4', 'd2b48c', '008080', 'd8bfd8', 'ff6347', '40e0d0', 'ee82ee', 'f5deb3', 'ffffff', 'f5f5f5', 'ffff00', '9acd32'];
+            }
+        }
+        ColorManager.getColorArr = getColorArr;
+        function roundDecimals(c) {
+            c.red = Number(c.red.toFixed(0));
+            c.green = Number(c.green.toFixed(0));
+            c.blue = Number(c.blue.toFixed(0));
+            c.hue = Number(c.hue.toFixed(0));
+            c.sat = Number(c.sat.toFixed(2));
+            c.lightness = Number(c.lightness.toFixed(2));
+            c.whiteness = Number(c.whiteness.toFixed(2));
+            c.blackness = Number(c.blackness.toFixed(2));
+            c.cyan = Number(c.cyan.toFixed(2));
+            c.magenta = Number(c.magenta.toFixed(2));
+            c.yellow = Number(c.yellow.toFixed(2));
+            c.black = Number(c.black.toFixed(2));
+            c.ncol = c.ncol.substr(0, 1) + Math.round(Number(c.ncol.substr(1)));
+            c.opacity = Number(c.opacity.toFixed(2));
+            return c;
+        }
+        function ncolToRgb(ncol, white, black) {
+            var letter, percent, h, w, b;
+            h = ncol;
+            if (isNaN(parseFloat(ncol.substr(0, 1)))) {
+                letter = ncol.substr(0, 1).toUpperCase();
+                percent = ncol.substr(1);
+                if (percent == "") {
+                    percent = 0;
+                }
+                percent = Number(percent);
+                if (isNaN(percent)) {
+                    return false;
+                }
+                if (letter == "R") {
+                    h = 0 + (percent * 0.6);
+                }
+                if (letter == "Y") {
+                    h = 60 + (percent * 0.6);
+                }
+                if (letter == "G") {
+                    h = 120 + (percent * 0.6);
+                }
+                if (letter == "C") {
+                    h = 180 + (percent * 0.6);
+                }
+                if (letter == "B") {
+                    h = 240 + (percent * 0.6);
+                }
+                if (letter == "M") {
+                    h = 300 + (percent * 0.6);
+                }
+                if (letter == "W") {
+                    h = 0;
+                    white = 1 - (percent / 100);
+                    black = (percent / 100);
+                }
+            }
+            return ColorManager.hwbToRgb(h, white, black);
+        }
+        function hueToNcol(hue) {
+            while (hue >= 360) {
+                hue = hue - 360;
+            }
+            if (hue < 60) {
+                return "R" + (hue / 0.6);
+            }
+            if (hue < 120) {
+                return "Y" + ((hue - 60) / 0.6);
+            }
+            if (hue < 180) {
+                return "G" + ((hue - 120) / 0.6);
+            }
+            if (hue < 240) {
+                return "C" + ((hue - 180) / 0.6);
+            }
+            if (hue < 300) {
+                return "B" + ((hue - 240) / 0.6);
+            }
+            if (hue < 360) {
+                return "M" + ((hue - 300) / 0.6);
+            }
+        }
+        function ncsToRgb(ncs) {
+            var black, chroma, bc, percent, black1, chroma1, red1, factor1, blue1, red1, red2, green1, green2, blue2, max, factor2, grey, r, g, b;
+            ncs = ColorManager.w3trim(ncs).toUpperCase();
+            ncs = ncs.replace("(", "");
+            ncs = ncs.replace(")", "");
+            ncs = ncs.replace("NCS", "NCS ");
+            ncs = ncs.replace(/  /g, " ");
+            if (ncs.indexOf("NCS") == -1) {
+                ncs = "NCS " + ncs;
+            }
+            ncs = ncs.match(/^(?:NCS|NCS\sS)\s(\d{2})(\d{2})-(N|[A-Z])(\d{2})?([A-Z])?$/);
+            if (ncs === null)
+                return false;
+            black = parseInt(ncs[1], 10);
+            chroma = parseInt(ncs[2], 10);
+            bc = ncs[3];
+            if (bc != "N" && bc != "Y" && bc != "R" && bc != "B" && bc != "G") {
+                return false;
+            }
+            percent = parseInt(ncs[4], 10) || 0;
+            if (bc !== 'N') {
+                black1 = (1.05 * black - 5.25);
+                chroma1 = chroma;
+                if (bc === 'Y' && percent <= 60) {
+                    red1 = 1;
+                }
+                else if ((bc === 'Y' && percent > 60) || (bc === 'R' && percent <= 80)) {
+                    if (bc === 'Y') {
+                        factor1 = percent - 60;
+                    }
+                    else {
+                        factor1 = percent + 40;
+                    }
+                    red1 = ((Math.sqrt(14884 - Math.pow(factor1, 2))) - 22) / 100;
+                }
+                else if ((bc === 'R' && percent > 80) || (bc === 'B')) {
+                    red1 = 0;
+                }
+                else if (bc === 'G') {
+                    factor1 = (percent - 170);
+                    red1 = ((Math.sqrt(33800 - Math.pow(factor1, 2))) - 70) / 100;
+                }
+                if (bc === 'Y' && percent <= 80) {
+                    blue1 = 0;
+                }
+                else if ((bc === 'Y' && percent > 80) || (bc === 'R' && percent <= 60)) {
+                    if (bc === 'Y') {
+                        factor1 = (percent - 80) + 20.5;
+                    }
+                    else {
+                        factor1 = (percent + 20) + 20.5;
+                    }
+                    blue1 = (104 - (Math.sqrt(11236 - Math.pow(factor1, 2)))) / 100;
+                }
+                else if ((bc === 'R' && percent > 60) || (bc === 'B' && percent <= 80)) {
+                    if (bc === 'R') {
+                        factor1 = (percent - 60) - 60;
+                    }
+                    else {
+                        factor1 = (percent + 40) - 60;
+                    }
+                    blue1 = ((Math.sqrt(10000 - Math.pow(factor1, 2))) - 10) / 100;
+                }
+                else if ((bc === 'B' && percent > 80) || (bc === 'G' && percent <= 40)) {
+                    if (bc === 'B') {
+                        factor1 = (percent - 80) - 131;
+                    }
+                    else {
+                        factor1 = (percent + 20) - 131;
+                    }
+                    blue1 = (122 - (Math.sqrt(19881 - Math.pow(factor1, 2)))) / 100;
+                }
+                else if (bc === 'G' && percent > 40) {
+                    blue1 = 0;
+                }
+                if (bc === 'Y') {
+                    green1 = (85 - 17 / 20 * percent) / 100;
+                }
+                else if (bc === 'R' && percent <= 60) {
+                    green1 = 0;
+                }
+                else if (bc === 'R' && percent > 60) {
+                    factor1 = (percent - 60) + 35;
+                    green1 = (67.5 - (Math.sqrt(5776 - Math.pow(factor1, 2)))) / 100;
+                }
+                else if (bc === 'B' && percent <= 60) {
+                    factor1 = (1 * percent - 68.5);
+                    green1 = (6.5 + (Math.sqrt(7044.5 - Math.pow(factor1, 2)))) / 100;
+                }
+                else if ((bc === 'B' && percent > 60) || (bc === 'G' && percent <= 60)) {
+                    green1 = 0.9;
+                }
+                else if (bc === 'G' && percent > 60) {
+                    factor1 = (percent - 60);
+                    green1 = (90 - (1 / 8 * factor1)) / 100;
+                }
+                factor1 = (red1 + green1 + blue1) / 3;
+                red2 = ((factor1 - red1) * (100 - chroma1) / 100) + red1;
+                green2 = ((factor1 - green1) * (100 - chroma1) / 100) + green1;
+                blue2 = ((factor1 - blue1) * (100 - chroma1) / 100) + blue1;
+                if (red2 > green2 && red2 > blue2) {
+                    max = red2;
+                }
+                else if (green2 > red2 && green2 > blue2) {
+                    max = green2;
+                }
+                else if (blue2 > red2 && blue2 > green2) {
+                    max = blue2;
+                }
+                else {
+                    max = (red2 + green2 + blue2) / 3;
+                }
+                factor2 = 1 / max;
+                r = parseInt(((red2 * factor2 * (100 - black1) / 100) * 255), 10);
+                g = parseInt(((green2 * factor2 * (100 - black1) / 100) * 255), 10);
+                b = parseInt(((blue2 * factor2 * (100 - black1) / 100) * 255), 10);
+                if (r > 255) {
+                    r = 255;
+                }
+                if (g > 255) {
+                    g = 255;
+                }
+                if (b > 255) {
+                    b = 255;
+                }
+                if (r < 0) {
+                    r = 0;
+                }
+                if (g < 0) {
+                    g = 0;
+                }
+                if (b < 0) {
+                    b = 0;
+                }
+            }
+            else {
+                grey = parseInt(((1 - black / 100) * 255), 10);
+                if (grey > 255) {
+                    grey = 255;
+                }
+                if (grey < 0) {
+                    grey = 0;
+                }
+                r = grey;
+                g = grey;
+                b = grey;
+            }
+            return {
+                r: r,
+                g: g,
+                b: b
+            };
+        }
+        function w3SetColorsByAttribute() {
+            var z, i, att;
+            z = document.getElementsByTagName("*");
+            for (i = 0; i < z.length; i++) {
+                att = z[i].getAttribute("data-w3-color");
+                if (att) {
+                    z[i].style.backgroundColor = new ColorManager.w3color(att).toRgbString();
+                }
+            }
+        }
+        ColorManager.w3SetColorsByAttribute = w3SetColorsByAttribute;
+    })(ColorManager = TypeScript.ColorManager || (TypeScript.ColorManager = {}));
+})(TypeScript || (TypeScript = {}));
+var TypeScript;
+(function (TypeScript) {
+    var ColorManager;
+    (function (ColorManager) {
+        var IW3color = /** @class */ (function () {
+            function IW3color() {
+            }
+            return IW3color;
+        }());
+        ColorManager.IW3color = IW3color;
+    })(ColorManager = TypeScript.ColorManager || (TypeScript.ColorManager = {}));
+})(TypeScript || (TypeScript = {}));
+var TypeScript;
+(function (TypeScript) {
+    var ColorManager;
+    (function (ColorManager) {
+        function hslToRgb(hue, sat, light) {
+            var t1, t2, r, g, b;
+            hue = hue / 60;
+            if (light <= 0.5) {
+                t2 = light * (sat + 1);
+            }
+            else {
+                t2 = light + sat - (light * sat);
+            }
+            t1 = light * 2 - t2;
+            r = hueToRgb(t1, t2, hue + 2) * 255;
+            g = hueToRgb(t1, t2, hue) * 255;
+            b = hueToRgb(t1, t2, hue - 2) * 255;
+            return { r: r, g: g, b: b };
+        }
+        ColorManager.hslToRgb = hslToRgb;
+        function hueToRgb(t1, t2, hue) {
+            if (hue < 0)
+                hue += 6;
+            if (hue >= 6)
+                hue -= 6;
+            if (hue < 1)
+                return (t2 - t1) * hue + t1;
+            else if (hue < 3)
+                return t2;
+            else if (hue < 4)
+                return (t2 - t1) * (4 - hue) + t1;
+            else
+                return t1;
+        }
+        ColorManager.hueToRgb = hueToRgb;
+        function hwbToRgb(hue, white, black) {
+            var i, rgb, rgbArr = [], tot;
+            rgb = hslToRgb(hue, 1, 0.50);
+            rgbArr[0] = rgb.r / 255;
+            rgbArr[1] = rgb.g / 255;
+            rgbArr[2] = rgb.b / 255;
+            tot = white + black;
+            if (tot > 1) {
+                white = Number((white / tot).toFixed(2));
+                black = Number((black / tot).toFixed(2));
+            }
+            for (i = 0; i < 3; i++) {
+                rgbArr[i] *= (1 - (white) - (black));
+                rgbArr[i] += (white);
+                rgbArr[i] = Number(rgbArr[i] * 255);
+            }
+            return { r: rgbArr[0], g: rgbArr[1], b: rgbArr[2] };
+        }
+        ColorManager.hwbToRgb = hwbToRgb;
+        function cmykToRgb(c, m, y, k) {
+            var r, g, b;
+            r = 255 - ((Math.min(1, c * (1 - k) + k)) * 255);
+            g = 255 - ((Math.min(1, m * (1 - k) + k)) * 255);
+            b = 255 - ((Math.min(1, y * (1 - k) + k)) * 255);
+            return { r: r, g: g, b: b };
+        }
+        ColorManager.cmykToRgb = cmykToRgb;
+        function rgbToHsl(r, g, b) {
+            var min, max, i, l, s, maxcolor, h, rgb = [];
+            rgb[0] = r / 255;
+            rgb[1] = g / 255;
+            rgb[2] = b / 255;
+            min = rgb[0];
+            max = rgb[0];
+            maxcolor = 0;
+            for (i = 0; i < rgb.length - 1; i++) {
+                if (rgb[i + 1] <= min) {
+                    min = rgb[i + 1];
+                }
+                if (rgb[i + 1] >= max) {
+                    max = rgb[i + 1];
+                    maxcolor = i + 1;
+                }
+            }
+            if (maxcolor == 0) {
+                h = (rgb[1] - rgb[2]) / (max - min);
+            }
+            if (maxcolor == 1) {
+                h = 2 + (rgb[2] - rgb[0]) / (max - min);
+            }
+            if (maxcolor == 2) {
+                h = 4 + (rgb[0] - rgb[1]) / (max - min);
+            }
+            if (isNaN(h)) {
+                h = 0;
+            }
+            h = h * 60;
+            if (h < 0) {
+                h = h + 360;
+            }
+            l = (min + max) / 2;
+            if (min == max) {
+                s = 0;
+            }
+            else {
+                if (l < 0.5) {
+                    s = (max - min) / (max + min);
+                }
+                else {
+                    s = (max - min) / (2 - max - min);
+                }
+            }
+            s = s;
+            return { h: h, s: s, l: l };
+        }
+        ColorManager.rgbToHsl = rgbToHsl;
+        function rgbToHwb(r, g, b) {
+            var h, w, bl;
+            r = r / 255;
+            g = g / 255;
+            b = b / 255;
+            var max = Math.max(r, g, b);
+            var min = Math.min(r, g, b);
+            var chroma = max - min;
+            if (chroma == 0) {
+                h = 0;
+            }
+            else if (r == max) {
+                h = (((g - b) / chroma) % 6) * 360;
+            }
+            else if (g == max) {
+                h = ((((b - r) / chroma) + 2) % 6) * 360;
+            }
+            else {
+                h = ((((r - g) / chroma) + 4) % 6) * 360;
+            }
+            w = min;
+            bl = 1 - max;
+            return { h: h, w: w, b: bl };
+        }
+        ColorManager.rgbToHwb = rgbToHwb;
+        function rgbToCmyk(r, g, b) {
+            var c, m, y, k;
+            r = r / 255;
+            g = g / 255;
+            b = b / 255;
+            var max = Math.max(r, g, b);
+            k = 1 - max;
+            if (k == 1) {
+                c = 0;
+                m = 0;
+                y = 0;
+            }
+            else {
+                c = (1 - r - k) / (1 - k);
+                m = (1 - g - k) / (1 - k);
+                y = (1 - b - k) / (1 - k);
+            }
+            return { c: c, m: m, y: y, k: k };
+        }
+        ColorManager.rgbToCmyk = rgbToCmyk;
+    })(ColorManager = TypeScript.ColorManager || (TypeScript.ColorManager = {}));
+})(TypeScript || (TypeScript = {}));
+var TypeScript;
+(function (TypeScript) {
+    var ColorManager;
+    (function (ColorManager) {
+        function toHex(n) {
+            var hex = n.toString(16);
+            while (hex.length < 2) {
+                hex = "0" + hex;
+            }
+            return hex;
+        }
+        ColorManager.toHex = toHex;
+        function cl(x) {
+            TypeScript.logging.log(x, TypeScript.ConsoleColors.DarkYellow);
+        }
+        ColorManager.cl = cl;
+        function w3trim(x) {
+            return x.replace(/^\s+|\s+$/g, '');
+        }
+        ColorManager.w3trim = w3trim;
+        function isHex(x) {
+            return ('0123456789ABCDEFabcdef'.indexOf(x) > -1);
+        }
+        ColorManager.isHex = isHex;
+    })(ColorManager = TypeScript.ColorManager || (TypeScript.ColorManager = {}));
+})(TypeScript || (TypeScript = {}));
+var TypeScript;
+(function (TypeScript) {
+    var ColorManager;
+    (function (ColorManager) {
+        /**
+         * w3color.js ver.1.18 by w3schools.com (Do not remove this line)
+        */
+        var w3color = /** @class */ (function () {
+            function w3color(color, elmnt) {
+                if (color === void 0) { color = null; }
+                if (elmnt === void 0) { elmnt = null; }
+                if (!isNullOrUndefined(color)) {
+                    if (typeof color == "string") {
+                        this.attachValues(ColorManager.toColorObject(color));
+                    }
+                    else {
+                        this.attachValues(color);
+                    }
+                }
+                else {
+                    this.attachValues(w3color.emptyObject);
+                }
+                if (!isNullOrUndefined(elmnt)) {
+                    elmnt.style.backgroundColor = this.toRgbString();
+                }
+            }
+            Object.defineProperty(w3color, "emptyObject", {
+                get: function () {
+                    return {
+                        red: 0,
+                        green: 0,
+                        blue: 0,
+                        hue: 0,
+                        sat: 0,
+                        lightness: 0,
+                        whiteness: 0,
+                        blackness: 0,
+                        cyan: 0,
+                        magenta: 0,
+                        yellow: 0,
+                        black: 0,
+                        ncol: "R",
+                        opacity: 1,
+                        valid: false
+                    };
+                },
+                enumerable: true,
+                configurable: true
+            });
+            w3color.prototype.toRgbString = function () {
+                return "rgb(" + this.red + ", " + this.green + ", " + this.blue + ")";
+            };
+            w3color.prototype.toRgbaString = function () {
+                return "rgba(" + this.red + ", " + this.green + ", " + this.blue + ", " + this.opacity + ")";
+            };
+            w3color.prototype.toHwbString = function () {
+                return "hwb(" + this.hue + ", " + Math.round(this.whiteness * 100) + "%, " + Math.round(this.blackness * 100) + "%)";
+            };
+            w3color.prototype.toHwbStringDecimal = function () {
+                return "hwb(" + this.hue + ", " + this.whiteness + ", " + this.blackness + ")";
+            };
+            w3color.prototype.toHwbaString = function () {
+                return "hwba(" + this.hue + ", " + Math.round(this.whiteness * 100) + "%, " + Math.round(this.blackness * 100) + "%, " + this.opacity + ")";
+            };
+            w3color.prototype.toHslString = function () {
+                return "hsl(" + this.hue + ", " + Math.round(this.sat * 100) + "%, " + Math.round(this.lightness * 100) + "%)";
+            };
+            w3color.prototype.toHslStringDecimal = function () {
+                return "hsl(" + this.hue + ", " + this.sat + ", " + this.lightness + ")";
+            };
+            w3color.prototype.toHslaString = function () {
+                return "hsla(" + this.hue + ", " + Math.round(this.sat * 100) + "%, " + Math.round(this.lightness * 100) + "%, " + this.opacity + ")";
+            };
+            w3color.prototype.toCmykString = function () {
+                return "cmyk(" + Math.round(this.cyan * 100) + "%, " + Math.round(this.magenta * 100) + "%, " + Math.round(this.yellow * 100) + "%, " + Math.round(this.black * 100) + "%)";
+            };
+            w3color.prototype.toCmykStringDecimal = function () {
+                return "cmyk(" + this.cyan + ", " + this.magenta + ", " + this.yellow + ", " + this.black + ")";
+            };
+            w3color.prototype.toNcolString = function () {
+                return this.ncol + ", " + Math.round(this.whiteness * 100) + "%, " + Math.round(this.blackness * 100) + "%";
+            };
+            w3color.prototype.toNcolStringDecimal = function () {
+                return this.ncol + ", " + this.whiteness + ", " + this.blackness;
+            };
+            w3color.prototype.toNcolaString = function () {
+                return this.ncol + ", " + Math.round(this.whiteness * 100) + "%, " + Math.round(this.blackness * 100) + "%, " + this.opacity;
+            };
+            w3color.prototype.toName = function () {
+                var r, g, b, colorhexs = ColorManager.getColorArr('hexs');
+                for (var i = 0; i < colorhexs.length; i++) {
+                    r = parseInt(colorhexs[i].substr(0, 2), 16);
+                    g = parseInt(colorhexs[i].substr(2, 2), 16);
+                    b = parseInt(colorhexs[i].substr(4, 2), 16);
+                    if (this.red == r && this.green == g && this.blue == b) {
+                        return ColorManager.getColorArr('names')[i];
+                    }
+                }
+                return "";
+            };
+            w3color.prototype.toHexString = function () {
+                var r = ColorManager.toHex(this.red);
+                var g = ColorManager.toHex(this.green);
+                var b = ColorManager.toHex(this.blue);
+                return "#" + r + g + b;
+            };
+            w3color.prototype.toRgb = function () {
+                return { r: this.red, g: this.green, b: this.blue, a: this.opacity };
+            };
+            w3color.prototype.toHsl = function () {
+                return { h: this.hue, s: this.sat, l: this.lightness, a: this.opacity };
+            };
+            w3color.prototype.toHwb = function () {
+                return { h: this.hue, w: this.whiteness, b: this.blackness, a: this.opacity };
+            };
+            w3color.prototype.toCmyk = function () {
+                return { c: this.cyan, m: this.magenta, y: this.yellow, k: this.black, a: this.opacity };
+            };
+            w3color.prototype.toNcol = function () {
+                return { ncol: this.ncol, w: this.whiteness, b: this.blackness, a: this.opacity };
+            };
+            w3color.prototype.isDark = function (n) {
+                var m = (n || 128);
+                return (((this.red * 299 + this.green * 587 + this.blue * 114) / 1000) < m);
+            };
+            w3color.prototype.saturate = function (n) {
+                var x, rgb, color;
+                x = (n / 100 || 0.1);
+                this.sat += x;
+                if (this.sat > 1) {
+                    this.sat = 1;
+                }
+                rgb = ColorManager.hslToRgb(this.hue, this.sat, this.lightness);
+                color = ColorManager.colorObject(rgb, this.opacity, this.hue, this.sat);
+                this.attachValues(color);
+            };
+            w3color.prototype.desaturate = function (n) {
+                var x, rgb, color;
+                x = (n / 100 || 0.1);
+                this.sat -= x;
+                if (this.sat < 0) {
+                    this.sat = 0;
+                }
+                rgb = ColorManager.hslToRgb(this.hue, this.sat, this.lightness);
+                color = ColorManager.colorObject(rgb, this.opacity, this.hue, this.sat);
+                this.attachValues(color);
+            };
+            w3color.prototype.lighter = function (n) {
+                var x, rgb, color;
+                x = (n / 100 || 0.1);
+                this.lightness += x;
+                if (this.lightness > 1) {
+                    this.lightness = 1;
+                }
+                rgb = ColorManager.hslToRgb(this.hue, this.sat, this.lightness);
+                color = ColorManager.colorObject(rgb, this.opacity, this.hue, this.sat);
+                this.attachValues(color);
+            };
+            w3color.prototype.darker = function (n) {
+                var x, rgb, color;
+                x = (n / 100 || 0.1);
+                this.lightness -= x;
+                if (this.lightness < 0) {
+                    this.lightness = 0;
+                }
+                rgb = ColorManager.hslToRgb(this.hue, this.sat, this.lightness);
+                color = ColorManager.colorObject(rgb, this.opacity, this.hue, this.sat);
+                this.attachValues(color);
+            };
+            w3color.prototype.attachValues = function (color) {
+                this.red = color.red;
+                this.green = color.green;
+                this.blue = color.blue;
+                this.hue = color.hue;
+                this.sat = color.sat;
+                this.lightness = color.lightness;
+                this.whiteness = color.whiteness;
+                this.blackness = color.blackness;
+                this.cyan = color.cyan;
+                this.magenta = color.magenta;
+                this.yellow = color.yellow;
+                this.black = color.black;
+                this.ncol = color.ncol;
+                this.opacity = color.opacity;
+                this.valid = color.valid;
+            };
+            return w3color;
+        }());
+        ColorManager.w3color = w3color;
+        ;
+    })(ColorManager = TypeScript.ColorManager || (TypeScript.ColorManager = {}));
+})(TypeScript || (TypeScript = {}));
 /**
  * How to Encode and Decode Strings with Base64 in JavaScript
  *
@@ -6123,7 +7555,18 @@ var Base64;
      * 将base64字符串解码为普通的文本字符串
     */
     function decode(base64) {
+        var raw = decode_rawBuffer(base64);
         var text = "";
+        for (var _i = 0, raw_1 = raw; _i < raw_1.length; _i++) {
+            var code = raw_1[_i];
+            text = text + String.fromCharCode(code);
+        }
+        text = Base64.utf8_decode(text);
+        return text;
+    }
+    Base64.decode = decode;
+    function decode_rawBuffer(base64) {
+        var buffer = [];
         var n, r, i;
         var s, o, u, a;
         var f = 0;
@@ -6136,18 +7579,31 @@ var Base64;
             n = s << 2 | o >> 4;
             r = (o & 15) << 4 | u >> 2;
             i = (u & 3) << 6 | a;
-            text = text + String.fromCharCode(n);
+            buffer.push(n);
             if (u != 64) {
-                text = text + String.fromCharCode(r);
+                buffer.push(r);
             }
             if (a != 64) {
-                text = text + String.fromCharCode(i);
+                buffer.push(i);
             }
         }
-        text = Base64.utf8_decode(text);
-        return text;
+        return buffer;
     }
-    Base64.decode = decode;
+    Base64.decode_rawBuffer = decode_rawBuffer;
+    /**
+     * 将base64字符串解码为字节数组->普通数组
+     */
+    function bytes_decode(str) {
+        var arr = [];
+        var base64 = new Uint8Array(decode_rawBuffer(str));
+        var view = new DataView(base64.buffer);
+        var num = base64.length / 8;
+        for (var i = 0; i < num; i++) {
+            arr.push(view.getFloat64(i * 8));
+        }
+        return arr;
+    }
+    Base64.bytes_decode = bytes_decode;
     /**
      * 将文本转换为utf8编码的文本字符串
     */
@@ -6298,14 +7754,23 @@ var Levenshtein;
         var d = new Matrix(ns, nt, 0.0);
         d.column(0, Enumerable.Range(0, ns - 1));
         d.row(0, Enumerable.Range(0, nt - 1));
-        for (var j = 1; j < nt; j++) {
-            for (var i = 1; i < ns; i++) {
-                d.M(i, j, Enumerable.Min(d.M(i - 1, j) + score.delete(src[i - 1]), d.M(i, j - 1) + score.insert(tar[j - 1]), d.M(i - 1, j - 1) + score.substitute(src[i - 1], tar[j - 1])));
+        var del;
+        var insert;
+        var sub;
+        for (var j = 1; j < ns; j++) {
+            for (var i = 1; i < nt; i++) {
+                del = d.M(i - 1, j) + score.delete(src[i - 1]);
+                insert = d.M(i, j - 1) + score.insert(tar[j - 1]);
+                sub = d.M(i - 1, j - 1) + score.substitute(src[i - 1], tar[j - 1]);
+                d.M(i, j, Enumerable.Min(del, insert, sub));
             }
         }
         return d.ToArray(false);
     }
     Levenshtein.DistanceMatrix = DistanceMatrix;
+    /**
+     * 用于做字符串模糊匹配
+    */
     function ComputeDistance(source, target, score) {
         if (score === void 0) { score = defaultScore; }
         var d = DistanceMatrix(source, target, score);
@@ -6361,175 +7826,779 @@ var StringBuilder = /** @class */ (function () {
     };
     return StringBuilder;
 }());
-// namespace DOM {
-// 2018-10-15
-// 为了方便书写代码，在其他脚本之中添加变量类型申明，在这里就不进行命名空间的包裹了
-/**
- * TypeScript脚本之中的HTML节点元素的类型代理接口
-*/
-var HTMLTsElement = /** @class */ (function () {
-    function HTMLTsElement(node) {
-        this.node = node instanceof HTMLElement ?
-            node :
-            node.node;
-    }
-    Object.defineProperty(HTMLTsElement.prototype, "HTMLElement", {
+var Internal;
+(function (Internal) {
+    var BackgroundWorker = /** @class */ (function () {
+        function BackgroundWorker() {
+        }
+        Object.defineProperty(BackgroundWorker, "hasWorkerFeature", {
+            get: function () {
+                if (typeof (Worker) !== "undefined") {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
-         * 可以从这里获取得到原生的``HTMLElement``对象用于操作
+         * 加载所给定的脚本，并创建一个后台线程
+         *
+         * 可以在脚本中使用格式为``{$name}``的占位符进行标注
+         * 然后通过args参数来对这些占位符进行替换，从而达到参数传递的目的
+         *
+         * @param script 脚本的url或者文本内容，这个主要是为了解决跨域创建后台线程的问题
+         * @param args 向脚本模板之中进行赋值操作的变量列表，这个参数应该是一个键值对对象
+        */
+        BackgroundWorker.RunWorker = function (script, onMessage, args) {
+            if (args === void 0) { args = null; }
+            if (TypeScript.URLPatterns.isAPossibleUrlPattern(script)) {
+                // 是一个url，则GET请求然后从文本创建
+                // 进行url网络请求是一个异步的过程
+                this.fetchWorker(script, args, function (url) { return BackgroundWorker.registerWorker(script, url, onMessage); });
+            }
+            else {
+                // 是一个字符串文本，则直接创建一个worker               
+                // 注册一个新的工作线程
+                this.registerWorker(md5(script), this.buildWorker(script, args), onMessage);
+            }
+        };
+        BackgroundWorker.registerWorker = function (script, url, onMessage) {
+            BackgroundWorker.$workers[script] = new Worker(url);
+            BackgroundWorker.$workers[script].onmessage = onMessage;
+        };
+        BackgroundWorker.buildWorker = function (scriptText, args) {
+            var blob;
+            // 进行字符串替换赋值
+            if (!isNullOrUndefined(args)) {
+                var value = void 0;
+                var placeholder = void 0;
+                for (var name in args) {
+                    value = args[name];
+                    placeholder = "{$" + name + "}";
+                    // 进行模板上的占位符字符串进行值替换
+                    scriptText = scriptText.replace(placeholder, value);
+                }
+            }
+            try {
+                blob = new Blob([scriptText], { type: 'application/javascript' });
+            }
+            catch (e) {
+                // Backwards-compatibility
+                var webEngine = window;
+                webEngine.BlobBuilder = webEngine.BlobBuilder ||
+                    webEngine.WebKitBlobBuilder ||
+                    webEngine.MozBlobBuilder;
+                blob = webEngine.BlobBuilder();
+                blob.append(scriptText);
+                blob = blob.getBlob();
+            }
+            return URL.createObjectURL(blob);
+        };
+        /**
+         * How to create a Web Worker from a string
+         *
+         * > https://stackoverflow.com/questions/10343913/how-to-create-a-web-worker-from-a-string/10372280#10372280
+        */
+        BackgroundWorker.fetchWorker = function (scriptUrl, args, register) {
+            var _this = this;
+            // get script text from server
+            $ts.getText(scriptUrl, function (script) {
+                var blobUrl = _this.buildWorker(script, args);
+                TypeScript.logging.log("Build worker blob url: " + blobUrl, TypeScript.ConsoleColors.Gray);
+                register(blobUrl);
+            });
+        };
+        BackgroundWorker.Stop = function (script) {
+            BackgroundWorker.$workers[script].terminate();
+            // removes worker object
+            delete BackgroundWorker.$workers[script];
+        };
+        BackgroundWorker.$workers = {};
+        return BackgroundWorker;
+    }());
+    Internal.BackgroundWorker = BackgroundWorker;
+})(Internal || (Internal = {}));
+/// <reference path="../DOM/DOMEnumerator.ts" />
+/// <reference path="../DOM/InputValueGetter.ts" />
+/**
+ * Web应用程序路由器模块
+ *
+ * 通过这个路由器模块管理制定的Web应用程序模块的运行或者休眠
+*/
+var Router;
+(function (Router) {
+    var hashLinks;
+    var webApp = {};
+    var caseSensitive = true;
+    /**
+     * meta标签中的app值
+    */
+    Router.appName = DOM.InputValueGetter.metaValue("app");
+    function isCaseSensitive() {
+        return caseSensitive;
+    }
+    Router.isCaseSensitive = isCaseSensitive;
+    function currentAppPage() {
+        for (var index in webApp) {
+            for (var _i = 0, _a = webApp[index].Values.ToArray(); _i < _a.length; _i++) {
+                var app = _a[_i];
+                if (app.appStatus == "Running") {
+                    return app;
+                }
+            }
+        }
+        return null;
+    }
+    Router.currentAppPage = currentAppPage;
+    /**
+     * 设置路由器对URL的解析是否是大小写不敏感模式，也可以在这里函数中设置参数为false，来切换为大小写敏感模式
+     *
+     * @param option 通过这个参数来设置是否为大小写不敏感模式？
+     *
+    */
+    function CaseInsensitive(option) {
+        if (option === void 0) { option = true; }
+        caseSensitive = !option;
+    }
+    Router.CaseInsensitive = CaseInsensitive;
+    /**
+     * @param module 默认的模块是``/``，即如果服务器为php服务器的话，则默认为index.php
+    */
+    function AddAppHandler(app, module) {
+        if (module === void 0) { module = "/"; }
+        if (!(module in webApp)) {
+            webApp[module] = new Dictionary({});
+        }
+        doModule(module, function (apps) { return apps.Add(app.appName, app); });
+    }
+    Router.AddAppHandler = AddAppHandler;
+    function doModule(module, action) {
+        action(webApp[module]);
+    }
+    /**
+     * fix for index.php, VBServerScript etc.
+    */
+    var indexModule = {
+        "/": "general",
+        "index.php": "php server",
+        "index.perl": "perl server",
+        "index.do": "",
+        "index.jsp": "java server",
+        "index.vbs": "VB server script",
+        "index.vb": "VB server",
+        "index.asp": "VB6 server",
+        "index.aspx": "VB.NET server"
+    };
+    function getAppSummary(app, module) {
+        if (module === void 0) { module = "/"; }
+        var type = $ts.typeof(app);
+        var info = {
+            module: module,
+            appName: app.appName,
+            className: type.class,
+            status: app.appStatus,
+            hookUnload: app.appHookMsg
+        };
+        return info;
+    }
+    Router.getAppSummary = getAppSummary;
+    /**
+     * 从这个函数开始执行整个Web应用程序
+    */
+    function RunApp(module) {
+        if (module === void 0) { module = "/"; }
+        TypeScript.logging.log(TypeScript.URL.WindowLocation());
+        if (module in webApp) {
+            doModule(module, function (apps) { return apps.Select(function (app) { return app.value.Init(); }); });
+        }
+        else if (module == "index" || module in indexModule) {
+            var runInit = false;
+            for (var _i = 0, _a = Object.keys(indexModule); _i < _a.length; _i++) {
+                var index = _a[_i];
+                if (index in webApp) {
+                    doModule(index, function (apps) { return apps.Select(function (app) { return app.value.Init(); }); });
+                    runInit = true;
+                    break;
+                }
+            }
+            if (!runInit) {
+                throw "Default module is not found!";
+            }
+        }
+        else {
+            throw "Module \"" + module + "\" is not exists in your web app.";
+        }
+        if (TypeScript.logging.outputEverything) {
+            // 在console中显示table
+            var summary_1 = [];
+            Object.keys(webApp).forEach(function (module) {
+                doModule(module, function (apps) {
+                    apps.ForEach(function (app) { return summary_1.push(getAppSummary(app.value, module)); });
+                });
+            });
+            console.table(summary_1);
+        }
+    }
+    Router.RunApp = RunApp;
+    var routerLink = "router-link";
+    function queryKey(argName) {
+        return function (link) { return getAllUrlParams(link).Item(argName); };
+    }
+    Router.queryKey = queryKey;
+    function moduleName() {
+        return function (link) { return (new TypeScript.URL(link)).fileName; };
+    }
+    Router.moduleName = moduleName;
+    /**
+     * 父容器页面注册视图容器对象
+    */
+    function register(appId, hashKey, frameRegister) {
+        if (appId === void 0) { appId = "app"; }
+        if (hashKey === void 0) { hashKey = null; }
+        if (frameRegister === void 0) { frameRegister = true; }
+        var aLink;
+        var gethashKey;
+        if (!hashLinks) {
+            hashLinks = new Dictionary({
+                "/": "/"
+            });
+        }
+        if (!hashKey) {
+            gethashKey = function (link) { return (new TypeScript.URL(link)).fileName; };
+        }
+        else if (typeof hashKey == "string") {
+            gethashKey = Router.queryKey(hashKey);
+        }
+        else {
+            gethashKey = hashKey;
+        }
+        aLink = $ts(".router");
+        aLink.attr("router-link", function (link) { return link.href; });
+        aLink.attr("href", "javascript:void(0);");
+        aLink.onClick(function (link, click) {
+            Router.goto(link.getAttribute("router-link"), appId, gethashKey);
+        });
+        aLink.attr(routerLink)
+            .ForEach(function (link) {
+            hashLinks.Add(gethashKey(link), link);
+        });
+        // 假设当前的url之中有hash的话，还需要根据注册的路由配置进行跳转显示
+        hashChanged(appId);
+        // clientResize(appId);
+    }
+    Router.register = register;
+    function clientResize(appId) {
+        var app = $ts("#" + appId);
+        var frame = $ts("#" + appId + "-frame");
+        var size = DOM.clientSize();
+        if (!app) {
+            if (TypeScript.logging.outputWarning) {
+                console.warn("[#" + appId + "] not found!");
+            }
+        }
+        else {
+            app.style.width = size[0].toString();
+            app.style.height = size[1].toString();
+            frame.width = size[0].toString();
+            frame.height = size[1].toString();
+        }
+    }
+    /**
+     * 根据当前url之中的hash进行相应的页面的显示操作
+    */
+    function hashChanged(appId) {
+        var hash = TypeScript.URL.WindowLocation().hash;
+        var url = hashLinks.Item(hash);
+        if (url) {
+            if (url == "/") {
+                // 跳转到主页，重新刷新页面？
+                window.location.hash = "";
+                window.location.reload(true);
+            }
+            else {
+                $ts("#" + appId).innerHTML = HttpHelpers.GET(url);
+            }
+        }
+    }
+    function navigate(link, stack, appId, hashKey) {
+        var frame = $ts("#" + appId);
+        frame.innerHTML = HttpHelpers.GET(link);
+        Router.register(appId, hashKey, false);
+        window.location.hash = hashKey(link);
+    }
+    /**
+     * 当前的堆栈环境是否是最顶层的堆栈？
+    */
+    function IsTopWindowStack() {
+        return parent && (parent.location.pathname == window.location.pathname);
+    }
+    Router.IsTopWindowStack = IsTopWindowStack;
+    /**
+     * 因为link之中可能存在查询参数，所以必须要在web服务器上面测试
+    */
+    function goto(link, appId, hashKey, stack) {
+        if (stack === void 0) { stack = null; }
+        if (!Router.IsTopWindowStack()) {
+            parent.Router.goto(link, appId, hashKey, parent);
+        }
+        else if (stack) {
+            // 没有parent了，已经到达最顶端了
+            navigate(link, stack, appId, hashKey);
+        }
+        else {
+            navigate(link, window, appId, hashKey);
+        }
+    }
+    Router.goto = goto;
+})(Router || (Router = {}));
+/// <reference path="./Router.ts" />
+/**
+ * 实现这个类需要重写下面的方法实现：
+ *
+ * + ``protected abstract init(): void;``
+ * + ``public abstract get appName(): string``
+ *
+ * > ``appName``默认规则是php.net的路由规则，也可以将appName写在
+ * > 页面的meta标签的content中，meta标签的name名称应该为``app``
+ *
+ * 可以选择性的重写下面的事件处理器
+ *
+ * + ``protected OnDocumentReady(): void``
+ * + ``protected OnWindowLoad(): void``
+ * + ``protected OnWindowUnload(): string``
+ * + ``protected OnHashChanged(hash: string): void``
+ *
+ * 也可以重写下面的事件来获取当前的app的名称
+ *
+ * + ``protected getCurrentAppPage(): string``
+*/
+var Bootstrap = /** @class */ (function () {
+    function Bootstrap() {
+        this.status = "Sleep";
+        this.hookUnload = null;
+    }
+    Object.defineProperty(Bootstrap.prototype, "currentAppPage", {
+        /**
+         * 这个函数默认是取出url query之中的app参数字符串作为应用名称
+         *
+         * @returns 如果没有定义app参数，则默认是返回``/``作为名称
         */
         get: function () {
-            return this.node;
+            return getAllUrlParams().Item("app") || Router.appName || "/";
         },
         enumerable: true,
         configurable: true
     });
-    /**
-     * 这个拓展函数总是会将节点中的原来的内容清空，然后显示html函数参数
-     * 所给定的内容
-     *
-     * @param html 当这个参数为一个无参数的函数的时候，主要是用于生成一个比较复杂的文档节点而使用的;
-     *    如果为字符串文本类型，则是直接将文本当作为HTML代码赋值给当前的这个节点对象的innerHTML属性;
-    */
-    HTMLTsElement.prototype.display = function (html) {
-        if (!html) {
-            this.HTMLElement.innerHTML = "";
+    Object.defineProperty(Bootstrap.prototype, "appStatus", {
+        get: function () {
+            return this.status;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Bootstrap.prototype, "appHookMsg", {
+        get: function () {
+            return this.hookUnload;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Bootstrap.prototype.isCurrentAppPath = function () {
+        var path = $ts.location.path;
+        if (TypeScript.logging.outputEverything) {
+            console.log("Current url path is '" + path + "'");
         }
-        else if (typeof html == "string" || typeof html == "number" || typeof html == "boolean") {
-            this.HTMLElement.innerHTML = html.toString();
+        return path == this.appName;
+    };
+    Bootstrap.prototype.isCurrentApp = function () {
+        var currentAppName = this.currentAppPage;
+        var awake;
+        if (this.appName.charAt(0) === "/") {
+            // 是一个绝对路径，则按照路径进行判断
+            return this.isCurrentAppPath();
+        }
+        if (Router.isCaseSensitive()) {
+            awake = currentAppName == this.appName;
         }
         else {
-            var node;
-            var parent = this.HTMLElement;
-            if (typeof html == "function") {
-                node = html();
+            awake = currentAppName.toLowerCase() == this.appName.toLowerCase();
+        }
+        // 必须要当前的App名称和当前的页面app一致的时候这个App的运行才会被触发
+        if (!awake) {
+            return false;
+        }
+        else if (TypeScript.logging.outputEverything) {
+            console.log("%c[" + $ts.typeof(this).class + "] App(name:=" + this.appName + ") Init...", "color:blue;");
+        }
+        return awake;
+    };
+    Bootstrap.prototype.Init = function () {
+        var _this = this;
+        var vm = this;
+        if (!this.isCurrentApp()) {
+            return;
+        }
+        else {
+            // attach event handlers
+            $ts(function () { return _this.OnDocumentReady(); });
+        }
+        // 2019-1-7 因为js是解释执行的，所以OnWindowLoad函数里面的代码之中的this，
+        // 可能会被解释为window对象
+        // 从而导致出现bug，所以在这里需要使用一个函数的封装来避免这个问题
+        window.onload = vm.OnWindowLoad;
+        window.onbeforeunload = vm.OnWindowUnload;
+        window.onhashchange = function () {
+            var hash = window.location.hash;
+            var val = hash.substr(1);
+            vm.OnHashChanged(val);
+        };
+        Internal.EventHandles.hookEventHandles(this);
+        this.init();
+        this.status = "Running";
+    };
+    /**
+     * Event handler on document is ready
+    */
+    Bootstrap.prototype.OnDocumentReady = function () {
+        // do nothing
+    };
+    /**
+     * Event handler on Window loaded
+    */
+    Bootstrap.prototype.OnWindowLoad = function () {
+        // do nothing
+    };
+    Bootstrap.prototype.OnWindowUnload = function () {
+        if (!Strings.Empty(this.hookUnload, true)) {
+            return this.hookUnload;
+        }
+    };
+    Bootstrap.prototype.unhook = function () {
+        this.hookUnload = null;
+    };
+    /**
+     * Event handler on url hash link changed
+    */
+    Bootstrap.prototype.OnHashChanged = function (hash) {
+        // do nothing
+    };
+    Bootstrap.prototype.toString = function () {
+        return "[" + this.status + "] " + this.appName;
+    };
+    return Bootstrap;
+}());
+var Internal;
+(function (Internal) {
+    var EventHandles;
+    (function (EventHandles) {
+        /**
+         * find all elements' id on current html page
+        */
+        function findAllElement(attr) {
+            if (attr === void 0) { attr = "id"; }
+            var elements = document.querySelectorAll("*[" + attr + "]");
+            var id = [];
+            for (var _i = 0, _a = $ts(elements).ToArray(false); _i < _a.length; _i++) {
+                var node = _a[_i];
+                id.push(node.id);
+            }
+            return id;
+        }
+        EventHandles.findAllElement = findAllElement;
+        /**
+         * handle on clicks
+        */
+        function hookOnClicks(app, elements, type) {
+            var _loop_1 = function (publicMethodName) {
+                if (elements.indexOf(publicMethodName) > -1) {
+                    var arguments_1 = parseFunctionArgumentNames(app[publicMethodName]);
+                    if (arguments_1.length == 0 || arguments_1.length == 2) {
+                        $ts("#" + publicMethodName).onclick = function (handler, evt) {
+                            return app[publicMethodName](handler, evt);
+                        };
+                        TypeScript.logging.log("[" + type.class + "] hook onclick for #" + publicMethodName + "...", TypeScript.ConsoleColors.Green);
+                    }
+                }
+            };
+            for (var _i = 0, _a = type.methods; _i < _a.length; _i++) {
+                var publicMethodName = _a[_i];
+                _loop_1(publicMethodName);
+            }
+        }
+        var onchangeToken = "_onchange";
+        // <input id="email" />
+        // email_onchange(value: string) {
+        //     ...
+        // }
+        function hookOnChange(app, elements, type) {
+            elements = $from(elements).Select(function (id) { return "" + id + onchangeToken; }).ToArray();
+            var _loop_2 = function (publicMethodName) {
+                if (elements.indexOf(publicMethodName) == -1) {
+                    return "continue";
+                }
+                var onchange_1 = app[publicMethodName];
+                var arguments_2 = parseFunctionArgumentNames(onchange_1);
+                var id = publicMethodName.replace(onchangeToken, "");
+                if (arguments_2.length == 1 && arguments_2[0] == "value") {
+                    var a_1 = document.getElementById(id);
+                    var tag = a_1.tagName.toLowerCase();
+                    if (tag == "input" || tag == "textarea") {
+                        var type_1 = a_1.getAttribute("type");
+                        if (!isNullOrUndefined(type_1) && type_1.toLowerCase() == "file") {
+                            a_1.onchange = function () {
+                                var value = $input(a_1).files;
+                                return app[publicMethodName](value);
+                            };
+                        }
+                        else {
+                            a_1.onchange = function () {
+                                var value = DOM.InputValueGetter.unifyGetValue(a_1);
+                                return app[publicMethodName](value);
+                            };
+                        }
+                    }
+                    else if (tag == "select") {
+                        a_1.onchange = function () {
+                            var value = DOM.InputValueGetter.unifyGetValue(a_1);
+                            return app[publicMethodName](value);
+                        };
+                    }
+                    else {
+                        TypeScript.logging.log("invalid tag name: " + a_1.tagName + "!", "red");
+                    }
+                }
+            };
+            for (var _i = 0, _a = type.methods; _i < _a.length; _i++) {
+                var publicMethodName = _a[_i];
+                _loop_2(publicMethodName);
+            }
+        }
+        function hookEventHandles(app) {
+            var elements = findAllElement("id");
+            var type = TypeScript.Reflection.$typeof(app);
+            // handle on clicks
+            hookOnClicks(app, elements, type);
+            hookOnChange(app, elements, type);
+        }
+        EventHandles.hookEventHandles = hookEventHandles;
+        var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+        var ARGUMENT_NAMES = /([^\s,]+)/g;
+        function parseFunctionArgumentNames(func) {
+            var fnStr = func.toString().replace(STRIP_COMMENTS, '');
+            var result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
+            if (result === null) {
+                return [];
             }
             else {
-                node = html instanceof HTMLTsElement ?
-                    html.HTMLElement :
-                    html;
+                return result;
             }
-            parent.innerHTML = "";
-            parent.appendChild(node);
         }
-        return this;
-    };
-    /**
-     * Clear all of the contents in current html element node.
-    */
-    HTMLTsElement.prototype.clear = function () {
-        this.HTMLElement.innerHTML = "";
-        return this;
-    };
-    HTMLTsElement.prototype.text = function (innerText) {
-        this.HTMLElement.innerText = innerText;
-        return this;
-    };
-    HTMLTsElement.prototype.addClass = function (className) {
-        var node = this.HTMLElement;
-        if (!node.classList.contains(className)) {
-            node.classList.add(className);
-        }
-        return this;
-    };
-    HTMLTsElement.prototype.removeClass = function (className) {
-        var node = this.HTMLElement;
-        if (node.classList.contains(className)) {
-            node.classList.remove(className);
-        }
-        return this;
-    };
-    /**
-     * 在当前的HTML文档节点之中添加一个新的文档节点
-    */
-    HTMLTsElement.prototype.append = function (node) {
-        if (node instanceof HTMLTsElement) {
-            this.HTMLElement.appendChild(node.HTMLElement);
-        }
-        else if (node instanceof HTMLElement) {
-            this.HTMLElement.appendChild(node);
-        }
-        else {
-            this.HTMLElement.appendChild(node());
-        }
-        return this;
-    };
-    /**
-     * 将css的display属性值设置为block用来显示当前的节点
-    */
-    HTMLTsElement.prototype.show = function () {
-        this.HTMLElement.style.display = "block";
-        return this;
-    };
-    /**
-     * 将css的display属性值设置为none来隐藏当前的节点
-    */
-    HTMLTsElement.prototype.hide = function () {
-        this.HTMLElement.style.display = "none";
-        return this;
-    };
-    return HTMLTsElement;
-}());
-/**
- * 在这里对原生的html节点进行拓展
-*/
-var TypeExtensions;
-(function (TypeExtensions) {
-    /**
-     * 在原生节点模式之下对输入的给定的节点对象添加拓展方法
-     *
-     * 向HTML节点对象的原型定义之中拓展新的方法和成员属性
-     * 这个函数的输出在ts之中可能用不到，主要是应用于js脚本
-     * 编程之中
-     *
-     * @param node 当查询失败的时候是空值
-    */
-    function Extends(node) {
-        var obj = node;
-        if (isNullOrUndefined(node)) {
-            return null;
-        }
-        var extendsNode = new HTMLTsElement(node);
+        EventHandles.parseFunctionArgumentNames = parseFunctionArgumentNames;
+    })(EventHandles = Internal.EventHandles || (Internal.EventHandles = {}));
+})(Internal || (Internal = {}));
+var Framework;
+(function (Framework) {
+    var Extensions;
+    (function (Extensions) {
         /**
-         * 这个拓展函数总是会将节点中的原来的内容清空，然后显示html函数参数
-         * 所给定的内容
+         * 确保所传递进来的参数输出的是一个序列集合对象
         */
-        obj.display = function (html) {
-            extendsNode.display(html);
-            return node;
-        };
-        obj.show = function () {
-            extendsNode.show();
-            return node;
-        };
-        obj.hide = function () {
-            extendsNode.hide();
-            return node;
-        };
-        obj.addClass = function (name) {
-            extendsNode.addClass(name);
-            return node;
-        };
-        obj.removeClass = function (name) {
-            extendsNode.removeClass(name);
-            return node;
-        };
-        obj.CType = function () {
-            return node;
-        };
-        obj.clear = function () {
-            node.innerHTML = "";
-            return node;
-        };
-        obj.selects = function (cssSelector) { return Internal.Handlers.stringEval.select(cssSelector, node); };
-        // 用这个方法可以很方便的从现有的节点进行转换
-        // 也可以直接使用new进行构造
-        obj.asExtends = extendsNode;
-        obj.asImage = node;
-        obj.asInput = node;
-        return node;
+        function EnsureCollection(data, n) {
+            if (n === void 0) { n = -1; }
+            return new IEnumerator(EnsureArray(data, n));
+        }
+        Extensions.EnsureCollection = EnsureCollection;
+        /**
+         * 确保随传递进来的参数所输出的是一个数组对象
+         *
+         * @param data 如果这个参数是一个数组，则在这个函数之中会执行复制操作
+         * @param n 如果data数据序列长度不足，则会使用null进行补充，n为任何小于data长度的正实数都不会进行补充操作，
+         *     相反只会返回前n个元素，如果n是负数，则不进行任何操作
+        */
+        function EnsureArray(data, n) {
+            if (n === void 0) { n = -1; }
+            var type = $ts.typeof(data);
+            var array;
+            if (type.isEnumerator) {
+                array = data.ToArray();
+            }
+            else if (type.isArray) {
+                array = __spreadArrays(data);
+            }
+            else {
+                var x = data;
+                if (n <= 0) {
+                    array = [x];
+                }
+                else {
+                    array = [];
+                    for (var i = 0; i < n; i++) {
+                        array.push(x);
+                    }
+                }
+            }
+            if (1 <= n) {
+                if (n < array.length) {
+                    array = array.slice(0, n);
+                }
+                else if (n > array.length) {
+                    var len = array.length;
+                    for (var i = len; i < n; i++) {
+                        array.push(null);
+                    }
+                }
+                else {
+                    // n 和 array 等长，不做任何事
+                }
+            }
+            return array;
+        }
+        Extensions.EnsureArray = EnsureArray;
+        /**
+         * Extends `from` object with members from `to`.
+         *
+         * > https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+         *
+         * @param to If `to` is null, a deep clone of `from` is returned
+        */
+        function extend(from, to) {
+            if (to === void 0) { to = null; }
+            if (from == null || typeof from != "object")
+                return from;
+            if (from.constructor != Object && from.constructor != Array)
+                return from;
+            if (from.constructor == Date ||
+                from.constructor == RegExp ||
+                from.constructor == Function ||
+                from.constructor == String ||
+                from.constructor == Number ||
+                from.constructor == Boolean)
+                return new from.constructor(from);
+            to = to || new from.constructor();
+            for (var name in from) {
+                to[name] = typeof to[name] == "undefined" ? extend(from[name], null) : to[name];
+            }
+            return to;
+        }
+        Extensions.extend = extend;
+    })(Extensions = Framework.Extensions || (Framework.Extensions = {}));
+})(Framework || (Framework = {}));
+var TypeScript;
+(function (TypeScript) {
+    function gc() {
+        return TypeScript.garbageCollect.handler();
     }
-    TypeExtensions.Extends = Extends;
-})(TypeExtensions || (TypeExtensions = {}));
+    TypeScript.gc = gc;
+})(TypeScript || (TypeScript = {}));
+var TypeScript;
+(function (TypeScript) {
+    /**
+     * https://github.com/natewatson999/js-gc
+    */
+    var garbageCollect;
+    (function (garbageCollect) {
+        /**
+         * try to do garbageCollect by invoke this function
+        */
+        garbageCollect.handler = getHandler();
+        function getHandler() {
+            if (typeof window.require === "function") {
+                var require_1 = window.require;
+                try {
+                    require_1("v8").setFlagsFromString('--expose_gc');
+                    if (window.global != null) {
+                        var global_1 = window.global;
+                        if (typeof global_1.gc == "function") {
+                            return global_1.gc;
+                        }
+                    }
+                    var vm = require_1("vm");
+                    if (vm != null) {
+                        if (typeof vm.runInNewContext == "function") {
+                            var k = vm.runInNewContext("gc");
+                            return function () {
+                                k();
+                                return;
+                            };
+                        }
+                    }
+                }
+                catch (e) { }
+            }
+            if (typeof window !== 'undefined') {
+                if (window.CollectGarbage) {
+                    return window.CollectGarbage;
+                }
+                if (window.gc) {
+                    return window.gc;
+                }
+                if (window.opera) {
+                    if (window.opera.collect) {
+                        return window.opera.collect;
+                    }
+                }
+                //if ((<any>window).QueryInterface) {
+                //    return (<any>window).QueryInterface((<any>Components).interfaces.nsIInterfaceRequestor).getInterface((<any>Components).interfaces.nsIDOMWindowUtils).garbageCollect;
+                //}
+            }
+            //if (typeof ProfilerAgent !== 'undefined') {
+            //    if (ProfilerAgent.collectGarbage) {
+            //        return ProfilerAgent.collectGarbage;
+            //    }
+            //}
+            if (typeof window.global !== 'undefined') {
+                var global_2 = window.global;
+                if (global_2.gc) {
+                    return global_2.gc;
+                }
+            }
+            //if (typeof Duktape == 'object') {
+            //    if (typeof Duktape.gc) {
+            //        return Duktape.gc;
+            //    }
+            //}
+            //if (typeof Packages !== 'undefined') {
+            //    if (typeof Packages.java !== 'undefined') {
+            //        if (Packages.java.lang) {
+            //            if (Packages.java.lang) {
+            //                if (Packages.java.lang.System) {
+            //                    return Packages.java.lang.System.gc;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //if (typeof java !== 'undefined') {
+            //    if (java.lang) {
+            //        if (java.lang) {
+            //            if (java.lang.System) {
+            //                return java.lang.System.gc;
+            //            }
+            //        }
+            //    }
+            //}
+            //if (typeof Java !== 'undefined') {
+            //    if (java.type) {
+            //        return Java.type('java.lang.System').gc;
+            //    }
+            //}
+            //if (typeof CollectGarbage == "function") {
+            //    return CollectGarbage;
+            //}
+            //if (typeof jerry_gc == "function") {
+            //    return jerry_gc;
+            //}
+            return function () {
+                if (TypeScript.logging.outputEverything) {
+                    console.log("There is no gc handler could be found currently....");
+                }
+            };
+        }
+    })(garbageCollect = TypeScript.garbageCollect || (TypeScript.garbageCollect = {}));
+})(TypeScript || (TypeScript = {}));
 var Internal;
 (function (Internal) {
     var Arguments = /** @class */ (function () {
@@ -6542,7 +8611,7 @@ var Internal;
         */
         Arguments.nameFilter = function (args) {
             var _this = this;
-            return From(Object.keys(args))
+            return $from(Object.keys(args))
                 .Where(function (name) { return _this.ArgumentNames.indexOf(name) == -1; })
                 .ToArray();
         };
@@ -6560,6 +8629,50 @@ var Internal;
     }());
     Internal.Arguments = Arguments;
 })(Internal || (Internal = {}));
+var TypeScript;
+(function (TypeScript) {
+    var Reflection;
+    (function (Reflection) {
+        var Internal;
+        (function (Internal) {
+            /**
+             * fix bugs of gcc compression
+            */
+            function isEnumeratorSignature(type) {
+                var p = {
+                    "i": false,
+                    "sequence": false
+                };
+                for (var _i = 0, _a = type.property; _i < _a.length; _i++) {
+                    var pname = _a[_i];
+                    if (pname == "i")
+                        p.i = true;
+                    if (pname == "sequence")
+                        p.sequence = true;
+                }
+                if (!p.i || !p.sequence) {
+                    return false;
+                }
+                var m = {
+                    ElementAt: false,
+                    ToArray: false
+                };
+                for (var _b = 0, _c = type.methods; _b < _c.length; _b++) {
+                    var mname = _c[_b];
+                    if (mname == "ElementAt")
+                        m.ElementAt = true;
+                    if (mname == "ToArray")
+                        m.ToArray = true;
+                }
+                if (!m.ElementAt || !m.ToArray) {
+                    return false;
+                }
+                return true;
+            }
+            Internal.isEnumeratorSignature = isEnumeratorSignature;
+        })(Internal = Reflection.Internal || (Reflection.Internal = {}));
+    })(Reflection = TypeScript.Reflection || (TypeScript.Reflection = {}));
+})(TypeScript || (TypeScript = {}));
 var Internal;
 (function (Internal) {
     /**
@@ -6584,7 +8697,7 @@ var Internal;
             }
             var position = $ts(file.match(/([:]\d+){2}$/m)[0].split(":"));
             var posStrLen = (position.Select(function (s) { return s.length; }).Sum() + 2);
-            var location = From(position)
+            var location = $from(position)
                 .Where(function (s) { return s.length > 0; })
                 .Select(function (x) { return Strings.Val(x); })
                 .ToArray();
@@ -6622,6 +8735,126 @@ var Internal;
     }());
     Internal.StackFrame = StackFrame;
 })(Internal || (Internal = {}));
+var TypeScript;
+(function (TypeScript) {
+    /**
+     * 性能计数器
+    */
+    var Benchmark = /** @class */ (function () {
+        function Benchmark() {
+            this.start = (new Date).getTime();
+            this.lastCheck = this.start;
+        }
+        Benchmark.prototype.Tick = function () {
+            var now = (new Date).getTime();
+            var checkpoint = new CheckPoint();
+            checkpoint.start = this.start;
+            checkpoint.time = now;
+            checkpoint.sinceFromStart = now - this.start;
+            checkpoint.sinceLastCheck = now - this.lastCheck;
+            this.lastCheck = now;
+            return checkpoint;
+        };
+        return Benchmark;
+    }());
+    TypeScript.Benchmark = Benchmark;
+    /**
+     * 单位都是毫秒
+    */
+    var CheckPoint = /** @class */ (function () {
+        function CheckPoint() {
+        }
+        Object.defineProperty(CheckPoint.prototype, "elapsedMilisecond", {
+            /**
+             * 获取从``time``到当前时间所流逝的毫秒计数
+            */
+            get: function () {
+                return (new Date).getTime() - this.time;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return CheckPoint;
+    }());
+    TypeScript.CheckPoint = CheckPoint;
+})(TypeScript || (TypeScript = {}));
+var Cookies;
+(function (Cookies) {
+    // username=Bill Gates; expires=Sun, 31 Dec 2017 12:00:00 UTC; path=/
+    function setCookie(name, value, exdays) {
+        if (exdays === void 0) { exdays = 0; }
+        var d = new Date();
+        var expires;
+        throw "not implements";
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        expires = "expires=" + d.toUTCString();
+        document.cookie = name + "=" + value + "; " + expires + "; path=/";
+    }
+    Cookies.setCookie = setCookie;
+    /**
+     * Cookie 不存在，函数会返回空字符串
+    */
+    function getCookie(cookiename) {
+        // Get name followed by anything except a semicolon
+        var cookie = document.cookie;
+        var cookiestring = RegExp("" + cookiename + "[^;]+").exec(cookie);
+        var value;
+        // Return everything after the equal sign, 
+        // or an empty string if the cookie name not found
+        if (!!cookiestring) {
+            value = cookiestring.toString().replace(/^[^=]+./, "");
+        }
+        else {
+            value = "";
+        }
+        return decodeURIComponent(value);
+    }
+    Cookies.getCookie = getCookie;
+    /**
+     * 将cookie设置为过期，进行cookie的删除操作
+    */
+    function delCookie(name) {
+        var cval = getCookie(name);
+        var exp = new Date();
+        exp.setTime(exp.getTime() - 1);
+        if (cval != null) {
+            var expires = exp.toGMTString();
+            expires = name + "=" + cval + ";expires=" + expires;
+            document.cookie = expires;
+        }
+    }
+    Cookies.delCookie = delCookie;
+})(Cookies || (Cookies = {}));
+var TypeScript;
+(function (TypeScript) {
+    var LocalDb;
+    (function (LocalDb) {
+        var Open = /** @class */ (function () {
+            function Open(dbName, using, version) {
+                if (version === void 0) { version = 1; }
+                this.dbName = dbName;
+                this.using = using;
+                this.version = version;
+                this.processDbRequest(indexedDB.open(dbName, version));
+            }
+            Open.prototype.processDbRequest = function (request) {
+                var vm = this;
+                request.onerror = function (evt) {
+                    console.dir(evt);
+                };
+                request.onsuccess = function (evt) {
+                    vm.db = evt.target.result;
+                };
+                request.onupgradeneeded = function (evt) {
+                    vm.db = evt.target.result;
+                    vm.using(vm.db);
+                };
+            };
+            return Open;
+        }());
+        LocalDb.Open = Open;
+    })(LocalDb = TypeScript.LocalDb || (TypeScript.LocalDb = {}));
+})(TypeScript || (TypeScript = {}));
 var CanvasHelper;
 (function (CanvasHelper) {
     var innerCanvas;
@@ -6648,7 +8881,6 @@ var CanvasHelper;
      * found this trick at http://talideon.com/weblog/2005/02/detecting-broken-images-js.cfm
     */
     function imageOk(img) {
-        "use strict";
         // During the onload event, IE correctly identifies any images that
         // weren't downloaded as not complete. Others should too. Gecko-based
         // browsers act like NS4 in that they report this incorrectly.
@@ -6669,7 +8901,6 @@ var CanvasHelper;
      * @param size [width, height]
     */
     function createCanvas(size, id, title, display) {
-        "use strict";
         if (display === void 0) { display = "block"; }
         // size the canvas
         var canvas = $ts("<canvas>", {
@@ -6870,7 +9101,9 @@ var CanvasHelper;
                 saveSvgAsPng.requireDomNode(el);
                 options.scale = options.scale || 1;
                 options.responsive = options.responsive || false;
-                saveSvgAsPng.inlineImages(el, function () { return Encoder.doInlineImages(el, options, cb); });
+                saveSvgAsPng.inlineImages(el, function () {
+                    Encoder.doInlineImages(el, options, cb);
+                });
             };
             Encoder.doInlineImages = function (el, options, cb) {
                 var outer = $ts("<div>");
@@ -7482,6 +9715,34 @@ var HttpHelpers;
     }
     HttpHelpers.UploadFile = UploadFile;
     /**
+     * @param a 如果这个是一个无参数的函数, 则会求值之后再进行序列化
+    */
+    function serialize(a, nullAsStringFactor) {
+        if (nullAsStringFactor === void 0) { nullAsStringFactor = false; }
+        var sb = [];
+        var value;
+        if (typeof a == "function") {
+            a = a();
+        }
+        for (var _i = 0, _a = Object.keys(a); _i < _a.length; _i++) {
+            var key = _a[_i];
+            value = a[key];
+            if (isNullOrUndefined(value)) {
+                if (nullAsStringFactor && TypeScript.logging.outputEverything) {
+                    console.warn(key + " value is nothing!");
+                    value = "null";
+                }
+                else {
+                    // skip
+                    continue;
+                }
+            }
+            sb.push(key + "=" + encodeURIComponent(value));
+        }
+        return sb.join("&");
+    }
+    HttpHelpers.serialize = serialize;
+    /**
      * 在这个数据包对象之中应该包含有
      *
      * + ``type``属性，用来设置``Content-type``
@@ -7498,4 +9759,467 @@ var HttpHelpers;
     }());
     HttpHelpers.PostData = PostData;
 })(HttpHelpers || (HttpHelpers = {}));
+/// <reference path="../Collections/Abstract/Enumerator.ts" />
+/**
+ * http://www.rfc-editor.org/rfc/rfc4180.txt
+*/
+var csv;
+(function (csv_1) {
+    /**
+     * Common Format and MIME Type for Comma-Separated Values (CSV) Files
+    */
+    csv_1.contentType = "text/csv";
+    /**
+     * ``csv``文件模型
+    */
+    var dataframe = /** @class */ (function (_super) {
+        __extends(dataframe, _super);
+        /**
+         * 从行序列之中构建出一个csv对象模型
+        */
+        function dataframe(rows) {
+            return _super.call(this, rows) || this;
+        }
+        Object.defineProperty(dataframe.prototype, "headers", {
+            /**
+             * Csv文件的第一行作为header
+            */
+            get: function () {
+                return new IEnumerator(this.sequence[0]);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(dataframe.prototype, "contents", {
+            /**
+             * 获取除了第一行作为``header``数据的剩余的所有的行数据
+            */
+            get: function () {
+                return this.Skip(1);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * 获取指定列名称的所有的行的列数据
+         *
+         * @param name csv文件的列名称，第一行之中的文本数据的内容
+         *
+         * @returns 该使用名称所指定的列的所有的内容字符串的枚举序列对象
+        */
+        dataframe.prototype.Column = function (name) {
+            var index = this.sequence[0].indexOf(name);
+            if (index == -1) {
+                return new IEnumerator([]);
+            }
+            else {
+                return this.Select(function (r) { return r.ElementAt(index); });
+            }
+        };
+        /**
+         * 向当前的数据框对象之中添加一行数据
+        */
+        dataframe.prototype.AppendLine = function (line) {
+            this.sequence.push(line);
+            return this;
+        };
+        /**
+         * 向当前的数据框对象之中添加多行数据
+        */
+        dataframe.prototype.AppendRows = function (data) {
+            var _this = this;
+            if (Array.isArray(data)) {
+                data.forEach(function (r) { return _this.sequence.push(r); });
+            }
+            else {
+                data.ForEach(function (r) { return _this.sequence.push(r); });
+            }
+            return this;
+        };
+        /**
+         * 将当前的这个数据框对象转换为csv文本内容
+        */
+        dataframe.prototype.buildDoc = function (tsvFormat) {
+            if (tsvFormat === void 0) { tsvFormat = false; }
+            if (!tsvFormat) {
+                return this.Select(function (r) { return r.rowLine; }).JoinBy("\n");
+            }
+            else {
+                return this.Select(function (r) { return r.JoinBy("\t"); }).JoinBy("\n");
+            }
+        };
+        /**
+         * 使用反射操作将csv文档转换为特定类型的对象数据序列
+         *
+         * @param fieldMaps 这个参数是一个对象，其描述了如何将csv文档之中在js之中
+         *     的非法标识符转换为合法的标识符的映射
+         * @param activator 这个函数指针描述了如何创建一个新的指定类型的对象的过程，
+         *     这个函数指针不可以有参数的传递。
+         *
+         * @returns 这个函数返回类型约束的对象Linq序列集合
+        */
+        dataframe.prototype.Objects = function (fieldMaps, activator) {
+            if (fieldMaps === void 0) { fieldMaps = {}; }
+            if (activator === void 0) { activator = function () {
+                return {};
+            }; }
+            var header = dataframe.ensureMapsAll(fieldMaps, this.headers.ToArray());
+            var objs = this
+                .Skip(1)
+                .Select(function (r) {
+                var o = activator();
+                r.ForEach(function (c, i) {
+                    o[header(i)] = c;
+                });
+                return o;
+            });
+            return objs;
+        };
+        dataframe.ensureMapsAll = function (fieldMaps, headers) {
+            for (var i = 0; i < headers.length; i++) {
+                var column = headers[i];
+                if (column in fieldMaps) {
+                    // do nothing
+                }
+                else {
+                    // fill gaps
+                    fieldMaps[column] = column;
+                }
+            }
+            return function (i) {
+                return fieldMaps[headers[i]];
+            };
+        };
+        /**
+         * 使用ajax将csv文件保存到服务器
+         *
+         * @param url csv文件数据将会被通过post方法保存到这个url所指定的网络资源上面
+         * @param callback ajax异步回调，默认是打印返回结果到终端之上
+         *
+        */
+        dataframe.prototype.save = function (url, fileName, callback) {
+            if (fileName === void 0) { fileName = "upload.csv"; }
+            if (callback === void 0) { callback = function (response) {
+                console.log(response);
+            }; }
+            var file = this.buildDoc();
+            HttpHelpers.UploadFile(url, file, fileName, callback);
+        };
+        /**
+         * 使用ajax GET加载csv文件数据，不推荐使用这个方法处理大型的csv文件数据
+         *
+         * @param callback 当这个异步回调为空值的时候，函数使用同步的方式工作，返回csv对象
+         *                 如果这个参数不是空值，则以异步的方式工作，此时函数会返回空值
+         * @param parseText 如果url返回来的数据之中还包含有其他的信息，则会需要这个参数来进行csv文本数据的解析
+        */
+        dataframe.Load = function (url, callback, parseText) {
+            var _this = this;
+            if (callback === void 0) { callback = null; }
+            if (parseText === void 0) { parseText = this.defaultContent; }
+            if (callback == null || callback == undefined) {
+                // 同步
+                var load = parseText(HttpHelpers.GET(url));
+                var tsv = this.isTsv(load);
+                return dataframe.Parse(load.content, tsv);
+            }
+            else {
+                // 异步
+                HttpHelpers.GetAsyn(url, function (text, code, contentType) {
+                    if (code == 200) {
+                        var load = parseText(text, contentType);
+                        var tsv = _this.isTsv(load);
+                        var data = dataframe.Parse(load.content, tsv);
+                        console.log(data.headers);
+                        callback(data);
+                    }
+                    else {
+                        throw "Error while load csv data source, http " + code + ": " + text;
+                    }
+                });
+            }
+            return null;
+        };
+        dataframe.isTsv = function (load) {
+            var type = load.type.trim();
+            var tsv = (type == "tsv") || (type == "#tsv");
+            return tsv;
+        };
+        /**
+         * 默认是直接加个csv标签将格式设为默认的csv文件
+        */
+        dataframe.defaultContent = function (content) {
+            return {
+                type: "csv",
+                content: content
+            };
+        };
+        /**
+         * 将所给定的文本文档内容解析为数据框对象
+         *
+         * @param tsv 所需要进行解析的文本内容是否为使用``<TAB>``作为分割符的tsv文本文件？
+         *   默认不是，即默认使用逗号``,``作为分隔符的csv文本文件。
+        */
+        dataframe.Parse = function (text, tsv) {
+            if (tsv === void 0) { tsv = false; }
+            var parse = tsv ? csv_1.row.ParseTsv : csv_1.row.Parse;
+            var rows;
+            var allTextLines = $from(text.split(/\n/))
+                .Select(function (l) {
+                return l
+                    .replace("\r", "")
+                    .replace("\n", "");
+            });
+            TypeScript.logging.log("Document data is a " + (tsv ? "tsv" : "csv") + " file.", TypeScript.ConsoleColors.Blue);
+            if ($ts.mode == Modes.debug) {
+                console.log("Peeks of your input table data:");
+                console.table(this.head(allTextLines, parse));
+            }
+            if (Strings.Empty(allTextLines.Last)) {
+                // 2019-1-2 因为文本文件很有可能是以空行结尾的
+                // 所以在这里需要做下额外的判断
+                // 否则会在序列的最后面出现一行空数据
+                // 这个空数据很有可能会对下游程序代码产生bug影响
+                rows = allTextLines
+                    .Take(allTextLines.Count - 1)
+                    .Select(parse);
+            }
+            else {
+                rows = allTextLines.Select(parse);
+            }
+            return new dataframe(rows);
+        };
+        dataframe.head = function (allTextLines, parse) {
+            return allTextLines
+                .Take(6)
+                .Select(parse)
+                .Select(function (r) { return r.ToArray(false); })
+                .ToArray();
+        };
+        return dataframe;
+    }(IEnumerator));
+    csv_1.dataframe = dataframe;
+})(csv || (csv = {}));
+var csv;
+(function (csv) {
+    var HTML;
+    (function (HTML) {
+        var bootstrap = ["table", "table-hover"];
+        /**
+         * 将数据框对象转换为HTMl格式的表格对象的html代码
+         *
+         * @param tblClass 所返回来的html表格代码之中的table对象的类型默认是bootstrap类型的，
+         * 所以默认可以直接应用bootstrap的样式在这个表格之上
+         *
+         * @returns 表格的HTML代码
+        */
+        function toHTMLTable(data, tblClass) {
+            if (tblClass === void 0) { tblClass = bootstrap; }
+            var th = data.headers
+                .Select(function (h) { return "<th>" + h + "</th>"; })
+                .JoinBy("\n");
+            var tr = data.contents
+                .Select(function (r) { return r.Select(function (c) { return "<td>" + c + "</td>"; }).JoinBy(""); })
+                .Select(function (r) { return "<tr>" + r + "</tr>"; })
+                .JoinBy("\n");
+            return "\n            <table class=\"" + tblClass + "\">\n                <thead>\n                    <tr>" + th + "</tr>\n                </thead>\n                <tbody>\n                    " + tr + "\n                </tbody>\n            </table>";
+        }
+        HTML.toHTMLTable = toHTMLTable;
+        function createHTMLTable(data, tblClass) {
+            if (tblClass === void 0) { tblClass = bootstrap; }
+            return toHTMLTable(csv.toDataFrame(data), tblClass);
+        }
+        HTML.createHTMLTable = createHTMLTable;
+    })(HTML = csv.HTML || (csv.HTML = {}));
+})(csv || (csv = {}));
+var csv;
+(function (csv) {
+    /**
+     * csv文件之中的一行数据，相当于当前行的列数据的集合
+    */
+    var row = /** @class */ (function (_super) {
+        __extends(row, _super);
+        function row(cells) {
+            return _super.call(this, cells) || this;
+        }
+        Object.defineProperty(row.prototype, "columns", {
+            /**
+             * 当前的这一个行对象的列数据集合
+             *
+             * 注意，你无法通过直接修改这个数组之中的元素来达到修改这个行之中的值的目的
+             * 因为这个属性会返回这个行的数组值的复制对象
+            */
+            get: function () {
+                return __spreadArrays(this.sequence);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(row.prototype, "rowLine", {
+            /**
+             * 这个只读属性仅用于生成csv文件
+            */
+            get: function () {
+                return $from(this.columns)
+                    .Select(row.autoEscape)
+                    .JoinBy(",");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+         * Returns the index of the first occurrence of a value in an array.
+         *
+         * 函数得到指定的值在本行对象之中的列的编号
+         *
+         * @param value The value to locate in the array.
+         * @param fromIndex The array index at which to begin the search. If ``fromIndex`` is omitted,
+         *      the search starts at index 0.
+         *
+         * @returns 如果这个函数返回-1则表示找不到
+        */
+        row.prototype.indexOf = function (value, fromIndex) {
+            if (fromIndex === void 0) { fromIndex = null; }
+            if (isNullOrUndefined(fromIndex)) {
+                return this.sequence.indexOf(value);
+            }
+            else {
+                return this.sequence.indexOf(value, fromIndex);
+            }
+        };
+        row.prototype.ProjectObject = function (headers) {
+            var obj = {};
+            var data = this.columns;
+            if (Array.isArray(headers)) {
+                headers.forEach(function (h, i) {
+                    obj[h] = data[i];
+                });
+            }
+            else {
+                headers.ForEach(function (h, i) {
+                    obj[h] = data[i];
+                });
+            }
+            return obj;
+        };
+        row.autoEscape = function (c) {
+            if (c.indexOf(",") > -1) {
+                return "\"" + c + "\"";
+            }
+            else {
+                return c;
+            }
+        };
+        row.Parse = function (line) {
+            return new row(csv.CharsParser(line));
+        };
+        row.ParseTsv = function (line) {
+            return new row(csv.CharsParser(line, "\t"));
+        };
+        return row;
+    }(IEnumerator));
+    csv.row = row;
+})(csv || (csv = {}));
+/// <reference path="../Collections/Pointer.ts" />
+var csv;
+(function (csv) {
+    /**
+     * 通过Chars枚举来解析域，分隔符默认为逗号
+     * > https://github.com/xieguigang/sciBASIC/blame/701f9d0e6307a779bb4149c57a22a71572f1e40b/Data/DataFrame/IO/csv/Tokenizer.vb#L97
+     *
+    */
+    function CharsParser(s, delimiter, quot) {
+        if (delimiter === void 0) { delimiter = ","; }
+        if (quot === void 0) { quot = '"'; }
+        var tokens = [];
+        var temp = [];
+        var openStack = false;
+        var buffer = $from(Strings.ToCharArray(s)).ToPointer();
+        var dblQuot = new RegExp("[" + quot + "]{2}", 'g');
+        var cellStr = function () {
+            // https://stackoverflow.com/questions/1144783/how-to-replace-all-occurrences-of-a-string-in-javascript
+            // 2018-09-02
+            // 如果join函数的参数是空的话，则js之中默认是使用逗号作为连接符的 
+            return temp.join("").replace(dblQuot, quot);
+        };
+        var procEscape = function (c) {
+            if (!StartEscaping(temp)) {
+                // 查看下一个字符是否为分隔符
+                // 因为前面的 Dim c As Char = +buffer 已经位移了，所以在这里直接取当前的字符
+                var peek = buffer.Current;
+                // 也有可能是 "" 转义 为单个 "
+                var lastQuot = (temp.length > 0 && temp[temp.length - 1] != quot);
+                if (temp.length == 0 && peek == delimiter) {
+                    // openStack意味着前面已经出现一个 " 了
+                    // 这里又出现了一个 " 并且下一个字符为分隔符
+                    // 则说明是 "", 当前的cell内容是一个空字符串
+                    tokens.push("");
+                    temp = [];
+                    buffer.MoveNext();
+                    openStack = false;
+                }
+                else if ((peek == delimiter || buffer.EndRead) && lastQuot) {
+                    // 下一个字符为分隔符，则结束这个token
+                    tokens.push(cellStr());
+                    temp = [];
+                    // 跳过下一个分隔符，因为已经在这里判断过了
+                    buffer.MoveNext();
+                    openStack = false;
+                }
+                else {
+                    // 不是，则继续添加
+                    temp.push(c);
+                }
+            }
+            else {
+                // \" 会被转义为单个字符 "
+                temp[temp.length - 1] = c;
+            }
+        };
+        while (!buffer.EndRead) {
+            var c = buffer.Next;
+            if (openStack) {
+                if (c == quot) {
+                    procEscape(c);
+                }
+                else {
+                    // 由于双引号而产生的转义          
+                    temp.push(c);
+                }
+            }
+            else {
+                if (temp.length == 0 && c == quot) {
+                    // token的第一个字符串为双引号，则开始转义
+                    openStack = true;
+                }
+                else {
+                    if (c == delimiter) {
+                        tokens.push(cellStr());
+                        temp = [];
+                    }
+                    else {
+                        temp.push(c);
+                    }
+                }
+            }
+        }
+        if (temp.length > 0) {
+            tokens.push(cellStr());
+        }
+        return tokens;
+    }
+    csv.CharsParser = CharsParser;
+    /**
+     * 当前的token对象之中是否是转义的起始，即当前的token之中的最后一个符号
+     * 是否是转义符<paramref name="escape"/>?
+    */
+    function StartEscaping(buffer, escape) {
+        if (escape === void 0) { escape = "\\"; }
+        if (isNullOrEmpty(buffer)) {
+            return false;
+        }
+        else {
+            return buffer[buffer.length - 1] == escape;
+        }
+    }
+})(csv || (csv = {}));
 //# sourceMappingURL=linq.js.map

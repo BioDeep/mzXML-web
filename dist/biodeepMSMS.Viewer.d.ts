@@ -1,6 +1,7 @@
-/// <reference path="../../build/linq.d.ts" />
+/// <reference path="vendor/linq.d.ts" />
+/// <reference path="vendor/svg.d.ts" />
 /// <reference path="BioDeep_mzWeb.d.ts" />
-/// <reference path="../../build/svg.d.ts" />
+/// <reference path="../../../biodeep/cdn.biodeep.cn/typescripts/build/svg.d.ts" />
 /// <reference types="d3" />
 /// <reference types="d3-tip" />
 declare namespace BioDeep.MSMSViewer {
@@ -20,52 +21,6 @@ declare namespace BioDeep.MSMSViewer {
 declare namespace BioDeep.MSMSViewer {
     function tooltip(mz: Data.mzData): d3.Tooltip;
     function mzrtTip(): d3.Tooltip;
-}
-declare namespace BioDeep.MSMSViewer.PeakScatter {
-    /**
-     * 一级母离子的``[mz, rt]``散点图
-    */
-    class PlotRenderer {
-        margin: Canvas.Margin;
-        size: Canvas.Size;
-        private svg;
-        private tooltip;
-        constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
-        private xAxis;
-        private yAxis;
-        static indexRange: data.NumericRange;
-        render(data: Models.IonPeak[], peakClick?: (d: Models.IonPeak) => void): void;
-    }
-}
-declare namespace BioDeep.MSMSViewer {
-    class Spectrum extends SvgChart {
-        constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
-        private x;
-        private y;
-        xAxis(ions: IEnumerator<Models.mzInto>): d3.svg.Axis;
-        yAxis(ions: IEnumerator<Models.mzInto>): d3.svg.Axis;
-        renderChartFromMgf(id: string, ions: IEnumerator<IO.mgf>, levels: number): void;
-        renderChart(id: string, ions: IEnumerator<Models.mzInto>): void;
-    }
-}
-declare namespace BioDeep.MSMSViewer {
-    /**
-     * 一级母离子的``[rt, intensity]``峰面积图
-    */
-    class TICplot extends SvgChart {
-        onClick: (ion: IO.mgf) => void;
-        data: BioDeep.Models.ChromatogramTick[];
-        readonly area: d3.svg.Area<[number, number]>;
-        readonly x: d3.scale.Linear<number, number>;
-        readonly y: d3.scale.Linear<number, number>;
-        readonly xAxis: d3.svg.Axis;
-        readonly yAxis: d3.svg.Axis;
-        constructor(size: number[], onClick: (ion: IO.mgf) => void);
-        plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>): void;
-        private bindEvents;
-        private static uniqueId;
-        private chart;
-    }
 }
 /**
  * ## mzXML file reader and javascript data visualization tools
@@ -94,7 +49,7 @@ declare namespace BioDeep.MSMSViewer {
      *     可以将这个参数由id字符串变为实际的节点对象值
      * @param data 图表绘图数据，请注意，需要这个数据是一个镜像数据
     */
-    function previews(divId: string | HTMLElement, data: Data.mzData | BioDeep.IO.mgf, size?: number[]): void;
+    function previews(divId: string | HTMLElement, data: Data.mzData | BioDeep.IO.mgf, size?: number[], title?: string, margin?: Canvas.Margin, csvLink?: string): void;
     function parseIon(ion: BioDeep.IO.mgf): Data.mzData;
 }
 declare namespace BioDeep.Utils {
@@ -126,13 +81,6 @@ declare namespace BioDeep.MSMSViewer {
     }
 }
 declare namespace BioDeep.MSMSViewer.Data {
-    function JSONParser(data: JSONrespon, decoder?: ((string: any) => Models.mzInto[])): mzData;
-    /**
-     * @param matrix 在这个函数之中会将这个二级碎片矩阵转换为一个镜像矩阵
-    */
-    function PreviewData(mz: number, rt: number, matrix: BioDeep.Models.mzInto[], title?: string): mzData;
-}
-declare namespace BioDeep.MSMSViewer.Data {
     /**
      * Demo test data
      *
@@ -152,17 +100,24 @@ declare namespace BioDeep.MSMSViewer.Data {
      *    ]};
      * ```
     */
-    class JSONrespon {
+    interface JSONrespon {
         query: string;
         reference: string;
         align: align[] | string;
         xref: string;
     }
-    class align {
+    interface align {
         mz: number;
         into1: number;
         into2: number;
     }
+}
+declare namespace BioDeep.MSMSViewer.Data {
+    function JSONParser(data: JSONrespon, decoder?: ((string: any) => Models.mzInto[])): mzData;
+    /**
+     * @param matrix 在这个函数之中会将这个二级碎片矩阵转换为一个镜像矩阵
+    */
+    function PreviewData(mz: number, rt: number, matrix: BioDeep.Models.mzInto[], title?: string): mzData;
 }
 declare namespace BioDeep.MSMSViewer.Data {
     class mzData {
@@ -196,25 +151,27 @@ declare namespace BioDeep.MSMSViewer.renderingWork {
      * 在这里进行具体的图表绘制操作
     */
     function chartting(engine: d3Renderer): d3Renderer;
-    function Legend(engine: d3Renderer): d3Renderer;
+    function legend(engine: d3Renderer, title?: string): d3Renderer;
 }
 declare namespace BioDeep.MSMSViewer {
     class d3Renderer extends SvgChart {
+        margin: Canvas.Margin;
+        private csvLink;
+        private title;
         protected current: Data.mzData;
         strokeWidth: number;
         radius: number;
-        margin: Canvas.Margin;
-        width: number;
-        height: number;
         /**
          * Biodeep® MS/MS alignment viewer
         */
         svg: d3.Selection<any>;
         tip: d3.Tooltip;
-        readonly mzRange: number[];
-        readonly input: Data.mzData;
-        constructor(mz: Data.mzData, size?: number[] | Canvas.Size, margin?: Canvas.Margin, csvLink?: string);
+        get mzRange(): number[];
+        get input(): Data.mzData;
+        constructor(mz: Data.mzData, size?: number[] | Canvas.Size, margin?: Canvas.Margin, csvLink?: string, title?: string);
         private registerDownloader;
+        unique(arr: []): never[];
+        private toId;
         /**
          * 这个图标渲染函数的输入显示参数，同时支持节点的id编号属性和html节点对象
          *
@@ -225,4 +182,52 @@ declare namespace BioDeep.MSMSViewer {
 }
 declare namespace BioDeep.MSMSViewer.renderingWork {
     function defaultMargin(): Canvas.Margin;
+}
+declare namespace BioDeep.MSMSViewer.PeakScatter {
+    /**
+     * 一级母离子的``[mz, rt]``散点图
+    */
+    class PlotRenderer {
+        margin: Canvas.Margin;
+        size: Canvas.Size;
+        private svg;
+        private tooltip;
+        constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
+        private xAxis;
+        private yAxis;
+        static indexRange: data.NumericRange;
+        render(data: Models.IonPeak[], peakClick?: (d: Models.IonPeak) => void): void;
+    }
+}
+declare namespace BioDeep.MSMSViewer {
+    class Spectrum extends SvgChart {
+        constructor(size?: Canvas.Size | number[], margin?: Canvas.Margin);
+        private x;
+        private y;
+        xAxis(ions: IEnumerator<Models.mzInto>): d3.svg.Axis;
+        yAxis(ions: IEnumerator<Models.mzInto>): d3.svg.Axis;
+        renderChartFromMgf(id: string, ions: IEnumerator<IO.mgf>, levels: number): void;
+        renderChart(id: string, ions: IEnumerator<Models.mzInto>): void;
+    }
+}
+declare namespace BioDeep.MSMSViewer {
+    /**
+     * 一级母离子的``[rt, intensity]``峰面积图
+    */
+    class TICplot extends SvgChart {
+        onClick: (ion: any) => void;
+        data: BioDeep.Models.ChromatogramTick[];
+        ions: Dictionary<any>;
+        get area(): d3.svg.Area<[number, number]>;
+        get x(): d3.scale.Linear<number, number>;
+        get y(): d3.scale.Linear<number, number>;
+        get xAxis(): d3.svg.Axis;
+        get yAxis(): d3.svg.Axis;
+        constructor(size: number[], onClick: (ion: any) => void);
+        plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>): void;
+        plotData(canvas: string | HTMLElement, rt: number[], intensity: number[], tags: any[]): void;
+        private bindEvents;
+        private static uniqueId;
+        private chart;
+    }
 }

@@ -18,4 +18,16 @@
                 raw: i
             });
     }
+
+    export function Chromatogram(rt: number[], intensity: number[], tags: any[] = null): IEnumerator<ChromatogramTick> {
+        let isNullTags: boolean = isNullOrUndefined(tags);
+
+        return $from(rt).Select(function (rti, i) {
+            return <ChromatogramTick>{
+                rt: rti,
+                intensity: intensity[i],
+                raw: isNullTags ? null : tags[i]
+            }
+        })
+    }
 }

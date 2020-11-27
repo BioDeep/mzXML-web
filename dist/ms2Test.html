@@ -1,0 +1,62 @@
+<script type="text/javascript" src="https://cdn.biodeep.cn/typescripts/build/linq.min.js"></script>
+<script type="text/javascript" src="./BioDeep_mzWeb.js"></script>
+<script type="text/javascript" src="https://cdn.biodeep.cn/typescripts/build/svg.js"></script>
+<script type="text/javascript" src="./biodeepMSMS.Viewer.js"></script>
+<script type="text/javascript" src="https://cdn.biodeep.cn/vendor/d3.js"></script>
+<script type="text/javascript" src="https://cdn.biodeep.cn/vendor/d3.tip.v0.6.3.js"></script>
+<script src="https://cdn.biodeep.cn/typescripts/build/linq.js"></script>
+
+
+<script>
+	$ts(() => {
+		var product_mz = "QEqE+qzZ6D5ASwRDLKV6eEBLgkdFOO81QE4HEMspXp5AUEJx3mmtQ0BQgrULDye7QFEDItDlYEJAU4IhllK9PEBTwSH/LkjpQFcDL+xW1dBAV0NnoPkJbEBYAtXPqs2fQFsC7L+xW1dAW0MXWOIZZUBbg+XJHRTkQF4DmMfigkFAYECM5wOvuEBggHEMspXqQGOAYKpkwvhAY6B64UeuFEBjwEGJN0vHQGXAuscQyylAZwJsImgJ1UBn/t7SiM5wQGthZs9B8hNAcdBahYeT3kBx8EtdzGPx";
+		var intensity = "P+MJ1q33HrA/4iNQ0oBq9D/guRLbpNbkP+Fdu5z5oGpADpVtGd7OVz/gNVinYQJ5QB/an3ta6jE/50iSq2jO9j/w6nivPkaNQB7PDk2gnMM/52mBOHnEET/j8FyJbdJrQChYQYk3S8c/8ujoIOYplUATngdfb9IgQAjDSG8EmplAFp/Mnqmj0z/4P47A+IM0QFkAAAAAAABAIcSkKu0TlEAPIWJrLyMDP+gOKfnOjZc/489t/FzdUT/i6Ogg5imVP+cnpB5X2dxADY35vcafjD/q4qXnhbW3";
+		// var mz = Base64.bytes_decode(product_mz, 27);
+		// var into = Base64.bytes_decode(intensity, 27);
+		// var max_into = Math.max(...into);
+		// var matrix = [];
+		// for(var i = 0; i < 27; i++) {
+		// 	matrix[i] = {
+		// 		mz: mz[i],
+		// 		into: into[i] / max_into * 100,
+		// 		id: (i + 1).toString()
+		// 	}
+		// }
+		// console.log(matrix);
+
+		// var text = $ts.text("#mgf-data");
+		var fragments = 27;
+		var data = {
+			'mz' : product_mz,
+			'into' : intensity,
+			'fragments' : fragments,
+			'charge' : "-2",
+			"precursor_mass" : "252.5 100",
+			"rt" : "3.073477",
+			"title" : "MCH00019"
+		}
+		var ms2 = BioDeep.IO.mgf.IonParse(data);
+
+		BioDeep.MSMSViewer.loadStyles();
+		BioDeep.MSMSViewer.previews("#viewer", ms2);
+	});
+</script>
+
+<body>
+	<div id="viewer"></div>
+</body>
+
+<script id="mgf-data" type="plain/text">
+BEGIN IONS
+TITLE=003_Ex2_Orbitrap_CID.9.9.1#9
+RTINSECONDS=2.051
+PEPMASS=482.402404785156 11513.2705078125
+CHARGE=1+
+148.4682617 3.7358036041
+345.2749329 5.6690850258
+396.8612976 10.6281452179
+471.0531921 15.3498001099
+472.2330017 4.3872823715
+494.0964661 3.153635025
+END IONS
+</script>

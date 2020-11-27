@@ -47,14 +47,14 @@
     }
 
     export function ppm(x: number | IEnumerator<number> | number[], y: number | IEnumerator<number> | number[]): number | number[] {
-        var tx = TypeInfo.typeof(x);
-        var ty = TypeInfo.typeof(y);
+        let tx = TypeScript.Reflection.$typeof(x);
+        let ty = TypeScript.Reflection.$typeof(y);
 
-        if (tx.IsPrimitive && ty.IsPrimitive) {
+        if (tx.isPrimitive && ty.isPrimitive) {
             return ppm_primitive(<number>x, <number>y);
         }
-        if (tx.IsPrimitive) {
-            if (ty.IsArray) {
+        if (tx.isPrimitive) {
+            if (ty.isArray) {
                 y = new IEnumerator<number>(<any>y);
             }
 
@@ -62,8 +62,8 @@
                 .Select(a => ppm_primitive(<number>x, a))
                 .ToArray();
         }
-        if (ty.IsPrimitive) {
-            if (tx.IsArray) {
+        if (ty.isPrimitive) {
+            if (tx.isArray) {
                 x = new IEnumerator<number>(<any>x);
             }
 
@@ -74,8 +74,8 @@
 
         // x, y都是基元类型
         // 则二者必须等长
-        var sx = new IEnumerator<number>(<any>x);
-        var sy = new IEnumerator<number>(<any>y);
+        let sx = new IEnumerator<number>(<any>x);
+        let sy = new IEnumerator<number>(<any>y);
 
         if (sx.Count != sy.Count) {
             if (TypeScript.logging.outputWarning) {

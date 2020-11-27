@@ -1,5 +1,4 @@
-﻿/// <reference path="../../../../build/linq.d.ts" />
-/// <reference path="../../Models/Abstract.ts" />
+﻿/// <reference path="../../Models/Abstract.ts" />
 
 /**
  * The ``*.ms2`` file format reader
@@ -20,11 +19,11 @@ namespace BioDeep.IO.Ms2Reader {
         public scans: Scan[];
 
         public static Parse(text: string): Ms2 {
-            var lines: IEnumerator<string> = From(Strings.lineTokens(text));
-            var headers = lines
+            let lines: IEnumerator<string> = $from(Strings.lineTokens(text));
+            let headers = lines
                 .TakeWhile(s => s.charAt(0) == "H")
                 .ToArray();
-            var scans = lines
+            let scans = lines
                 .Skip(headers.length)
                 .ChunkWith(line => line.charAt(0) == "S", true)
                 .Where(block => block.length > 0)
@@ -38,18 +37,18 @@ namespace BioDeep.IO.Ms2Reader {
         }
 
         private static ParseScan(data: string[]): Scan {
-            var line: number = -1;
-            var meta: object = {};
+            let line: number = -1;
+            let meta: object = {};
 
             for (var i: number = 0; i < data.length; i++) {
-                var first = data[i].charAt(0);
+                let first = data[i].charAt(0);
 
                 if (Strings.isNumber(first)) {
                     line = i;
                     break;
                 }
 
-                var tokens: string[] = data[i].split("\t");
+                let tokens: string[] = data[i].split("\t");
 
                 switch (first) {
                     case "S":
@@ -78,17 +77,17 @@ namespace BioDeep.IO.Ms2Reader {
                 }
             }
 
-            var matrix: BioDeep.Models.mzInto[];
+            let matrix: BioDeep.Models.mzInto[];
 
             if (line == -1) {
                 matrix = [];
             } else {
-                matrix = From(data)
+                matrix = $from(data)
                     .Skip(line)
                     .Select((text, i) => {
-                        var tokens: string[] = text.split(" ");
-                        var mz: number = parseFloat(tokens[0]);
-                        var into: number = parseFloat(tokens[1]);
+                        let tokens: string[] = text.split(" ");
+                        let mz: number = parseFloat(tokens[0]);
+                        let into: number = parseFloat(tokens[1]);
 
                         return new BioDeep.Models.mzInto(
                             (i + 1).toString(),

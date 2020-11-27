@@ -1,4 +1,4 @@
-﻿/// <reference path="../../../../build/linq.d.ts" />
+﻿/// <reference path="../../../dist/vendor/linq.d.ts" />
 /// <reference path="../../Models/Abstract.ts" />
 
 /**

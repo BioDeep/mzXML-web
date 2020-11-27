@@ -50,7 +50,7 @@ namespace BioDeep.IO.Ms2Reader {
         private readonly meta: TypeScript.Data.MetaReader;
 
         public constructor(data: string[]) {
-            var tags = From(data)
+            let tags = $from(data)
                 .Select(s => s.substr(2))
                 .Select(s => {
                     if (s.indexOf("\t") > -1) {
@@ -60,7 +60,7 @@ namespace BioDeep.IO.Ms2Reader {
                     }
                 });
 
-            this.meta = TypeInfo.CreateMetaReader(tags);
+            this.meta = Activator.CreateMetaReader(tags);
         }
     }
 }

@@ -79,7 +79,6 @@
             // 在这里只会绘制出into大于5%的碎片
             // 请注意，低丰度碎片的删除应该在计算坐标轴缩放之后
             let simpleIons = ions.Where(i => (i.into / maxInto) >= 0.01);
-
             svg.selectAll('.bar')
                 .data(simpleIons.ToArray(false))
                 .enter()

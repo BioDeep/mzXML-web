@@ -10,17 +10,17 @@ namespace BioDeep.MSMSViewer {
     export const title: string = "BioDeep® MS/MS alignment viewer";
 
     export function renderChart(containerId: string, api: string, id: string, decoder: ((string) => Models.mzInto[]) = null): void {
-        var url: string = sprintf(api, encodeURIComponent(id));
-        var chart: HTMLElement = $ts(containerId);
-        var size: Canvas.Size = SvgUtils.getSize(chart, [960, 600]);
+        let url: string = sprintf(api, encodeURIComponent(id));
+        let chart: HTMLElement = $ts(containerId);
+        let size: Canvas.Size = SvgUtils.getSize(chart, [960, 600]);
 
-        $.getJSON(url, function (result: {
+        $ts.get(url, function (result: {
             code: number,
             info: string | Data.JSONrespon
         }) {
             if (result.code == 0) {
-                var data: Data.mzData = Data.JSONParser(<Data.JSONrespon>(result.info), decoder);
-                var d3 = new d3Renderer(data, size);
+                let data: Data.mzData = Data.JSONParser(<Data.JSONrespon>(result.info), decoder);
+                let d3 = new d3Renderer(data, size);
 
                 d3.rendering(containerId);
             } else {
@@ -52,20 +52,29 @@ namespace BioDeep.MSMSViewer {
      *     可以将这个参数由id字符串变为实际的节点对象值
      * @param data 图表绘图数据，请注意，需要这个数据是一个镜像数据
     */
-    export function previews(divId: string | HTMLElement, data: Data.mzData | BioDeep.IO.mgf, size: number[] = [900, 600]): void {
+    export function previews(
+        divId: string | HTMLElement,
+        data: Data.mzData | BioDeep.IO.mgf,
+        size: number[] = [900, 600],
+        title: string = BioDeep.MSMSViewer.title,
+        margin: Canvas.Margin = renderingWork.defaultMargin(),
+        csvLink: string = "matrix-csv"): void {
+
         if (data instanceof BioDeep.IO.mgf) {
-            new d3Renderer(parseIon(data), size).rendering(divId);
+            return new d3Renderer(parseIon(data), size, margin, csvLink, title).rendering(divId);
         } else {
-            new d3Renderer(data, size).rendering(divId);
+            return new d3Renderer(data, size, margin, csvLink, title).rendering(divId);
         }
     }
 
     export function parseIon(ion: BioDeep.IO.mgf): Data.mzData {
-        var mzRange = $ts.doubleRange(ion.Select(m => m.mz));
-        var mirror: Models.mzInto[] = [];
-        var uid: string = `${Strings.round(ion.precursor_mass, 2)}@${Math.round(ion.rt)}`;
+        let mzRange = $ts.doubleRange(ion.Select(m => m.mz));
+        let mirror: Models.mzInto[] = [];
+        let uid: string = ion.xcms_uid;
 
-        for (var m of ion.ToArray()) {
+        console.log(uid);
+
+        for (let m of ion.ToArray()) {
             mirror.push(m);
             mirror.push(<Models.mzInto>{
                 mz: m.mz,

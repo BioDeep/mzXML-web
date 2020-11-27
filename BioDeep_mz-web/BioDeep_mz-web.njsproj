@@ -26,7 +26,7 @@
     <NodejsPort>1337</NodejsPort>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
-    <TypeScriptToolsVersion>2.9</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <EnableTypeScript>true</EnableTypeScript>
     <StartWebBrowser>True</StartWebBrowser>
   </PropertyGroup>
@@ -51,6 +51,15 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="IO\MSP.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="IO\MzWebCache\Scans.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="IO\MzWebCache\Stream.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="IO\MzWebCache\Parser.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Models\Abstract.ts">
@@ -78,6 +87,7 @@
   <ItemGroup>
     <Folder Include="IO\" />
     <Folder Include="IO\Ms2Reader\" />
+    <Folder Include="IO\MzWebCache\" />
     <Folder Include="Models\" />
     <Folder Include="Views\" />
   </ItemGroup>

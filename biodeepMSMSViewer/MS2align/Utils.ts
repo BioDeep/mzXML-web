@@ -6,7 +6,8 @@
      * 
     */
     export function stripHTML(html: string): string {
-        var tmp = $ts("<div>").display(html);
+        let tmp = $ts("<div>").display(html);
+
         // 创建节点然后赋值文本，最后取出内部的文本
         // 即可将html标记去除
         return tmp.textContent || tmp.innerText || "";

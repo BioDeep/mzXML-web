@@ -1,5 +1,5 @@
 ﻿/// <reference path="./renderingWork.ts" />
-/// <reference path="../../../../build/svg.d.ts" />
+/// <reference path="../../../../../biodeep/cdn.biodeep.cn/typescripts/build/svg.d.ts" />
 
 namespace BioDeep.MSMSViewer {
 
@@ -9,10 +9,6 @@ namespace BioDeep.MSMSViewer {
 
         public strokeWidth: number = 6;
         public radius: number = 6;
-
-        public margin: Canvas.Margin;
-        public width: number;
-        public height: number;
 
         /**
          * Biodeep® MS/MS alignment viewer
@@ -39,28 +35,40 @@ namespace BioDeep.MSMSViewer {
         public constructor(
             mz: Data.mzData,
             size: number[] | Canvas.Size = [960, 600],
-            margin: Canvas.Margin = renderingWork.defaultMargin(),
-            csvLink: string = "matrix-csv") {
+            public margin: Canvas.Margin = renderingWork.defaultMargin(),
+            private csvLink: string = "matrix-csv",
+            private title: string = BioDeep.MSMSViewer.title) {
 
             super(size, margin);
 
             this.current = mz.trim().normalize();
-            this.margin = margin;
-            this.registerDownloader(csvLink);
+            this.registerDownloader(this.csvLink);
         }
 
         private registerDownloader(id: string) {
-            var a: HTMLAnchorElement = <any>$ts(Internal.Handlers.EnsureNodeId(id));
-            var csv = this.current.csv();
+            let a: HTMLAnchorElement = <any>$ts(Internal.Handlers.makesureElementIdSelector(id));
+            let csv = this.current.csv();
 
             if (!isNullOrUndefined(a)) {
-                var blob = new Blob(["\ufeff", csv]);
-                var url = URL.createObjectURL(blob);
+                let blob = new Blob(["\ufeff", csv]);
+                let url = URL.createObjectURL(blob);
 
                 a.href = url;
                 a.download = `${this.current.refName}.csv`;
 
                 console.log(a.download);
+            }
+        }
+
+        public unique(arr: []) {
+            return Array.from(new Set(arr))
+        }
+
+        private toId(div: string | HTMLElement) {
+            if (div instanceof HTMLElement) {
+                return `#${div.id}`;
+            } else {
+                return Internal.Handlers.makesureElementIdSelector(div);
             }
         }
 
@@ -70,23 +78,15 @@ namespace BioDeep.MSMSViewer {
          * @param div 需要显示图标的div区域，请注意，这个函数会将这个div节点内的所有的svg节点都清除掉
         */
         public rendering(div: string | HTMLElement): void {
-            if (div instanceof HTMLElement) {
-                div = `#${div.id}`;
-            } else {
-                div = Internal.Handlers.EnsureNodeId(div);
-            }
-
-            BioDeep.MSMSViewer.clear(div);
-
-            this.tip = BioDeep.MSMSViewer.tooltip(this.current);
-            this.svg = BioDeep.MSMSViewer.svg(this, div);
-
+            BioDeep.MSMSViewer.clear(div = this.toId(div));
             // 因为在下面的chartting函数调用之中需要使用tip对象来绑定鼠标事件，
             // 所以在这里需要先于chartting函数将tip对象初始化完毕  
+            this.tip = BioDeep.MSMSViewer.tooltip(this.current);
+            this.svg = BioDeep.MSMSViewer.svg(this, div);
             this.svg.call(<any>this.tip);
 
             renderingWork.chartting(this);
-            renderingWork.Legend(this);
+            renderingWork.legend(this, this.title);
 
             this.tip.hide();
         }

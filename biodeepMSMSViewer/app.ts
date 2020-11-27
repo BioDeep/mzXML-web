@@ -1,4 +1,5 @@
-﻿/// <reference path="../../build/linq.d.ts" />
+﻿/// <reference path="../dist/vendor/linq.d.ts" />
+/// <reference path="../dist/vendor/svg.d.ts" />
 /// <reference path="../dist/BioDeep_mzWeb.d.ts" />
 
 namespace BioDeep.MSMSViewer {
@@ -39,8 +40,8 @@ namespace BioDeep.MSMSViewer {
         id: string | HTMLElement = null,
         svgId: string = "viewer-svg"): d3.Selection<any> {
 
-        var margin: Canvas.Margin = engine.margin;
-        var svg = d3.select(<any>id)
+        let margin: Canvas.Margin = engine.margin;
+        let svg = d3.select(<any>id)
             .append("svg")
             .attr("id", svgId)
             .attr("width", engine.width + margin.left + margin.right)

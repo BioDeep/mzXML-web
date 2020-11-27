@@ -5,20 +5,20 @@ namespace BioDeep.MSMSViewer.renderingWork {
      * 在这里进行具体的图表绘制操作
     */
     export function chartting(engine: d3Renderer): d3Renderer {
-        var width: number = engine.width;
-        var height: number = engine.height;
-        var margin: Canvas.Margin = engine.margin;
+        let width: number = engine.width;
+        let height: number = engine.height;
+        let margin: Canvas.Margin = engine.margin;
 
         // 信号强度是0到100之间，不需要再进行额外的换算了
-        var y = d3.scale.linear()
+        let y = d3.scale.linear()
             .domain([-100, 100])
             .range([height, 0])
             .nice();
-        var x = d3.scale.linear()
+        let x = d3.scale.linear()
             .domain(engine.mzRange)
             .range([0, width])
             .nice();
-        var yAxis = d3.svg.axis()
+        let yAxis = d3.svg.axis()
             .scale(y)
             .tickFormat(n => Math.abs(n) + "%")
             .orient("left");
@@ -40,14 +40,11 @@ namespace BioDeep.MSMSViewer.renderingWork {
                 "stroke": "gray",
                 "stroke-width": "1px"
             });
-
         engine.svg.selectAll(".bar")
             .data(engine.input.mzMatrix)
             .enter()
             .append("rect")
-            .attr("class", (d: BioDeep.Models.mzInto) => {
-                return `bar ${(d.into < 0) ? "negative" : "positive"}`;
-            })
+            .attr("class", (d: BioDeep.Models.mzInto) => `bar ${(d.into < 0) ? "negative" : "positive"}`)
             .attr("y", (d: BioDeep.Models.mzInto) => y(Math.max(0, d.into)))
             .attr("x", (d: BioDeep.Models.mzInto, i: number) => x(d.mz))
             .attr("height", (d: BioDeep.Models.mzInto) => Math.abs(y(d.into) - y(0)))
@@ -55,6 +52,27 @@ namespace BioDeep.MSMSViewer.renderingWork {
             .attr("cursor", "pointer")
             .on('mouseover', engine.tip.show)
             .on('mouseout', engine.tip.hide);
+
+        //柱状图顶部参数
+        let dataset = [];
+        for (let i = 0; i < engine.input.mzMatrix.length; i++) {
+            if (engine.input.mzMatrix[i].into > 30) {
+                dataset.push(engine.input.mzMatrix[i]);
+            }
+        }
+        engine.svg.selectAll(".MyText")
+            .data(dataset)
+            .enter()
+            .append("text")
+            .attr("class", "MyText")
+            .attr("x", (d: BioDeep.Models.mzInto, i: number) => x(d.mz))
+            .attr("y", (d: BioDeep.Models.mzInto) => y(Math.max(0, d.into)))
+            .attr("dy", -5)
+            .attr("text-anchor", "middle")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", '10px')
+            .text(d => d.mz.toFixed(2))
+            ;
 
         engine.svg.append("g")
             .attr("class", "x axis")
@@ -89,11 +107,25 @@ namespace BioDeep.MSMSViewer.renderingWork {
         return engine;
     }
 
-    export function Legend(engine: d3Renderer): d3Renderer {
-        var top = 30;
-        var left = engine.width - 255;
-        var rw = 240, rh = 60;
-        var dw = 15;
+    export function legend(engine: d3Renderer, title: string = BioDeep.MSMSViewer.title): d3Renderer {
+        let top = 30;
+        let left = engine.width - 255;
+        let rh = 60;
+        let dw = 15;
+
+        if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) || /(Android)/i.test(navigator.userAgent)) {
+            var rw = 120;
+            var fontSize: number = 14;
+            var tx = -25;
+        } else {
+            var rw = 240;
+            var fontSize: number = 20;
+            var fontName: string = "Microsoft YaHei";
+            var fontWeight: string = "normal";
+            var font: string = `${fontWeight} ${fontSize}pt "${fontName}"`;
+            var width: number = CanvasHelper.getTextWidth(title, font);
+            var tx = (engine.width - width) / 2;
+        }
 
         var legend = engine.svg.append("g")
             .attr("class", "legend")
@@ -146,23 +178,14 @@ namespace BioDeep.MSMSViewer.renderingWork {
             .attr("y", top)
             .text(d2);
 
-        var fontSize: number = 20;
         var fontName: string = "Microsoft YaHei";
         var fontWeight: string = "normal";
 
         // 添加图表的标题
         engine.svg.append("text")
-            .text(BioDeep.MSMSViewer.title)
-            .attr("x", function () {
-                var font: string = `${fontWeight} ${fontSize}pt "${fontName}"`;
-                var width: number = CanvasHelper.getTextWidth(BioDeep.MSMSViewer.title, font);
-
-                // var w = this.getBBox().width + 10;
-                // return w;
-
-                return (engine.width - width) / 2;
-            })
-            .attr("y", -40)
+            .text(title)
+            .attr("x", tx)
+            .attr("y", -30)
             .style("font-weight", "normal")
             .style("font-size", `${fontSize}pt`);
 

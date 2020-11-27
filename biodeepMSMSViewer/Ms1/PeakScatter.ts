@@ -54,7 +54,7 @@
                 scale: xScale,
                 map: xMap,
                 axis: xAxis,
-                range: (peaks: Models.IonPeak[]) => data.NumericRange.Create(From(peaks).Select(d => d.rt)).range
+                range: (peaks: Models.IonPeak[]) => data.NumericRange.Create($from(peaks).Select(d => d.rt)).range
             }
         }
 
@@ -67,7 +67,7 @@
                 scale: yScale,
                 map: yMap,
                 axis: yAxis,
-                range: (peaks: Models.IonPeak[]) => data.NumericRange.Create(From(peaks).Select(d => d.mz)).range
+                range: (peaks: Models.IonPeak[]) => data.NumericRange.Create($from(peaks).Select(d => d.mz)).range
             }
         }
 

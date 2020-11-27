@@ -37,6 +37,7 @@
     background: rgba(0, 0, 0, 0.8);
     color: #fff;
     border-radius: 2px;
+    z-index: 99999999;
 }
 
     /* Creates a small triangle extender for the tooltip */
@@ -47,7 +48,7 @@
         width: 100%;
         line-height: 1;
         color: rgba(0, 0, 0, 0.8);
-        content: "\25BC";
+        /*content: "\25BC";*/
         position: absolute;
         text-align: center;
     }
