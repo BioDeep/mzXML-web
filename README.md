@@ -6,6 +6,7 @@
 
 mzXML file reader and javascript data visualization tools
 
-> Required reference to the php.NET framework
+> Required reference to the php.NET and Linq.ts framework
 >
-> https://github.com/GCModeller-Cloud/php-dotnet
+> https://github.com/biocad-cloud/php-dotnet
+> https://github.com/biocad-cloud/data.ts
