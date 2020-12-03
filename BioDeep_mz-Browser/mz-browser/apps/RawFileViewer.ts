@@ -5,7 +5,9 @@
         private chart: BioDeep.MSMSViewer.TICplot;
         private spectrums = new BioDeep.MSMSViewer.Spectrum([730, 350], new Canvas.Margin(50, 10, 10, 30));
 
-        public constructor(public fileTree: BioDeep.IO.MzWebCache.Stream, private viewer: pages.mzwebViewer) { }
+        public TICmode: boolean = true;
+
+        public constructor(public fileTree: BioDeep.IO.MzWebCache.Stream, public viewer: pages.mzwebViewer) { }
 
         private static doSpectrumRender(ion: IO.mgf) {
             let matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
@@ -97,33 +99,44 @@
             selects.clear();
             selects.appendChild($ts("<option>", { value: "rawfile" }).display("Raw File"));
 
-            mzGroup.OrderBy(mz => parseFloat(mz.key))
-                .ForEach(mz => {
-                    var opt = $ts("<option>", {
-                        value: mz.key
-                    }).display(Strings.round(parseFloat(mz.key), 4).toString());
+            for (let mz of mzGroup.OrderBy(mz => parseFloat(mz.key)).ToArray()) {
+                let mzLabel: string = Strings.round(parseFloat(mz.key), 4).toString();
+                let opt = $ts("<option>", { value: mz.key }).display(mzLabel);
 
-                    selects.appendChild(opt)
-                });
+                selects.appendChild(opt);
+            }
 
             selects.onchange = function () {
                 let mz = (<HTMLSelectElement><any>selects).value;
 
                 if (mz == "rawfile" || !mzGroup.ContainsKey(mz)) {
                     vm.draw(id, $input("#bpc").checked);
+                    vm.TICmode = true;
                 } else {
-                    vm.showXIC(id, mzGroup.Item(mz));
+                    vm.showXIC(id, $input("#rt_relative").checked, mzGroup.Item(mz));
+                    vm.TICmode = false;
                 }
 
-                vm.viewer.showTIC();
+                WebUI.showTIC();
             }
         }
 
-        public showXIC(id: string, xic: IEnumerator<IO.MzWebCache.XICTick>) {
-            let mgf: IEnumerator<IO.mgf> = this.fileTree.load(xic);
+        private xic_cache: IEnumerator<IO.mgf>;
+
+        public showXIC(id: string, rt_relative: boolean, xic: IEnumerator<IO.MzWebCache.XICTick> = null) {
+            let scan_time: number[] = null;
+
+            if (!rt_relative) {
+                scan_time = [...this.fileTree.scantime_range];
+            }
+
+            if (!isNullOrUndefined(xic)) {
+                this.xic_cache = this.fileTree.load(xic);
+            }
 
             this.chart = new BioDeep.MSMSViewer.TICplot([700, 350], ion => this.ViewIon(ion));
-            this.chart.plot(id, mgf);
+            this.chart.scan_time = scan_time;
+            this.chart.plot(id, this.xic_cache);
         }
 
         private static mzTree(m1: number, m2: number): number {

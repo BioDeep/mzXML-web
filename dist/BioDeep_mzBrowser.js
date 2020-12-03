@@ -101,6 +101,7 @@ var BioDeep;
             this.fileTree = fileTree;
             this.viewer = viewer;
             this.spectrums = new BioDeep.MSMSViewer.Spectrum([730, 350], new Canvas.Margin(50, 10, 10, 30));
+            this.TICmode = true;
         }
         RawFileViewer.doSpectrumRender = function (ion) {
             var matrixTable = BioDeep.Views.CreateTableFromMgfIon(ion, true, {
@@ -169,29 +170,38 @@ var BioDeep;
             // then display all ions
             selects.clear();
             selects.appendChild($ts("<option>", { value: "rawfile" }).display("Raw File"));
-            mzGroup.OrderBy(function (mz) { return parseFloat(mz.key); })
-                .ForEach(function (mz) {
-                var opt = $ts("<option>", {
-                    value: mz.key
-                }).display(Strings.round(parseFloat(mz.key), 4).toString());
+            for (var _i = 0, _a = mzGroup.OrderBy(function (mz) { return parseFloat(mz.key); }).ToArray(); _i < _a.length; _i++) {
+                var mz = _a[_i];
+                var mzLabel = Strings.round(parseFloat(mz.key), 4).toString();
+                var opt = $ts("<option>", { value: mz.key }).display(mzLabel);
                 selects.appendChild(opt);
-            });
+            }
             selects.onchange = function () {
                 var mz = selects.value;
                 if (mz == "rawfile" || !mzGroup.ContainsKey(mz)) {
                     vm.draw(id, $input("#bpc").checked);
+                    vm.TICmode = true;
                 }
                 else {
-                    vm.showXIC(id, mzGroup.Item(mz));
+                    vm.showXIC(id, $input("#rt_relative").checked, mzGroup.Item(mz));
+                    vm.TICmode = false;
                 }
-                vm.viewer.showTIC();
+                WebUI.showTIC();
             };
         };
-        RawFileViewer.prototype.showXIC = function (id, xic) {
+        RawFileViewer.prototype.showXIC = function (id, rt_relative, xic) {
             var _this = this;
-            var mgf = this.fileTree.load(xic);
+            if (xic === void 0) { xic = null; }
+            var scan_time = null;
+            if (!rt_relative) {
+                scan_time = __spreadArrays(this.fileTree.scantime_range);
+            }
+            if (!isNullOrUndefined(xic)) {
+                this.xic_cache = this.fileTree.load(xic);
+            }
             this.chart = new BioDeep.MSMSViewer.TICplot([700, 350], function (ion) { return _this.ViewIon(ion); });
-            this.chart.plot(id, mgf);
+            this.chart.scan_time = scan_time;
+            this.chart.plot(id, this.xic_cache);
         };
         RawFileViewer.mzTree = function (m1, m2) {
             if (Math.abs(m1 - m2) <= 0.1) {
@@ -207,6 +217,9 @@ var BioDeep;
 })(BioDeep || (BioDeep = {}));
 var fileBrowser;
 (function (fileBrowser) {
+    fileBrowser.rootImg = $ts("@img:root");
+    fileBrowser.folderImg = $ts("@img:folder");
+    fileBrowser.fileImg = $ts("@img:file");
     function buildjsTree(fileIndex, uid) {
         var summary = fileIndex.getSummary();
         var node = function (label, icon) {
@@ -217,11 +230,11 @@ var fileBrowser;
                 icon: icon
             };
         };
-        var root = node(fileIndex.label, "dist/images/gparted.png");
+        var root = node(fileIndex.label, fileBrowser.rootImg);
         for (var name_1 in summary) {
             var childs = summary[name_1];
-            var ms2 = $from(childs).Select(function (label) { return node(label, "dist/images/application-x-object.png"); }).ToArray();
-            var childTree = node(name_1, "dist/images/folder-documents.png");
+            var ms2 = $from(childs).Select(function (label) { return node(label, fileBrowser.fileImg); }).ToArray();
+            var childTree = node(name_1, fileBrowser.folderImg);
             childTree.children = ms2;
             root.children.push(childTree);
         }
@@ -261,59 +274,24 @@ var pages;
             configurable: true
         });
         mzwebViewer.prototype.init = function () {
-            var _this = this;
             var vm = this;
             // initial spectrum viewer css style
             BioDeep.MSMSViewer.loadStyles();
+            layer.msg("Downloading data from biodeep web server...", { time: -1 });
             $ts.getText("@mzxml", function (text) {
-                //let indexTree = JSON.parse(text);
-                //let viewer = new BioDeep.RawFileViewer(indexTree);
-                //viewer.draw("#TIC");
+                layer.msg("load data stream...", { time: -1 });
                 vm.stream = BioDeep.IO.MzWebCache.loadStream(text, $ts("@fileName"));
                 console.log(vm.stream);
                 vm.viewer = new BioDeep.RawFileViewer(vm.stream, this);
                 vm.createTree("#fileTree");
                 vm.viewer.draw("#TIC", $input("#bpc").checked);
                 vm.showTIC();
+                vm.hideNav();
+                layer.closeAll();
             });
-            $(document).on('click', '.jstree-closed .jstree-ocl', function () {
-                _this.hideNav();
-            });
-            $(document).on('click', '.jstree-open .jstree-ocl', function () {
-                _this.showNav();
-            });
-            /* $(document).on('click', () => {
-                 this.hideNav();
-             })
-             $(document).on('click', '#nav', (event) => {
-                 this.showNav();
-                 event.stopPropagation();
-             })*/
-            this.showTIC();
-        };
-        mzwebViewer.prototype.showTIC = function () {
-            $ts("#showTIC").addClass("btn-primary").removeClass("btn-default");
-            $ts("#showXIC").removeClass("btn-primary").addClass("btn-default");
-            $ts("#TIC").show();
-            $ts("#XIC").hide();
-        };
-        mzwebViewer.prototype.showXIC = function () {
-            $ts("#showXIC").addClass("btn-primary").removeClass("btn-default");
-            $ts("#showTIC").removeClass("btn-primary").addClass("btn-default");
-            $ts("#XIC").show();
-            $ts("#TIC").hide();
-        };
-        mzwebViewer.prototype.showNav = function () {
-            $("#nav").css("width", "auto");
-            $("#showNav").hide();
-            $("#hideNav").show();
-            console.log('show');
-        };
-        mzwebViewer.prototype.hideNav = function () {
-            $("#nav").css("width", "13%");
-            $("#hideNav").hide();
-            $("#showNav").show();
-            console.log('hide');
+            $(document).on('click', '.jstree-closed .jstree-ocl', WebUI.hideNav);
+            $(document).on('click', '.jstree-open .jstree-ocl', WebUI.showNav);
+            WebUI.showTIC();
         };
         mzwebViewer.prototype.createTree = function (display) {
             var jsTree = fileBrowser.buildjsTree(this.stream, new components.uid());
@@ -344,20 +322,77 @@ var pages;
                 }
             });
         };
+        //#region "hooks of buttn click event"
+        mzwebViewer.prototype.showTIC = function () {
+            WebUI.showTIC();
+            WebUI.hideNav();
+        };
+        mzwebViewer.prototype.showXIC = function () {
+            WebUI.showXIC();
+            WebUI.hideNav();
+        };
+        mzwebViewer.prototype.showNav = function () {
+            WebUI.showNav();
+        };
+        mzwebViewer.prototype.hideNav = function () {
+            WebUI.hideNav();
+        };
+        //#endregion
         mzwebViewer.prototype.bpc_onchange = function (value) {
             this.viewer.draw("#TIC", $input("#bpc").checked);
             this.showTIC();
+            this.hideNav();
+        };
+        mzwebViewer.prototype.rt_relative_onchange = function (value) {
+            if (!this.viewer.TICmode) {
+                this.viewer.showXIC("#TIC", value);
+            }
+            this.hideNav();
         };
         mzwebViewer.prototype.do_SIM = function () {
             var min = parseFloat($input("#sim-min").value);
             var max = parseFloat($input("#sim-max").value);
             var SIM = this.viewer.fileTree.selects(function (ion) { return ion.mz >= min && ion.mz <= max; });
-            var vm = this.viewer;
-            vm.showXIC("#sim-TIC", SIM);
-            this.showXIC();
+            this.viewer.showXIC("#sim-TIC", $input("#rt_relative").checked, SIM);
+            if (SIM.Count == 0) {
+                layer.msg("Sorry, no ions in current selected m/z range: [" + min + ", " + max + "]...");
+            }
+            WebUI.showXIC();
+            WebUI.hideNav();
         };
         return mzwebViewer;
     }(Bootstrap));
     pages.mzwebViewer = mzwebViewer;
 })(pages || (pages = {}));
+var WebUI;
+(function (WebUI) {
+    function showTIC() {
+        $ts("#showTIC").addClass("btn-primary").removeClass("btn-default");
+        $ts("#showXIC").removeClass("btn-primary").addClass("btn-default");
+        $ts("#TIC").show();
+        $ts("#XIC").hide();
+    }
+    WebUI.showTIC = showTIC;
+    function showXIC() {
+        $ts("#showXIC").addClass("btn-primary").removeClass("btn-default");
+        $ts("#showTIC").removeClass("btn-primary").addClass("btn-default");
+        $ts("#XIC").show();
+        $ts("#TIC").hide();
+    }
+    WebUI.showXIC = showXIC;
+    function showNav() {
+        $("#nav").css("width", "auto");
+        $("#showNav").hide();
+        $("#hideNav").show();
+        console.log('show');
+    }
+    WebUI.showNav = showNav;
+    function hideNav() {
+        $("#nav").css("width", "13%");
+        $("#hideNav").hide();
+        $("#showNav").show();
+        console.log('hide');
+    }
+    WebUI.hideNav = hideNav;
+})(WebUI || (WebUI = {}));
 //# sourceMappingURL=BioDeep_mzBrowser.js.map

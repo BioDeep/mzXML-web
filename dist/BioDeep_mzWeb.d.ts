@@ -158,7 +158,11 @@ declare namespace BioDeep.IO.MzWebCache {
         mz: number;
         rt: number;
         intensity: number;
+        polarity: number;
     };
+    /**
+     * parse the ``data`` row
+    */
     function parseMs1Vector(cache: StreamCacheBlock): {
         rt: number;
         BPC: number;
@@ -182,6 +186,7 @@ declare namespace BioDeep.IO.MzWebCache {
     interface ScanMs2 extends MSScan {
         parentMz: number;
         intensity: number;
+        polarity: number;
     }
 }
 declare namespace BioDeep.IO.MzWebCache {
@@ -190,10 +195,15 @@ declare namespace BioDeep.IO.MzWebCache {
         private index;
         private blocks;
         private i;
+        scantime_range: number[];
         constructor(label: string);
         get done(): boolean;
         item(i: number): StreamCacheBlock[];
-        add(block: StreamCacheBlock[]): void;
+        /**
+         * @returns this function returns the ``scan_time`` value of
+         *      current ms1 scan data
+        */
+        add(block: StreamCacheBlock[]): number;
         reset(): void;
         toString(): string;
         seek(scan_id: string): StreamCacheBlock[];

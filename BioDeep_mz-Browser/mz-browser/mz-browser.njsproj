@@ -49,6 +49,9 @@
     <TypeScriptCompile Include="apps\MzIntoTable.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="viewer\webUI.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="viewer\viewer.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

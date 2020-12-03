@@ -16,5 +16,6 @@ namespace BioDeep.IO.MzWebCache {
     export interface ScanMs2 extends MSScan {
         parentMz: number;
         intensity: number;
+        polarity: number;
     }
 }

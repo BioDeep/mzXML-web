@@ -924,13 +924,12 @@ var BioDeep;
         */
         var TICplot = /** @class */ (function (_super) {
             __extends(TICplot, _super);
-            function TICplot(size, onClick) {
+            function TICplot(size, onClick, margin) {
                 if (size === void 0) { size = [750, 500]; }
-                var _this = _super.call(this, size, new Canvas.Margin(10, 10, 20, 50)) || this;
-                _this.onClick = onClick;
+                if (margin === void 0) { margin = new Canvas.Margin(10, 10, 20, 50); }
+                var _this = _super.call(this, size, margin) || this;
+                _this._onclick = onClick;
                 return _this;
-                //super(size, new Canvas.Margin(20, 20, 30, 100));
-                // this.tip = BioDeep.MSMSViewer.mzrtTip();
             }
             Object.defineProperty(TICplot.prototype, "area", {
                 get: function () {
@@ -946,8 +945,10 @@ var BioDeep;
             });
             Object.defineProperty(TICplot.prototype, "x", {
                 get: function () {
+                    var rtmin = isNullOrUndefined(this.scan_time) ? d3.min(this.data, function (t) { return t.rt; }) : $from(this.scan_time).Min();
+                    var rtmax = isNullOrUndefined(this.scan_time) ? d3.max(this.data, function (t) { return t.rt; }) : $from(this.scan_time).Max();
                     return d3.scale.linear()
-                        .domain([d3.min(this.data, function (t) { return t.rt; }), d3.max(this.data, function (t) { return t.rt; })])
+                        .domain([rtmin, rtmax])
                         .range([0, this.width]);
                 },
                 enumerable: true,
@@ -1004,7 +1005,7 @@ var BioDeep;
                 mzrt.onClick(function (x) {
                     var ref = x.getAttribute("unique");
                     var ion = vm.ions.Item(ref);
-                    vm.onClick(ion);
+                    vm._onclick(ion);
                 });
             };
             TICplot.uniqueId = function (tick) {

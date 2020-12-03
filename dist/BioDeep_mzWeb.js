@@ -573,17 +573,22 @@ var BioDeep;
                 var lines = Strings.lineTokens(text);
                 var stream = new MzWebCache.Stream(name);
                 var buffer = [];
+                var scan_time = [];
                 for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
                     var line = lines_1[_i];
                     line = line.trim();
                     if (scan_delimiter == line) {
-                        stream.add(blockBuffer(buffer));
+                        scan_time.push(stream.add(blockBuffer(buffer)));
                         buffer = [];
                     }
                     else {
                         buffer.push(line);
                     }
                 }
+                stream.scantime_range = [
+                    $from(scan_time).Min(),
+                    $from(scan_time).Max()
+                ];
                 return stream;
             }
             MzWebCache.loadStream = loadStream;
@@ -623,9 +628,13 @@ var BioDeep;
                     mz: data[0],
                     rt: data[1],
                     intensity: data[2],
+                    polarity: data[3]
                 };
             }
             MzWebCache.parseMs2Vector = parseMs2Vector;
+            /**
+             * parse the ``data`` row
+            */
             function parseMs1Vector(cache) {
                 var data = parseVector(cache.data);
                 return {
@@ -660,7 +669,8 @@ var BioDeep;
                     rt: data[1],
                     intensity: data[2],
                     mz: Base64.bytes_decode(cache.mz_base64),
-                    into: Base64.bytes_decode(cache.into_base64)
+                    into: Base64.bytes_decode(cache.into_base64),
+                    polarity: data[3]
                 };
             }
             MzWebCache.parseMs2 = parseMs2;
@@ -690,10 +700,15 @@ var BioDeep;
                 Stream.prototype.item = function (i) {
                     return this.blocks[this.index[i]];
                 };
+                /**
+                 * @returns this function returns the ``scan_time`` value of
+                 *      current ms1 scan data
+                */
                 Stream.prototype.add = function (block) {
                     var scan_id = block[0].scan_id;
                     this.blocks[scan_id] = block;
                     this.index.push(scan_id);
+                    return MzWebCache.parseMs1Vector(block[0]).rt;
                 };
                 Stream.prototype.reset = function () {
                     this.i = 0;

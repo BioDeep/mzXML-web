@@ -6,9 +6,9 @@ namespace BioDeep.IO.MzWebCache {
         private blocks: {} = {};
         private i: number = 0;
 
-        public constructor(public label: string) {
+        public scantime_range: number[];
 
-        }
+        public constructor(public label: string) { }
 
         public get done(): boolean {
             return this.i == this.index.length;
@@ -18,11 +18,17 @@ namespace BioDeep.IO.MzWebCache {
             return this.blocks[this.index[i]];
         }
 
-        public add(block: StreamCacheBlock[]) {
+        /**
+         * @returns this function returns the ``scan_time`` value of
+         *      current ms1 scan data
+        */
+        public add(block: StreamCacheBlock[]): number {
             let scan_id: string = block[0].scan_id;
 
             this.blocks[scan_id] = block;
             this.index.push(scan_id);
+
+            return parseMs1Vector(block[0]).rt;
         }
 
         public reset() {

@@ -14,12 +14,11 @@
 
             // initial spectrum viewer css style
             BioDeep.MSMSViewer.loadStyles();
+            layer.msg("Downloading data from biodeep web server...", { time: -1 });
 
             $ts.getText("@mzxml", function (text) {
-                //let indexTree = JSON.parse(text);
-                //let viewer = new BioDeep.RawFileViewer(indexTree);
+                layer.msg("load data stream...", { time: -1 });
 
-                //viewer.draw("#TIC");
                 vm.stream = BioDeep.IO.MzWebCache.loadStream(text, <any>$ts("@fileName"));
 
                 console.log(vm.stream);
@@ -28,53 +27,15 @@
                 vm.createTree("#fileTree");
                 vm.viewer.draw("#TIC", $input("#bpc").checked);
                 vm.showTIC();
+                vm.hideNav();
+
+                layer.closeAll();
             });
 
+            $(document).on('click', '.jstree-closed .jstree-ocl', WebUI.hideNav);
+            $(document).on('click', '.jstree-open .jstree-ocl', WebUI.showNav);
 
-            $(document).on('click', '.jstree-closed .jstree-ocl', () => {
-                this.hideNav();
-            })
-            $(document).on('click', '.jstree-open .jstree-ocl', () => {
-                this.showNav();
-            })
-           /* $(document).on('click', () => {
-                this.hideNav();
-            })
-            $(document).on('click', '#nav', (event) => {
-                this.showNav();
-                event.stopPropagation();
-            })*/
-            this.showTIC();
-        }
-
-        public showTIC() {
-            $ts("#showTIC").addClass("btn-primary").removeClass("btn-default");
-            $ts("#showXIC").removeClass("btn-primary").addClass("btn-default");
-
-            $ts("#TIC").show();
-            $ts("#XIC").hide();
-        }
-
-        public showXIC() {
-            $ts("#showXIC").addClass("btn-primary").removeClass("btn-default");
-            $ts("#showTIC").removeClass("btn-primary").addClass("btn-default");
-
-            $ts("#XIC").show();
-            $ts("#TIC").hide();
-        }
-
-        public showNav() {
-            $("#nav").css("width", "auto");
-            $("#showNav").hide();
-            $("#hideNav").show();
-            console.log('show')
-        }
-
-        public hideNav() {
-            $("#nav").css("width", "13%");
-            $("#hideNav").hide();
-            $("#showNav").show();
-            console.log('hide')
+            WebUI.showTIC();
         }
 
         private createTree(display: string) {
@@ -108,21 +69,55 @@
             });
         }
 
+        //#region "hooks of buttn click event"
+
+        public showTIC() {
+            WebUI.showTIC();
+            WebUI.hideNav();
+        }
+
+        public showXIC() {
+            WebUI.showXIC();
+            WebUI.hideNav();
+        }
+
+        public showNav() {
+            WebUI.showNav();
+        }
+
+        public hideNav() {
+            WebUI.hideNav();
+        }
+
+        //#endregion
+
         public bpc_onchange(value: boolean) {
             this.viewer.draw("#TIC", $input("#bpc").checked);
             this.showTIC();
+            this.hideNav()
+        }
+
+        public rt_relative_onchange(value: boolean) {
+            if (!this.viewer.TICmode) {
+                this.viewer.showXIC("#TIC", value);
+            }
+
+            this.hideNav()
         }
 
         public do_SIM() {
             let min = parseFloat($input("#sim-min").value);
             let max = parseFloat($input("#sim-max").value);
             let SIM = this.viewer.fileTree.selects(ion => ion.mz >= min && ion.mz <= max);
-            let vm = this.viewer;
 
-            vm.showXIC("#sim-TIC", SIM);
+            this.viewer.showXIC("#sim-TIC", $input("#rt_relative").checked, SIM);
 
-            this.showXIC();
+            if (SIM.Count == 0) {
+                layer.msg(`Sorry, no ions in current selected m/z range: [${min}, ${max}]...`);
+            }
 
+            WebUI.showXIC();
+            WebUI.hideNav();
         }
     }
 }

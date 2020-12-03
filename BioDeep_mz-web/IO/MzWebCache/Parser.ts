@@ -6,17 +6,23 @@ namespace BioDeep.IO.MzWebCache {
         let lines: string[] = Strings.lineTokens(text);
         let stream: Stream = new Stream(name);
         let buffer: string[] = [];
+        let scan_time: number[] = [];
 
         for (let line of lines) {
             line = line.trim();
 
             if (scan_delimiter == line) {
-                stream.add(blockBuffer(buffer));
+                scan_time.push(stream.add(blockBuffer(buffer)));
                 buffer = [];
             } else {
                 buffer.push(line);
             }
         }
+
+        stream.scantime_range = [
+            $from(scan_time).Min(),
+            $from(scan_time).Max()
+        ];
 
         return stream;
     }
@@ -60,9 +66,13 @@ namespace BioDeep.IO.MzWebCache {
             mz: data[0],
             rt: data[1],
             intensity: data[2],
+            polarity: data[3]
         }
     }
 
+    /**
+     * parse the ``data`` row
+    */
     export function parseMs1Vector(cache: StreamCacheBlock) {
         let data: number[] = parseVector(cache.data);
 
@@ -102,7 +112,8 @@ namespace BioDeep.IO.MzWebCache {
             rt: data[1],
             intensity: data[2],
             mz: Base64.bytes_decode(cache.mz_base64),
-            into: Base64.bytes_decode(cache.into_base64)
+            into: Base64.bytes_decode(cache.into_base64),
+            polarity: data[3]
         };
     }
 }

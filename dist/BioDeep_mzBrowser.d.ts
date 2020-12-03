@@ -20,9 +20,10 @@ declare namespace BioDeep {
 declare namespace BioDeep {
     class RawFileViewer {
         fileTree: BioDeep.IO.MzWebCache.Stream;
-        private viewer;
+        viewer: pages.mzwebViewer;
         private chart;
         private spectrums;
+        TICmode: boolean;
         constructor(fileTree: BioDeep.IO.MzWebCache.Stream, viewer: pages.mzwebViewer);
         private static doSpectrumRender;
         draw(id: string, isBPC: boolean): void;
@@ -33,11 +34,15 @@ declare namespace BioDeep {
          * XIC
         */
         private buildMzList;
-        showXIC(id: string, xic: IEnumerator<IO.MzWebCache.XICTick>): void;
+        private xic_cache;
+        showXIC(id: string, rt_relative: boolean, xic?: IEnumerator<IO.MzWebCache.XICTick>): void;
         private static mzTree;
     }
 }
 declare module fileBrowser {
+    const rootImg: string;
+    const folderImg: string;
+    const fileImg: string;
     function buildjsTree(fileIndex: BioDeep.IO.MzWebCache.Stream, uid: components.uid): components.jsTreeModel;
 }
 declare namespace components {
@@ -63,12 +68,19 @@ declare namespace pages {
         private stream;
         private viewer;
         protected init(): void;
+        private createTree;
         showTIC(): void;
         showXIC(): void;
         showNav(): void;
         hideNav(): void;
-        private createTree;
         bpc_onchange(value: boolean): void;
+        rt_relative_onchange(value: boolean): void;
         do_SIM(): void;
     }
+}
+declare module WebUI {
+    function showTIC(): void;
+    function showXIC(): void;
+    function showNav(): void;
+    function hideNav(): void;
 }

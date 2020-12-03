@@ -211,19 +211,26 @@ declare namespace BioDeep.MSMSViewer {
     }
 }
 declare namespace BioDeep.MSMSViewer {
+    interface ion_onclick {
+        (ion: any): void;
+    }
     /**
      * 一级母离子的``[rt, intensity]``峰面积图
     */
     class TICplot extends SvgChart {
-        onClick: (ion: any) => void;
         data: BioDeep.Models.ChromatogramTick[];
         ions: Dictionary<any>;
+        /**
+         * the scan time range
+        */
+        scan_time: number[];
+        private _onclick;
         get area(): d3.svg.Area<[number, number]>;
         get x(): d3.scale.Linear<number, number>;
         get y(): d3.scale.Linear<number, number>;
         get xAxis(): d3.svg.Axis;
         get yAxis(): d3.svg.Axis;
-        constructor(size: number[], onClick: (ion: any) => void);
+        constructor(size: number[], onClick: ion_onclick, margin?: Canvas.Margin);
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>): void;
         plotData(canvas: string | HTMLElement, rt: number[], intensity: number[], tags: any[]): void;
         private bindEvents;

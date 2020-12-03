@@ -1,5 +1,7 @@
 ﻿namespace BioDeep.MSMSViewer {
 
+    export interface ion_onclick { (ion: any): void; }
+
     /**
      * 一级母离子的``[rt, intensity]``峰面积图
     */
@@ -7,6 +9,13 @@
 
         public data: BioDeep.Models.ChromatogramTick[];
         public ions: Dictionary<any>;
+
+        /**
+         * the scan time range
+        */
+        public scan_time: number[];
+
+        private _onclick: ion_onclick;
 
         public get area() {
             let x = this.x;
@@ -19,8 +28,11 @@
         }
 
         public get x() {
+            let rtmin: number = isNullOrUndefined(this.scan_time) ? d3.min(this.data, t => t.rt) : $from(this.scan_time).Min();
+            let rtmax: number = isNullOrUndefined(this.scan_time) ? d3.max(this.data, t => t.rt) : $from(this.scan_time).Max();
+
             return d3.scale.linear()
-                .domain([d3.min(this.data, t => t.rt), d3.max(this.data, t => t.rt)])
+                .domain([rtmin, rtmax])
                 .range([0, this.width]);
         }
 
@@ -45,11 +57,14 @@
                 .tickFormat(d3.format(".1e"));
         }
 
-        public constructor(size: number[] = [750, 500], public onClick: (ion: any) => void) {
-            super(size, new Canvas.Margin(10, 10, 20, 50));
-            //super(size, new Canvas.Margin(20, 20, 30, 100));
+        public constructor(
+            size: number[] = [750, 500],
+            onClick: ion_onclick,
+            margin: Canvas.Margin = new Canvas.Margin(10, 10, 20, 50)) {
 
-            // this.tip = BioDeep.MSMSViewer.mzrtTip();
+            super(size, margin);
+
+            this._onclick = onClick;
         }
 
         plot(canvas: string | HTMLElement, ticks: IEnumerator<BioDeep.IO.mgf>) {
@@ -80,7 +95,7 @@
                 let ref = x.getAttribute("unique");
                 let ion: any = vm.ions.Item(ref);
 
-                vm.onClick(ion);
+                vm._onclick(ion);
             });
         }
 
