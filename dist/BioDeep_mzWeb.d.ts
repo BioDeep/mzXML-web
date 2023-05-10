@@ -261,6 +261,27 @@ declare namespace BioDeep.Models {
         intensity: number;
     }
 }
+declare namespace BioDeep.Models.Precursors {
+    const PosAdducts: {
+        "[M+H]+": number;
+        "[M+NH4]+": number;
+        "[M+Na]+": number;
+        "[M+CH3OH+H]+": number;
+        "[M+K]+": number;
+        "[M]+": number;
+    };
+    const NegAdducts: {
+        "[M-H2O-H]-": number;
+        "[M-H]-": number;
+        "[M+Na-2H]-": number;
+        "[M+Cl]-": number;
+        "[M+K-2H]-": number;
+        "[M]-": number;
+    };
+    function evalMz(mass: number, type?: string): any;
+    function getAdductMass(type: string): any;
+    function evalMass(mz: number, type?: string): number;
+}
 declare namespace BioDeep.Models {
     /**
      * ``[mz, into]``行，即一个质谱图碎片

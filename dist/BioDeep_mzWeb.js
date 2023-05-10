@@ -827,6 +827,60 @@ var BioDeep;
 (function (BioDeep) {
     var Models;
     (function (Models) {
+        var Precursors;
+        (function (Precursors) {
+            Precursors.PosAdducts = {
+                "[M+H]+": 1.007276,
+                "[M+NH4]+": 18.033823,
+                "[M+Na]+": 22.989218,
+                "[M+CH3OH+H]+": 33.033489,
+                "[M+K]+": 38.963158,
+                "[M]+": 0.0
+            };
+            Precursors.NegAdducts = {
+                "[M-H2O-H]-": -19.01839,
+                "[M-H]-": -1.007276,
+                "[M+Na-2H]-": 20.974666,
+                "[M+Cl]-": 34.969402,
+                "[M+K-2H]-": 36.948606,
+                "[M]-": 0.0
+            };
+            function evalMz(mass, type) {
+                if (type === void 0) { type = "[M+H]+"; }
+                return mass + getAdductMass(type);
+            }
+            Precursors.evalMz = evalMz;
+            function getAdductMass(type) {
+                if (type.endsWith("+")) {
+                    if (type in Precursors.PosAdducts) {
+                        return Precursors.PosAdducts[type];
+                    }
+                    else {
+                        throw "unknown precursor type '" + type + "'...";
+                    }
+                }
+                else {
+                    if (type in Precursors.NegAdducts) {
+                        return Precursors.NegAdducts[type];
+                    }
+                    else {
+                        throw "unknown precursor type '" + type + "'...";
+                    }
+                }
+            }
+            Precursors.getAdductMass = getAdductMass;
+            function evalMass(mz, type) {
+                if (type === void 0) { type = "[M+H]+"; }
+                return mz - getAdductMass(type);
+            }
+            Precursors.evalMass = evalMass;
+        })(Precursors = Models.Precursors || (Models.Precursors = {}));
+    })(Models = BioDeep.Models || (BioDeep.Models = {}));
+})(BioDeep || (BioDeep = {}));
+var BioDeep;
+(function (BioDeep) {
+    var Models;
+    (function (Models) {
         /**
          * ``[mz, into]``行，即一个质谱图碎片
         */
@@ -857,7 +911,7 @@ var BioDeep;
         function SpectrumMatrix(data, levels) {
             if (levels == SpectrumLevels.MS1) {
                 // only ms1
-                return data.Select(function (ion) { return new mzInto("", ion.precursor_mass, ion.intensity); });
+                return data.Select(function (ion) { return new mzInto("", parseFloat(ion.precursor_mass.toString()), ion.intensity); });
             }
             else if (levels == SpectrumLevels.MS2) {
                 // only ms2
@@ -866,7 +920,7 @@ var BioDeep;
             else if (levels == SpectrumLevels.MS1 + SpectrumLevels.MS2) {
                 return data.Select(function (ion) {
                     var union = __spreadArrays(ion.mzInto);
-                    var ms1 = new mzInto("", ion.precursor_mass, ion.intensity);
+                    var ms1 = new mzInto("", parseFloat(ion.precursor_mass.toString()), ion.intensity);
                     // union ms1 and ms2
                     union.push(ms1);
                     return union;

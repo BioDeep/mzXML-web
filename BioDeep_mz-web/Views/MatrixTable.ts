@@ -4,7 +4,11 @@
         return CreateTableFromMatrix(ion, relative, attrs);
     }
 
-    export function CreateTableFromMatrix(matrix: IEnumerator<Models.mzInto>, relative: boolean = true, attrs: Internal.TypeScriptArgument = null): HTMLElement {
+    export function CreateTableFromMatrix(
+        matrix: IEnumerator<Models.mzInto>,
+        relative: boolean = true,
+        attrs: Internal.TypeScriptArgument = null): HTMLElement {
+
         if (relative) {
             let max = matrix.Select(m => m.into).Max(x => x);
             let normalize = function (m: Models.mzInto) {
