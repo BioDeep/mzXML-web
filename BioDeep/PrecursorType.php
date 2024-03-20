@@ -47,6 +47,15 @@ namespace BioDeep {
             $this->adducts = $adducts;
         }
 
+        public function getArray() {
+            return [
+                "name" => $this->Name,
+                "charge" => $this->charge,
+                "M" => $this->M,
+                "adducts" => $this->adducts
+            ];
+        }
+
         /**
          * 从MS/MS之中的加和物离子的m/z结果 precursorMZ 反推回mass结果的计算过程
          * 
