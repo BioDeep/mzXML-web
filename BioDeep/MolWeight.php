@@ -2,7 +2,7 @@
 
 namespace BioDeep {
 
-    Imports("System.Text.RegularExpressions.Regex");
+    imports("System.Text.RegularExpressions.Regex");
 
     class MolWeight {
 
@@ -23,6 +23,13 @@ namespace BioDeep {
                 "TFA" => 113.9929   # Unknown
         ];
         
+        /**
+         * get mass by symbol
+         * 
+         * @param string $symbol the element atom symbol name
+         * 
+         * @return double the exact mass of the target element atom, negative value means symbol not found.
+        */
         public static function Weight($symbol) {
             if (array_key_exists($symbol, self::$weights)) {
                 return self::$weights[$symbol];
@@ -31,6 +38,11 @@ namespace BioDeep {
             }
         }
 
+        /**
+         * @param string $formula the given formula string
+         * 
+         * @return double the exact mass that evaluate from the given adduct formula
+        */
         public static function Eval($formula) {
             if ($formula[0] == "+" || $formula[0] == "-") {
                 $formula = "0H$formula";
@@ -38,7 +50,7 @@ namespace BioDeep {
 
             $mt   = \Regex::Split($formula,   "[+-]");
             $op   = \Regex::Matches($formula, "[+-]");
-            $x    = 0;
+            $x    = 0.0;
             $next = "+";
 
             for($i = 0; $i < count($mt); $i++) {
@@ -46,9 +58,8 @@ namespace BioDeep {
                 $M     = $token["M"]; 
                 $token = $token["name"];
                 
-                if (!array_key_exists($token, self::$weights)) {
-                    $msg = "Unknown symbol in: '$formula', where symbol=$token";
-                    throw new \exception($msg);
+                if (!array_key_exists($token, self::$weights)) {                   
+                    throw new \exception("Unknown symbol in: '{$formula}', where symbol={$token}.");
                 }
 
                 if ($next == "+") {
@@ -66,7 +77,7 @@ namespace BioDeep {
         }
 
         /**
-         * returns ``[name => ..., M => x]``
+         * @return array ``[name => ..., M => x]``
         */
         private static function Mul($token) {
             $n   = "";
