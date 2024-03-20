@@ -51,7 +51,7 @@ namespace BioDeep {
 
             } else {
 
-                $measure             = self::measureImpl($mass, $precursorMZ, $charge);
+                $measure             = self::measureImpl($mass, $precursorMZ, $chargeMode);
                 list($minType, $min) = \Utils::Tuple($measure);
 
                 if ($min <= $minErrorPpm) {
@@ -68,11 +68,11 @@ namespace BioDeep {
         */
         private static function measureImpl($mass, $precursorMZ, $charge) {
             # 得到某一个离子模式下的计算程序
-            $mode    = \BioDeep\PrecursorType::LoadDefault($chargeMode);
+            $mode    = \BioDeep\PrecursorType::LoadDefault($charge);
             $min     = 999999;
             $minType = NULL;
 
-            if ($chargeMode == "-") {
+            if ($charge == "-") {
                 ## 对于负离子模式而言，虽然电荷量是负数的，但是使用xcms解析出来的却是一个电荷数的绝对值
                 ## 所以需要判断一次，乘以-1
                 if ($charge > 0) {
