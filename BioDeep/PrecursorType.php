@@ -173,9 +173,9 @@ namespace BioDeep {
          * @return PrecursorType[]
         */
         public static function LoadDefault($mode) {
-            if ($mode == 1 || $mode == "+") {
+            if ($mode == 1 || $mode == "+" || $mode == "pos") {
                 return self::Positive();
-            } else if ($mode == -1 || $mode == "-") {
+            } else if ($mode == -1 || $mode == "-" || $mode == "neg") {
                 return self::Negative();
             } else {
                 throw new \exception("Invalid ion mode!");
